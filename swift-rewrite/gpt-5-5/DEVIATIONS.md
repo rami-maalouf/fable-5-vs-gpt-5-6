@@ -26,3 +26,13 @@
 - the starfield uses deterministic static star placement with the required 40 stars
   and 8-circle shooting-star trail. Full animated twinkle and moving shooting-star
   parity is deferred to the later animation pass.
+
+## task 6
+
+- the shared external `todo.md` had task 6 checked, but this app did not contain
+  a live-activity spike or decision note. Treated the app worktree as
+  authoritative and added the local spike.
+- the simulator verified lock-screen rendering and the compiled interactive
+  button path, but Argent accessibility did not expose the Live Activities
+  permission prompt or lock-screen button as tappable elements. The spike note
+  documents this automation gap.
