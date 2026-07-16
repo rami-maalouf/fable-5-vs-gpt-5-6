@@ -4,6 +4,13 @@ import DashboardScreen from '@/app/(tabs)/index';
 import { SettingsStore, type KeyValueStorage } from '@/data/settings-store';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 
+// the skia jest mock has no CanvasKit, so path construction is stubbed;
+// chart marks render as noop views while text overlays stay real
+jest.mock('@/components/charts/path-utils', () => ({
+  catmullRomPath: () => null,
+  linePath: () => null,
+}));
+
 function memoryKv(): KeyValueStorage {
   const map = new Map<string, string>();
   return {
