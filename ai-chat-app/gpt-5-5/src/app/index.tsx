@@ -7,9 +7,11 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
+import { Drawer } from '@/components/drawer/Drawer';
 import { createExpoSqlDatabaseAdapter } from '@/data';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
+import { useDrawerStore } from '@/state/drawer';
 import {
   persistAssistantMessageContentAsync,
   persistAssistantMessageStatusAsync,
@@ -32,6 +34,9 @@ export default function HomeScreen() {
   const messages = useChatStore((state) => state.messages);
   const setCurrentConversationId = useChatStore((state) => state.setCurrentConversationId);
   const startAssistantTurn = useChatStore((state) => state.startAssistantTurn);
+  const isDrawerOpen = useDrawerStore((state) => state.isOpen);
+  const openDrawer = useDrawerStore((state) => state.openDrawer);
+  const setDrawerOpen = useDrawerStore((state) => state.setDrawerOpen);
 
   const sendMessage = (content: string) => {
     const turn = startAssistantTurn(content);
@@ -106,11 +111,17 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
+      <SafeAreaView
+        accessibilityElementsHidden={isDrawerOpen}
+        edges={['top', 'bottom']}
+        importantForAccessibility={isDrawerOpen ? 'no-hide-descendants' : 'auto'}
+        style={styles.safeArea}
+      >
         <View style={[styles.header, { borderBottomColor: theme.colors.separator }]}>
           <Pressable
             accessibilityLabel="open conversation history"
             accessibilityRole="button"
+            onPress={openDrawer}
             style={[
               styles.iconButton,
               styles.leftHeaderButton,
@@ -162,6 +173,14 @@ export default function HomeScreen() {
           </KeyboardStickyView>
         </KeyboardGestureArea>
       </SafeAreaView>
+
+      <Drawer isOpen={isDrawerOpen} onOpenChange={setDrawerOpen}>
+        <View style={styles.drawerEmptyState}>
+          <Text style={[styles.drawerEmptyTitle, { color: theme.colors.text }]}>
+            No saved chats
+          </Text>
+        </View>
+      </Drawer>
     </View>
   );
 }
@@ -213,5 +232,14 @@ const styles = StyleSheet.create({
   },
   rightHeaderButton: {
     right: spacing.md,
+  },
+  drawerEmptyState: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+  },
+  drawerEmptyTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    lineHeight: 20,
   },
 });
