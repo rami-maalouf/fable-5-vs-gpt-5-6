@@ -102,7 +102,7 @@ original look.
 
 ## phase 3: core sleep flow (spec priority 2)
 
-- [ ] **task 9: circular time picker component**
+- [x] **task 9: circular time picker component**
   - description: the signature component, standalone: size 280 ring per spec
     geometry (glow ring, track, 5-color angular-gradient arc with midnight split,
     hour markers/ticks, moon #7B68EE + sun #FFB347 knobs 52x52), drag math (atan2
