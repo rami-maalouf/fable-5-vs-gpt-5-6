@@ -9,7 +9,7 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 - [x] checkpoint: e2e streaming works; typecheck + lint clean; commit
 
 ## phase 2: native-feel chat screen
-- [ ] task 4: message list feel (bubbles, scroll anchoring, empty state)
+- [x] task 4: message list feel (bubbles, scroll anchoring, empty state)
 - [ ] task 5: composer + keyboard (interactive dismiss, send/stop swap, haptic)
 - [ ] task 6: loading + error + retry
 - [ ] checkpoint: verification scenarios 1-3 pass; commit

@@ -23,3 +23,19 @@ Code-quality review:
 - Security: model values remain allowlisted and validated server-side; the OpenAI key stays server-only and was not logged.
 - Readability and architecture: streaming transport remains isolated from React state; no additional state framework or general-purpose abstraction was introduced.
 - Performance: chunk updates only replace the active assistant message. List anchoring and render polish remain scoped to tasks 4 and 5.
+
+## Native Chat Screen - Task 4
+
+Status: passed on 2026-07-16.
+
+- Empty state: a fresh reload shows the compact Nova mark and `How can I help?` prompt.
+- Message hierarchy: user prompts use a trailing neutral bubble; assistant responses remain full-width selectable text.
+- Stream anchoring: a long response stayed pinned to its newest token without visible jumps.
+- User control: dragging to earlier content during the stream held the same viewport while more tokens arrived.
+- Automated gates: 9 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed.
+
+Evidence:
+
+- `verification/04-empty-light.png`
+- `verification/04-stream-anchored-light.png`
+- `verification/04-manual-scroll-light.png`

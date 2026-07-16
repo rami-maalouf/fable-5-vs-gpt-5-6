@@ -1,25 +1,74 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import {
+  FlatList,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  StyleSheet,
+} from 'react-native';
 
+import { EmptyState } from '@/components/chat/empty-state';
+import { MessageBubble } from '@/components/chat/message-bubble';
 import type { ChatMessage } from '@/hooks/use-chat';
 
 type MessageListProps = {
   messages: ChatMessage[];
 };
 
+const BOTTOM_THRESHOLD = 48;
+
+function isNearBottom(event: NativeSyntheticEvent<NativeScrollEvent>) {
+  const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+  return contentSize.height - contentOffset.y - layoutMeasurement.height <= BOTTOM_THRESHOLD;
+}
+
 export function MessageList({ messages }: MessageListProps) {
+  const list = useRef<FlatList<ChatMessage>>(null);
+  const shouldFollowContent = useRef(true);
+  const isUserScrolling = useRef(false);
+  const previousMessageCount = useRef(messages.length);
+
+  useEffect(() => {
+    if (messages.length > previousMessageCount.current) {
+      shouldFollowContent.current = true;
+      requestAnimationFrame(() => list.current?.scrollToEnd({ animated: true }));
+    }
+    previousMessageCount.current = messages.length;
+  }, [messages.length]);
+
   return (
     <FlatList
+      ref={list}
+      contentContainerStyle={[styles.content, messages.length === 0 && styles.emptyContent]}
+      contentInsetAdjustmentBehavior="automatic"
       data={messages}
       keyExtractor={(message) => message.id}
       keyboardDismissMode="interactive"
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.content}
-      renderItem={({ item }) => (
-        <View style={styles.message}>
-          <Text style={styles.role}>{item.role === 'user' ? 'You' : 'Nova'}</Text>
-          <Text style={styles.body}>{item.content}</Text>
-        </View>
-      )}
+      ListEmptyComponent={EmptyState}
+      onContentSizeChange={() => {
+        if (shouldFollowContent.current && !isUserScrolling.current) {
+          list.current?.scrollToEnd({ animated: false });
+        }
+      }}
+      onScrollBeginDrag={() => {
+        isUserScrolling.current = true;
+        shouldFollowContent.current = false;
+      }}
+      onScrollEndDrag={(event) => {
+        shouldFollowContent.current = isNearBottom(event);
+
+        if (!event.nativeEvent.velocity?.y) {
+          isUserScrolling.current = false;
+        }
+      }}
+      onMomentumScrollEnd={(event) => {
+        if (isUserScrolling.current) {
+          isUserScrolling.current = false;
+          shouldFollowContent.current = isNearBottom(event);
+        }
+      }}
+      removeClippedSubviews={false}
+      renderItem={({ item }) => <MessageBubble content={item.content} role={item.role} />}
     />
   );
 }
@@ -27,21 +76,12 @@ export function MessageList({ messages }: MessageListProps) {
 const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
-    justifyContent: 'flex-end',
-    padding: 16,
     gap: 16,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  message: {
-    gap: 4,
-  },
-  role: {
-    color: '#6b6b6b',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  body: {
-    color: '#111111',
-    fontSize: 16,
-    lineHeight: 23,
+  emptyContent: {
+    justifyContent: 'center',
   },
 });

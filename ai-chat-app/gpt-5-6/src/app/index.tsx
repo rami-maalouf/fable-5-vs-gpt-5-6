@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Composer } from '@/components/chat/composer';
 import { MessageList } from '@/components/chat/message-list';
 import { useChat } from '@/hooks/use-chat';
+import { colors } from '@/theme/colors';
 
 export default function HomeScreen() {
   const { isGenerating, messages, sendMessage, stop } = useChat();
@@ -26,7 +27,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.background,
   },
   header: {
     alignItems: 'center',
@@ -37,8 +38,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    color: '#111111',
+    color: colors.label,
     fontSize: 17,
     fontWeight: '600',
+    letterSpacing: 0,
   },
 });
