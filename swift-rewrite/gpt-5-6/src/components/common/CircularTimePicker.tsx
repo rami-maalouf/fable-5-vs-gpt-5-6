@@ -33,6 +33,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/theme/ThemeProvider';
+import { PICKER_ANIMATION_SPEC } from '@/components/common/visual-specs';
 import {
   angleToSnappedMinutes,
   durationQuality,
@@ -94,7 +95,10 @@ export function CircularTimePicker({
 
   useEffect(() => {
     pulse.value = withRepeat(
-      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
+      withTiming(1, {
+        duration: PICKER_ANIMATION_SPEC.pulseDurationMilliseconds,
+        easing: Easing.inOut(Easing.ease),
+      }),
       -1,
       true,
     );
@@ -102,15 +106,13 @@ export function CircularTimePicker({
   }, [pulse]);
 
   useEffect(() => {
-    sleepScale.value = withSpring(activeKnob === 'sleep' ? 1.15 : 1, {
-      damping: 7,
-      mass: 0.3,
-      stiffness: 130,
+    sleepScale.value = withSpring(activeKnob === 'sleep' ? PICKER_ANIMATION_SPEC.knobScale : 1, {
+      dampingRatio: PICKER_ANIMATION_SPEC.knobDampingRatio,
+      duration: PICKER_ANIMATION_SPEC.knobDurationMilliseconds,
     });
-    wakeScale.value = withSpring(activeKnob === 'wake' ? 1.15 : 1, {
-      damping: 7,
-      mass: 0.3,
-      stiffness: 130,
+    wakeScale.value = withSpring(activeKnob === 'wake' ? PICKER_ANIMATION_SPEC.knobScale : 1, {
+      dampingRatio: PICKER_ANIMATION_SPEC.knobDampingRatio,
+      duration: PICKER_ANIMATION_SPEC.knobDurationMilliseconds,
     });
   }, [activeKnob, sleepScale, wakeScale]);
 
@@ -390,13 +392,13 @@ function HourLabel({
 }
 
 function createArcPath(center: number, radius: number, segment: ArcSegment): SkPath {
-  const path = Skia.Path.Make();
-  path.addArc(
+  const builder = Skia.PathBuilder.Make();
+  builder.addArc(
     { height: radius * 2, width: radius * 2, x: center - radius, y: center - radius },
     segment.startAngle - 90,
     segment.sweepAngle,
   );
-  return path;
+  return builder.detach();
 }
 
 function hourTicks(center: number, radius: number) {

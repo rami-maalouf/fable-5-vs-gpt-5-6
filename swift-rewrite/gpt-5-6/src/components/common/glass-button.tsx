@@ -3,9 +3,7 @@
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
-import { useState } from 'react';
 import {
-  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -13,7 +11,9 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
+import { GLASS_PRESS_SPEC } from '@/components/common/visual-specs';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface GlassButtonProps {
@@ -34,15 +34,16 @@ export function GlassButton({
   title,
 }: GlassButtonProps) {
   const { theme } = useTheme();
-  const [scale] = useState(() => new Animated.Value(1));
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const animateScale = (toValue: number) => {
-    Animated.spring(scale, {
-      damping: 12,
-      stiffness: 180,
-      toValue,
-      useNativeDriver: true,
-    }).start();
+    scale.set(
+      withSpring(toValue, {
+        dampingRatio: GLASS_PRESS_SPEC.dampingRatio,
+        duration: GLASS_PRESS_SPEC.durationMilliseconds,
+      }),
+    );
   };
 
   const handleLongPress = () => {
@@ -51,13 +52,13 @@ export function GlassButton({
   };
 
   return (
-    <Animated.View style={[fullWidth && styles.fullWidth, { transform: [{ scale }] }, style]}>
+    <Animated.View style={[fullWidth && styles.fullWidth, animatedStyle, style]}>
       <Pressable
         accessibilityRole="button"
         delayLongPress={800}
-        onLongPress={handleLongPress}
+        onLongPress={onLongPress ? handleLongPress : undefined}
         onPress={onPress}
-        onPressIn={() => animateScale(0.96)}
+        onPressIn={() => animateScale(GLASS_PRESS_SPEC.pressedScale)}
         onPressOut={() => animateScale(1)}
       >
         <BlurView intensity={30} style={styles.button} tint={theme.colorScheme}>

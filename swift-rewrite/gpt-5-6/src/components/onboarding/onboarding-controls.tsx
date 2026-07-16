@@ -1,6 +1,5 @@
 // ports: twilight/views/sleeponboardingview.swift
 
-import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -69,17 +68,13 @@ export function OnboardingPrimaryButton({
   title: string;
 }) {
   const { theme } = useTheme();
-  const handlePress = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onPress();
-  };
   const isDisabled = busy || disabled;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ busy, disabled: isDisabled }}
       disabled={isDisabled}
-      onPress={handlePress}
+      onPress={onPress}
       style={({ pressed }) => [
         styles.primaryButton,
         { backgroundColor: theme.actionPrimary, opacity: isDisabled ? 0.5 : pressed ? 0.78 : 1 },

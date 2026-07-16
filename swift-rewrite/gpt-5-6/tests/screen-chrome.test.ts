@@ -32,20 +32,25 @@ describe('screen chrome visual specs', () => {
 
   it('keeps the shooting star, moon, cards, and aurora at normative values', () => {
     expect(SHOOTING_STAR_SPEC).toEqual({
-      firstDelaySeconds: 3,
-      repeatDelaySeconds: 5.5,
-      startX: 0.3,
-      startY: 0.12,
-      travelX: 200,
-      travelY: 140,
-      durationSeconds: 1,
+      firstDelaySeconds: [2.05, 4.05],
+      repeatDelaySeconds: [4, 7],
+      startX: [0.1, 0.5],
+      startY: [0, 0.25],
+      travelX: [150, 250],
+      travelY: [100, 180],
+      durationSeconds: [0.8, 1.2],
+      completionDelaySeconds: 0.1,
+      sequenceLength: 12,
       trailCount: 8,
       trailLag: 0.04,
     });
     expect(GLOWING_MOON_SPEC).toEqual({
       color: '#ffd700',
       size: 80,
-      durationMilliseconds: 3_000,
+      legDurationMilliseconds: 3_000,
+      blurScale: { resting: 0.6, glowing: 1.5 },
+      glowScale: { resting: 1, glowing: 1.15 },
+      iconScale: { resting: 1, glowing: 1.05 },
       glowLayers: [
         { radius: 40, opacity: 0.15 },
         { radius: 25, opacity: 0.25 },

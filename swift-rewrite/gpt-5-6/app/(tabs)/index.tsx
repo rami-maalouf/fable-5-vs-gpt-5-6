@@ -1,6 +1,5 @@
 // ports: twilight/views/sleepdashboardview.swift
 
-import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -141,7 +140,6 @@ export default function HomeScreen() {
   };
 
   const shuffleGreeting = () => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setGreetingOverride(
       getShuffledGreeting(
         displayedGreeting,

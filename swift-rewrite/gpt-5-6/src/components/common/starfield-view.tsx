@@ -7,7 +7,9 @@ import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 
 import {
   SHOOTING_STAR_SPEC,
+  createShootingStarSequence,
   createStars,
+  type ShootingStarSequence,
   type StarSpec,
 } from '@/components/common/visual-specs';
 import { SleepColorGroup } from '@/components/common/sleep-color-group';
@@ -28,12 +30,10 @@ interface TwinklingStarProps {
 
 function TwinklingStar({ clock, height, star, width }: TwinklingStarProps) {
   const opacity = useDerivedValue(() => {
-    const elapsedSeconds = clock.value / 1_000 - star.delaySeconds;
-    if (elapsedSeconds <= 0) {
-      return 0.3;
-    }
-    const phase = (elapsedSeconds / star.twinkleDurationSeconds) * Math.PI;
-    const amount = (Math.sin(phase) + 1) / 2;
+    const elapsed = clock.value / 1_000 - star.delaySeconds;
+    if (elapsed <= 0) return 0.3;
+    const cycleProgress = (elapsed / star.twinkleDurationSeconds) % 2;
+    const amount = (1 - Math.cos(Math.PI * cycleProgress)) / 2;
     return 0.3 + amount * (star.initialOpacity - 0.3);
   });
 
@@ -45,64 +45,76 @@ function TwinklingStar({ clock, height, star, width }: TwinklingStarProps) {
 }
 
 interface ShootingStarDotProps {
-  clock: SharedValue<number>;
   height: number;
   index: number;
+  state: SharedValue<ActiveShootingStarState>;
   width: number;
 }
 
-function useShootingStarProgress(clock: SharedValue<number>, index: number) {
+interface ActiveShootingStarState {
+  durationSeconds: number;
+  elapsedSeconds: number;
+  isActive: boolean;
+  startX: number;
+  startY: number;
+  travelX: number;
+  travelY: number;
+}
+
+function useActiveShootingStar(
+  clock: SharedValue<number>,
+  sequence: ShootingStarSequence,
+) {
   return useDerivedValue(() => {
-    const elapsed = clock.value / 1_000 - SHOOTING_STAR_SPEC.firstDelaySeconds;
-    if (elapsed < 0) {
-      return 0;
+    const elapsed = (clock.value / 1_000) % sequence.loopDurationSeconds;
+    for (const event of sequence.events) {
+      const eventElapsed = elapsed - event.startSeconds;
+      if (eventElapsed >= 0 && eventElapsed <= event.durationSeconds) {
+        return {
+          durationSeconds: event.durationSeconds,
+          elapsedSeconds: eventElapsed,
+          isActive: true,
+          startX: event.startX,
+          startY: event.startY,
+          travelX: event.travelX,
+          travelY: event.travelY,
+        };
+      }
     }
-    const cycleDuration =
-      SHOOTING_STAR_SPEC.durationSeconds + SHOOTING_STAR_SPEC.repeatDelaySeconds;
-    const activeTime = elapsed % cycleDuration;
-    if (activeTime > SHOOTING_STAR_SPEC.durationSeconds) {
-      return 0;
-    }
-    return Math.max(
+    return {
+      durationSeconds: 1,
+      elapsedSeconds: 0,
+      isActive: false,
+      startX: 0,
+      startY: 0,
+      travelX: 0,
+      travelY: 0,
+    };
+  });
+}
+
+function shootingStarOpacity(state: ActiveShootingStarState): number {
+  'worklet';
+  if (!state.isActive) return 0;
+  const normalized = state.elapsedSeconds / state.durationSeconds;
+  return normalized > 0.7 ? (1 - normalized) / 0.3 : Math.min(1, normalized / 0.1);
+}
+
+function ShootingStarDot({ height, index, state, width }: ShootingStarDotProps) {
+  const progress = useDerivedValue(() => {
+    if (!state.value.isActive) return 0;
+    const normalized = Math.max(
       0,
-      activeTime / SHOOTING_STAR_SPEC.durationSeconds - index * SHOOTING_STAR_SPEC.trailLag,
+      state.value.elapsedSeconds / state.value.durationSeconds -
+        index * SHOOTING_STAR_SPEC.trailLag,
     );
+    return 1 - (1 - normalized) ** 2;
   });
-}
-
-function useShootingStarOpacity(clock: SharedValue<number>) {
-  return useDerivedValue(() => {
-    const elapsed = clock.value / 1_000 - SHOOTING_STAR_SPEC.firstDelaySeconds;
-    if (elapsed < 0) {
-      return 0;
-    }
-    const cycleDuration =
-      SHOOTING_STAR_SPEC.durationSeconds + SHOOTING_STAR_SPEC.repeatDelaySeconds;
-    const activeTime = elapsed % cycleDuration;
-    if (activeTime > SHOOTING_STAR_SPEC.durationSeconds) {
-      return 0;
-    }
-    const normalized = activeTime / SHOOTING_STAR_SPEC.durationSeconds;
-    return normalized > 0.7 ? (1 - normalized) / 0.3 : Math.min(1, normalized / 0.1);
-  });
-}
-
-function ShootingStarDot({ clock, height, index, width }: ShootingStarDotProps) {
-  const progress = useShootingStarProgress(clock, index);
-  const headOpacity = useShootingStarOpacity(clock);
-  const opacity = useDerivedValue(
-    () => headOpacity.value * ((SHOOTING_STAR_SPEC.trailCount - index) / 10),
+  const opacity = useDerivedValue(() =>
+    shootingStarOpacity(state.value) * ((SHOOTING_STAR_SPEC.trailCount - index) / 10),
   );
-  const cx = useDerivedValue(
-    () =>
-      width * SHOOTING_STAR_SPEC.startX +
-      SHOOTING_STAR_SPEC.travelX * (1 - (1 - progress.value) ** 2),
-  );
-  const cy = useDerivedValue(
-    () =>
-      height * SHOOTING_STAR_SPEC.startY +
-      SHOOTING_STAR_SPEC.travelY * (1 - (1 - progress.value) ** 2),
-  );
+  const cx = useDerivedValue(() => width * state.value.startX + state.value.travelX * progress.value);
+  const cy = useDerivedValue(() => height * state.value.startY + state.value.travelY * progress.value);
   const size = 4 - index / 3;
 
   return (
@@ -112,19 +124,15 @@ function ShootingStarDot({ clock, height, index, width }: ShootingStarDotProps) 
   );
 }
 
-function ShootingStarHead({ clock, height, width }: Omit<ShootingStarDotProps, 'index'>) {
-  const progress = useShootingStarProgress(clock, 0);
-  const opacity = useShootingStarOpacity(clock);
-  const cx = useDerivedValue(
-    () =>
-      width * SHOOTING_STAR_SPEC.startX +
-      SHOOTING_STAR_SPEC.travelX * (1 - (1 - progress.value) ** 2),
-  );
-  const cy = useDerivedValue(
-    () =>
-      height * SHOOTING_STAR_SPEC.startY +
-      SHOOTING_STAR_SPEC.travelY * (1 - (1 - progress.value) ** 2),
-  );
+function ShootingStarHead({ height, state, width }: Omit<ShootingStarDotProps, 'index'>) {
+  const progress = useDerivedValue(() => {
+    if (!state.value.isActive) return 0;
+    const normalized = state.value.elapsedSeconds / state.value.durationSeconds;
+    return 1 - (1 - normalized) ** 2;
+  });
+  const opacity = useDerivedValue(() => shootingStarOpacity(state.value));
+  const cx = useDerivedValue(() => width * state.value.startX + state.value.travelX * progress.value);
+  const cy = useDerivedValue(() => height * state.value.startY + state.value.travelY * progress.value);
 
   return (
     <Circle cx={cx} cy={cy} r={2.5} color="white" opacity={opacity}>
@@ -133,13 +141,14 @@ function ShootingStarHead({ clock, height, width }: Omit<ShootingStarDotProps, '
   );
 }
 
-function ShootingStar({ clock, height, width }: Omit<ShootingStarDotProps, 'index'>) {
+function ShootingStar({ clock, height, sequence, width }: Omit<ShootingStarDotProps, 'index' | 'state'> & { clock: SharedValue<number>; sequence: ShootingStarSequence }) {
+  const state = useActiveShootingStar(clock, sequence);
   return (
     <>
       {Array.from({ length: SHOOTING_STAR_SPEC.trailCount }, (_, index) => (
-        <ShootingStarDot key={index} clock={clock} height={height} index={index} width={width} />
+        <ShootingStarDot key={index} height={height} index={index} state={state} width={width} />
       ))}
-      <ShootingStarHead clock={clock} height={height} width={width} />
+      <ShootingStarHead height={height} state={state} width={width} />
     </>
   );
 }
@@ -153,6 +162,7 @@ export const StarfieldView = memo(function StarfieldView({
   const { isSleeping } = useTheme();
   const clock = useClock();
   const stars = useMemo(() => createStars(seed, starCount), [seed, starCount]);
+  const shootingStars = useMemo(() => createShootingStarSequence(seed), [seed]);
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -161,7 +171,9 @@ export const StarfieldView = memo(function StarfieldView({
           {stars.map((star) => (
             <TwinklingStar key={star.id} clock={clock} height={height} star={star} width={width} />
           ))}
-          {showShootingStars ? <ShootingStar clock={clock} height={height} width={width} /> : null}
+          {showShootingStars ? (
+            <ShootingStar clock={clock} height={height} sequence={shootingStars} width={width} />
+          ) : null}
         </SleepColorGroup>
       </Canvas>
     </View>

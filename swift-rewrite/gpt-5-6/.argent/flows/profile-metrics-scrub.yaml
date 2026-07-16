@@ -1,0 +1,13 @@
+steps:
+  - echo: Scrub the visible sleep debt chart while the animated starfield remains
+      active.
+  - tool: gesture-swipe
+    args:
+      fromX: 0.72
+      fromY: 0.39
+      toX: 0.25
+      toY: 0.39
+      durationMs: 600
+      settle: true
+executionPrerequisite: Twilight is open on the Metrics tab with the cumulative
+  sleep debt chart visible and no modal presented.

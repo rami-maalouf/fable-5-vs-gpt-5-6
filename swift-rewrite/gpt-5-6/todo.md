@@ -277,7 +277,7 @@ by side.
 
 ## phase 7: polish (spec priority 6)
 
-- [ ] **task 25: animation + haptics pass**
+- [x] **task 25: animation + haptics pass**
   - description: sweep every screen against the spec's animation/haptic map:
     fadeInSlide (spring 0.4/0.6, y30), press scales (0.96 spring 0.3), picker pulse
     2s, moon breathing 3s, starfield timings, haptic assignments (light/medium),
