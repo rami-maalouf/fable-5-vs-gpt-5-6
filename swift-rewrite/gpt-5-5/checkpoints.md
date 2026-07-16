@@ -151,3 +151,58 @@ known gaps:
 
 - Checkpoint 3 is not present in this log. I did not backfill it because the current turn did not reproduce the full track-a-night simulator flow.
 - The iOS runtime boot was not rerun for tasks 14-16 because this phase is pure TypeScript metrics work and the prior simulator state showed stale bundle contamination. Runtime boot remains unproven for the latest local commits.
+
+## checkpoint 5 - dashboard fidelity
+
+covered tasks:
+
+- task 17: dashboard shell, greeting banks, status cards, mode controls, explanation sheet, and fade-in entrances.
+- task 18: production Week chart using the chart spike approach.
+- task 19: seven-night average card and alignment score card.
+
+verification:
+
+- `bun run test -- greetings`: passed, 1 suite and 4 tests.
+- `bun run test -- week-chart-model`: passed, 1 suite and 4 tests.
+- `bun run test -- dashboard-card-models`: passed, 1 suite and 3 tests.
+- `bun run test`: passed, 24 suites and 96 tests.
+- `bunx tsc --noEmit`: passed.
+- `bun run lint`: passed.
+- `git diff --check -- .`: passed.
+- em-dash scan over `src`, `tests`, `package.json`, `tsconfig.json`,
+  `DEVIATIONS.md`, and `checkpoints.md`: no matches.
+
+visual qa:
+
+- attempted iOS launch on simulator `93EEF062-B4DC-4989-AF77-CF47EE2A9816`.
+- started this worktree's Expo server on port 8082, then stopped it after testing.
+- launching `com.ramimaalouf.twilight-expo` rendered stale placeholder content with
+  `Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>` instead of the
+  current dashboard.
+- `debugger-status` for port 8082 reported no React Native CDP targets connected.
+- opening `exp://10.32.118.42:8082` failed because the simulator had no handler for
+  the Expo URL.
+- stale launch screenshot:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-ZSQ3sf/media/987187000-1784240537987.png`.
+
+code quality gate:
+
+- reviewed the dashboard code written since checkpoint 4 for task scope, metric
+  source of truth, selection state, chart model test coverage, and chart library
+  boundaries.
+- fixed the shuffled greeting so it no longer resets every minute when the clock
+  state changes.
+- removed an unnecessary hidden settings text workaround from the Week chart axis
+  labels.
+- kept the chart model helpers separate from React rendering so offset math,
+  seven-day anchoring, moving averages, alignment components, and deviation
+  thresholds are unit-tested.
+
+known gaps:
+
+- checkpoint 5 does not pass the required manual side-by-side gate yet. Static
+  checks and unit tests pass, but the current simulator install is stale and not
+  loading this worktree's bundle.
+- task 19 logs a visual approximation in `DEVIATIONS.md`: the moving-average card
+  area fill is colored by latest target state instead of being split at every
+  target crossing.
