@@ -214,7 +214,7 @@ by side.
   - verify: manual side-by-side; fps overlay during scrub.
   - depends: 7, 17. files: src/components/charts/WeekChart.tsx. size: M
 
-- [ ] **task 19: 7-night avg + alignment score cards**
+- [x] **task 19: 7-night avg + alignment score cards**
   - description: moving-average card (green/red 0.22 area segments split at target
     crossings, actionPrimary lw3 line, dynamic y-domain clamped 0-12 min-span 0.9)
     and alignment card (green/orange bars by 70 threshold, EMA trend line, target

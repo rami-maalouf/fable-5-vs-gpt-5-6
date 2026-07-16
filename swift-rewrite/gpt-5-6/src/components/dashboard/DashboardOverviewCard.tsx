@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AlignmentCard } from '@/components/charts/AlignmentCard';
+import { MovingAverageCard } from '@/components/charts/MovingAverageCard';
 import { WeekChart } from '@/components/charts/WeekChart';
 import { CardBackground } from '@/components/common/card-background';
 import { InsightPills, type InsightPillModel } from '@/components/dashboard/InsightPills';
@@ -13,6 +15,7 @@ import {
 } from '@/domain/metrics/advanced';
 import {
   averageDuration,
+  durationTrendPercent,
   movingAverageSeries,
   type SleepNightRecord,
 } from '@/domain/metrics/core';
@@ -89,12 +92,16 @@ function ModePreview({
     );
   }
   if (mode === 'average') {
-    const average = movingAverageSeries(records).at(-1)?.movingAverageHours;
-    return <PreviewNumber label="latest 7-night average" value={average === null || average === undefined ? 'Not enough nights' : formatHours(average)} />;
+    return <MovingAverageCard records={records} targetDurationHours={targetDurationHours} />;
   }
-  const score = sleepAlignmentSeries(records, targetDurationHours, targetSleepOffset).at(-1)?.trendScore;
   if (mode === 'score') {
-    return <PreviewNumber label="sleep alignment trend" value={score === undefined ? 'Not enough nights' : `${Math.round(score)}`} />;
+    return (
+      <AlignmentCard
+        records={records}
+        targetDurationHours={targetDurationHours}
+        targetSleepOffset={targetSleepOffset}
+      />
+    );
   }
   const alignment = sleepAlignmentSeries(records, targetDurationHours, targetSleepOffset).at(-1);
   const coreScore = alignment
@@ -136,6 +143,24 @@ function createInsights(
     ];
   }
   const alignment = sleepAlignmentSeries(all, targetDurationHours, targetSleepOffset).at(-1);
+  if (mode === 'average') {
+    const latestAverage = movingAverageSeries(all).at(-1)?.movingAverageHours ?? null;
+    const trend = durationTrendPercent(all);
+    return [
+      { color: theme.actionPrimary, subtitle: 'rolling value', title: '7-NIGHT AVG', value: latestAverage === null ? '--' : formatHours(latestAverage) },
+      { color: theme.success, subtitle: 'sleep goal', title: 'TARGET', value: formatHours(targetDurationHours) },
+      { color: theme.accent, subtitle: 'tracked', title: 'NIGHTS', value: `${all.length}` },
+      { color: trend !== null && trend >= 0 ? theme.success : theme.warning, subtitle: 'vs prior 7', title: 'CHANGE', value: trend === null ? '--' : `${trend >= 0 ? '+' : ''}${Math.round(trend)}%` },
+    ];
+  }
+  if (mode === 'core') {
+    return [
+      { color: theme.actionPrimary, subtitle: 'goal fit', title: 'DURATION', value: alignment ? `${Math.round(alignment.durationScore * 100)}` : '--' },
+      { color: theme.success, subtitle: 'bed + wake', title: 'TIMING', value: alignment ? `${Math.round(alignment.timingScore * 100)}` : '--' },
+      { color: theme.accent, subtitle: 'midpoint', title: 'PHASE', value: alignment ? `${Math.round(alignment.phaseScore * 100)}` : '--' },
+      { color: theme.warning, subtitle: 'rhythm', title: 'CONSIST.', value: alignment ? `${Math.round(alignment.consistencyScore * 100)}` : '--' },
+    ];
+  }
   return [
     { color: theme.actionPrimary, subtitle: 'duration', title: 'DAILY', value: alignment ? `${Math.round(alignment.dailyScore)}` : '--' },
     { color: theme.success, subtitle: 'smoothed', title: 'TREND', value: alignment ? `${Math.round(alignment.trendScore)}` : '--' },

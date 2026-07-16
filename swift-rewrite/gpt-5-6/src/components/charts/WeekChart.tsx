@@ -5,12 +5,10 @@ import {
   Line as SkiaLine,
   Path,
   RoundedRect,
-  Skia,
   vec,
 } from '@shopify/react-native-skia';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { runOnJS, useAnimatedReaction } from 'react-native-reanimated';
 import {
   CartesianChart,
   useChartPressState,
@@ -26,6 +24,8 @@ import {
   type WeekChartDatum,
   type WeekChartRule,
 } from '@/components/charts/week-chart-model';
+import { createCatmullRomPath } from '@/components/charts/skia-chart-paths';
+import { usePersistentChartSelection } from '@/components/charts/use-persistent-chart-selection';
 import type { SleepNightRecord } from '@/domain/metrics/core';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -55,19 +55,7 @@ export function WeekChart({
     x: Math.max(0, model.data.length - 1),
     y: { bedtimeChartHour: 0, durationHours: 0, wakeChartHour: 0 },
   });
-  const [selectedIndex, setSelectedIndex] = useState(Math.max(0, model.data.length - 1));
-  const [hasSelection, setHasSelection] = useState(false);
-
-  useAnimatedReaction(
-    () => ({ active: state.isActive.value, index: Math.round(state.x.value.value) }),
-    (next, previous) => {
-      if (next.active && next.index >= 0 && (!previous?.active || next.index !== previous.index)) {
-        runOnJS(setSelectedIndex)(Math.min(model.data.length - 1, next.index));
-        runOnJS(setHasSelection)(true);
-      }
-    },
-    [model.data.length],
-  );
+  const { hasSelection, selectedIndex } = usePersistentChartSelection(state, model.data.length);
 
   const selected = model.data[selectedIndex];
   return (
@@ -87,19 +75,7 @@ export function WeekChart({
           lineWidth: { bottom: 0, left: 0, right: 0, top: 0 },
         }}
         padding={chartPadding}
-        xAxis={{
-          labelColor: 'transparent',
-          lineColor: 'transparent',
-          tickValues: model.data.map(({ index }) => index),
-        }}
         xKey="index"
-        yAxis={[{
-          domain: chartDomain.y,
-          labelColor: 'transparent',
-          lineColor: 'transparent',
-          tickValues: [...durationTicks],
-          yKeys: ['durationHours'],
-        }]}
         yKeys={['durationHours', 'bedtimeChartHour', 'wakeChartHour']}
       >
         {({ chartBounds, points, xScale, yScale }) => (
@@ -166,31 +142,14 @@ export function WeekChart({
 }
 
 function DurationLine({ points }: { points: PointsArray }) {
-  const path = useMemo(() => createCatmullRomPath(points), [points]);
+  const clean = useMemo(
+    () => points.flatMap((point) => (
+      typeof point.y === 'number' ? [{ x: point.x, y: point.y }] : []
+    )),
+    [points],
+  );
+  const path = useMemo(() => createCatmullRomPath(clean), [clean]);
   return <Path color="rgba(190,198,208,0.3)" path={path} strokeWidth={3} style="stroke" />;
-}
-
-function createCatmullRomPath(points: PointsArray) {
-  const clean = points.filter((point): point is typeof point & { y: number } => typeof point.y === 'number');
-  const builder = Skia.PathBuilder.Make();
-  const first = clean[0];
-  if (!first) return builder.detach();
-  builder.moveTo(first.x, first.y);
-  for (let index = 0; index < clean.length - 1; index += 1) {
-    const previous = clean[index - 1] ?? clean[index];
-    const current = clean[index];
-    const next = clean[index + 1];
-    const following = clean[index + 2] ?? next;
-    builder.cubicTo(
-      current.x + (next.x - previous.x) / 6,
-      current.y + (next.y - previous.y) / 6,
-      next.x - (following.x - current.x) / 6,
-      next.y - (following.y - current.y) / 6,
-      next.x,
-      next.y,
-    );
-  }
-  return builder.detach();
 }
 
 function GridLine({ chartBounds, y }: { chartBounds: ChartBounds; y: number }) {
