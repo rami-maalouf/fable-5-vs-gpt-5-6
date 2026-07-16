@@ -23,3 +23,29 @@ code-quality review (tasks 1-5): removed unused shared value + empty style
 (StarfieldView, GlassButton), moved test helper out of __tests__ so it is not
 collected as a suite, pinned eslint 9 for eslint-config-expo compatibility.
 no known quality debt carried forward.
+
+## checkpoint 2: risk burn-down (tasks 6-8) - PASS (jul 16)
+
+three decisions recorded in spikes.md, all verified live on simulator:
+
+1. live activity superpower FEASIBLE AS SPECCED - lock-screen wake-up button
+   fires a LiveActivityIntent that reaches js while backgrounded and ends the
+   activity (evidence/task-06/). spec open question 1 closed.
+2. charts: hand-rolled skia kit for all charts - week chart matches IMG_4796
+   mark-for-mark incl. dual-axis collision hiding and selection popover
+   (evidence/task-07/). victory-native rejected: no range bars. spec open
+   question 2 closed.
+3. grayscale: desaturated palette swap (rec.709) through ThemeProvider's
+   `desaturated` prop; ios has no tree-wide saturate filter
+   (evidence/task-08/).
+
+verification: 61 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 6-8): spike harness removed from settings tab;
+skia PathBuilder migration applied (deprecation warning gone); unused linePath
+helper dropped; 'widget'-directive constant-capture pitfall documented in
+spikes.md. INCIDENT logged: an early `git commit` swept files another parallel
+agent had staged into the shared index (commit 3eaa554 contains
+swift-rewrite/gpt-5-6 data-layer files not authored by this run). history was
+not rewritten (later commits landed on top); prevention adopted: all commits
+now use `git commit -- .` scoped to this app dir and never `-A`/`--amend`.

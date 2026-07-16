@@ -24,13 +24,3 @@ export function catmullRomPath(points: readonly XY[]): SkPath {
   }
   return builder.build();
 }
-
-export function linePath(points: readonly XY[]): SkPath {
-  const builder = Skia.PathBuilder.Make();
-  if (points.length === 0) return builder.build();
-  builder.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    builder.lineTo(points[i].x, points[i].y);
-  }
-  return builder.build();
-}
