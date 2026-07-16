@@ -38,7 +38,7 @@ describe('streamChatResponse', () => {
     await expect(appFetch('/chat')).rejects.toThrow('A native API origin is required');
   });
 
-  test('posts history and emits decoded text incrementally', async () => {
+  test('posts history and the selected model while emitting text incrementally', async () => {
     const received: string[] = [];
     let requestBody: string | undefined;
     const fetchImpl: FetchLike = async (_input, init) => {
@@ -48,7 +48,7 @@ describe('streamChatResponse', () => {
 
     await streamChatResponse({
       messages: [{ role: 'user', content: 'hello' }],
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5.6-sol',
       signal: new AbortController().signal,
       onChunk: (chunk) => received.push(chunk),
       fetchImpl,
@@ -57,7 +57,7 @@ describe('streamChatResponse', () => {
     expect(received).toEqual(['hello ', 'from ', 'nova']);
     expect(JSON.parse(requestBody ?? '')).toEqual({
       messages: [{ role: 'user', content: 'hello' }],
-      model: 'gpt-5.6-luna',
+      model: 'gpt-5.6-sol',
     });
   });
 

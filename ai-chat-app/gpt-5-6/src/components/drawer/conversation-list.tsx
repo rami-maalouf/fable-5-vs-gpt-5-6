@@ -7,11 +7,11 @@ import {
   FlatList,
   Keyboard,
   Platform,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import { ConversationRow } from '@/components/drawer/conversation-row';
 import { RenameConversationDialog } from '@/components/drawer/rename-conversation-dialog';

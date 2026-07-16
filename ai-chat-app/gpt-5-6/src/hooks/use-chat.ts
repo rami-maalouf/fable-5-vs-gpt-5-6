@@ -27,6 +27,7 @@ import {
   insertMessage,
   insertMessages,
   listMessages,
+  updateConversationModel,
 } from '@/lib/db';
 
 export type { ChatMessage } from '@/lib/chat-state';
@@ -305,6 +306,32 @@ export function useChat(initialModel: ChatModel = 'gpt-5.6-luna') {
     [initialModel],
   );
 
+  const selectModel = useCallback(
+    async (nextModel: ChatModel) => {
+      if (abortController.current || nextModel === model) {
+        return nextModel === model;
+      }
+
+      const selectionSession = sessionVersion.current;
+      if (activeConversationId) {
+        try {
+          const database = await getDatabase();
+          await updateConversationModel(database, activeConversationId, nextModel);
+        } catch {
+          return false;
+        }
+
+        if (sessionVersion.current !== selectionSession) {
+          return false;
+        }
+      }
+
+      setModel(nextModel);
+      return true;
+    },
+    [activeConversationId, model],
+  );
+
   return {
     activeConversationId,
     isGenerating,
@@ -312,6 +339,7 @@ export function useChat(initialModel: ChatModel = 'gpt-5.6-luna') {
     model,
     openConversation,
     retry,
+    selectModel,
     sendMessage,
     startNewChat,
     stop,

@@ -203,3 +203,29 @@ Code-quality review:
 - Recovery: query, rename, delete, and refresh failures remain generic, visible, and retryable without exposing SQLite details.
 - Accessibility: management actions use native system sheets and alerts, the custom rename input has a selected initial value, and all custom actions retain 44-point targets.
 - Maintainability: SQLite operations remain in the repository-backed hook, while the list owns only interaction presentation and Home owns active-chat recovery.
+
+## Model Picker - Task 12
+
+Status: passed on 2026-07-16.
+
+- Picker: the centered header control opens a native iOS action sheet containing exactly Luna, Sol, and Terra, with Terra identified as the current model in the captured state.
+- Fresh selection: a new chat selected Sol, sent `Reply with the single word Sol.`, and rendered the streamed `Sol` response under a `Nova Sol` header.
+- Request contract: the transport test verifies that `gpt-5.6-sol` is serialized in the request body; the completed native turn verifies the selected model through the live `/chat` route.
+- Per-conversation state: switching between the lighthouse and Sol histories restored Terra and Sol respectively before and after a cold app relaunch.
+- Persistence ordering: changing the lighthouse conversation to Terra persisted the value and moved that conversation to the top through the repository's existing activity timestamp contract.
+- Allowlist: posting `gpt-5.6-unknown` directly to `/chat` returned HTTP 400 with `Invalid request.`.
+- Interaction recovery: E2E reproduced dropped first taps inside the drawer's pan detector. Gesture Handler pressables plus child-touch passthrough fixed row selection and the explicit close control on the first tap.
+- Accessibility: the header exposes `Model: <name>`, retains a 44-point target, and reports disabled state while generation or selection is active.
+
+Evidence:
+
+- `verification/12-model-picker-light.png`
+- `verification/12-sol-conversation-light.png`
+- `verification/12-terra-conversation-light.png`
+
+Code-quality review:
+
+- Correctness: saved conversations write the model to SQLite before updating visible state, session guards reject stale completion, and generation disables model changes so an in-flight request cannot change identity.
+- Security: the client type restricts selections to the three known models, while the API route independently validates the same allowlist and returns a generic rejection.
+- Maintainability: presentation remains isolated in `ModelPicker`, persistence remains in `useChat`, and request serialization remains in the existing transport.
+- Performance: model writes occur only on explicit selection; no streaming or list-render path gained additional work.

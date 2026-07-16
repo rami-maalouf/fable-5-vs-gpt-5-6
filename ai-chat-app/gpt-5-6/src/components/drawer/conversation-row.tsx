@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
+import { Pressable } from 'react-native-gesture-handler';
 
 import type { ConversationRecord } from '@/lib/db';
 import { colors } from '@/theme/colors';

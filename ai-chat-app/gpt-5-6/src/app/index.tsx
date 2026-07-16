@@ -1,11 +1,12 @@
 import { SymbolView } from 'expo-symbols';
-import { KeyboardAvoidingView, Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Composer } from '@/components/chat/composer';
 import { MessageList } from '@/components/chat/message-list';
 import { ConversationList } from '@/components/drawer/conversation-list';
 import { DrawerShell } from '@/components/drawer/drawer-shell';
+import { ModelPicker } from '@/components/model-picker/model-picker';
 import { useChat } from '@/hooks/use-chat';
 import { useConversations } from '@/hooks/use-conversations';
 import { colors } from '@/theme/colors';
@@ -15,8 +16,10 @@ export default function HomeScreen() {
     activeConversationId,
     isGenerating,
     messages,
+    model,
     openConversation,
     retry,
+    selectModel,
     sendMessage,
     startNewChat,
     stop,
@@ -76,7 +79,11 @@ export default function HomeScreen() {
       {({ openDrawer }) => (
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.title}>Nova</Text>
+            <ModelPicker
+              disabled={isGenerating}
+              model={model}
+              onSelect={selectModel}
+            />
           </View>
           <SafeAreaView edges={['top']} pointerEvents="box-none" style={styles.menuPosition}>
             <Pressable
@@ -132,11 +139,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     zIndex: 2,
-  },
-  title: {
-    color: colors.label,
-    fontSize: 17,
-    fontWeight: '600',
-    letterSpacing: 0,
   },
 });

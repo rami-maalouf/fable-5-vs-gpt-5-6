@@ -1,8 +1,14 @@
 import { SymbolView } from 'expo-symbols';
 import type { ReactNode } from 'react';
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+  Pressable as RNPressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import { Gesture, GestureDetector, Pressable } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -104,6 +110,7 @@ export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProp
 
   const closeGesture = Gesture.Pan()
     .enabled(isDrawerVisible)
+    .cancelsTouchesInView(false)
     .activeOffsetX([-6, 6])
     .failOffsetY([-16, 16])
     .onStart(() => {
@@ -141,7 +148,7 @@ export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProp
       <Animated.View
         pointerEvents={isDrawerVisible ? 'auto' : 'none'}
         style={[styles.overlay, overlayStyle]}>
-        <Pressable
+        <RNPressable
           accessibilityLabel="Close conversations"
           accessibilityRole="button"
           onPress={closeDrawer}
