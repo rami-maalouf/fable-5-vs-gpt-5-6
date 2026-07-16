@@ -49,6 +49,23 @@ architecture, so its structure wins; non-component modules stay kebab-case
 - `zod@^4` added explicitly: `@openai/agents` declares a zod ^4 peer that bun
   resolved to 3.x transitively
 
+## 5. client resolves /chat against window.location, not expo/fetch relative
+
+the spec says the client calls relative `fetch('/chat')`. with the packager on
+a non-default port, `expo/fetch`'s own relative resolution returned 404s from
+the wrong origin, while `window.location` (set by expo-router to the dev
+server / configured production origin) was correct. `useChatStream` therefore
+resolves `new URL('/chat', window.location.href)` and passes the absolute url
+to expo/fetch. no origin is hardcoded anywhere; call sites still say '/chat'.
+
+## 6. dev-session launch mechanics (not part of the app)
+
+because the dev server lives on port 8123 (deviation #0), the simulator app is
+pointed at it via `xcrun simctl spawn <udid> defaults write com.ramimaalouf.nova
+RCT_jsLocation "localhost:8123"` once per device, then launched normally. a
+judge on a clean machine with 8081 free needs none of this - plain
+`bunx expo run:ios` works with defaults.
+
 ## 4. starter scaffolding removed
 
 deleted the starter's tabs/explore demo screens, demo components, and the

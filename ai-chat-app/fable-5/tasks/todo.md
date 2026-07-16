@@ -6,7 +6,7 @@ boots, one conventional commit, judgment calls logged in DEVIATIONS.md.
 
 ## phase 1: foundation + riskiest integration
 
-- [ ] **task 1: repo check + deps + shell**
+- [x] **task 1: repo check + deps + shell**
   - description: confirm the working dir is the expo sdk 57 starter (routes in
     `src/app/`); install stack deps (keyboard-controller, gesture-handler,
     reanimated, expo-sqlite, expo-haptics, zustand, zeego, jest-expo); wire
@@ -19,7 +19,7 @@ boots, one conventional commit, judgment calls logged in DEVIATIONS.md.
   - depends: none. files: src/app/_layout.tsx, src/app/index.tsx, src/theme/*,
     app.json, package.json. size: M
 
-- [ ] **task 2: domain + data layer**
+- [x] **task 2: domain + data layer**
   - description: pure-ts domain (`title from first user message` word-boundary
     truncation ~40 chars, case-insensitive search over title+content, model
     allowlist + default, message status types); expo-sqlite schema per spec
@@ -30,7 +30,7 @@ boots, one conventional commit, judgment calls logged in DEVIATIONS.md.
   - verify: `bun run test -- domain data`.
   - depends: 1. files: src/domain/*, src/data/*, tests. size: M
 
-- [ ] **task 3: spike - streaming backbone (route + client)**
+- [x] **task 3: spike - streaming backbone (route + client)**
   - description: `src/app/chat+api.ts` per the spec's backend section (allowlist ->
     400, agent Nova verbatim instructions, streamed plain-text response) + a
     minimal client read via `expo/fetch` ReadableStream into a debug view. verify
