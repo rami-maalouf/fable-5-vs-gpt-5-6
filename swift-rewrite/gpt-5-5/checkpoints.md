@@ -174,16 +174,29 @@ verification:
 
 visual qa:
 
-- attempted iOS launch on simulator `93EEF062-B4DC-4989-AF77-CF47EE2A9816`.
-- started this worktree's Expo server on port 8082, then stopped it after testing.
-- launching `com.ramimaalouf.twilight-expo` rendered stale placeholder content with
-  `Unimplemented component: <ViewManagerAdapter_ExpoLinearGradient>` instead of the
-  current dashboard.
-- `debugger-status` for port 8082 reported no React Native CDP targets connected.
-- opening `exp://10.32.118.42:8082` failed because the simulator had no handler for
-  the Expo URL.
-- stale launch screenshot:
-  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-ZSQ3sf/media/987187000-1784240537987.png`.
+- installed the current iOS debug app on clean simulator
+  `7547AFAC-A35A-46C9-9924-488E2F2530CC` (`iPhone Air`).
+- started this worktree's Expo server on isolated port 8095 with
+  `bunx expo start --dev-client --port 8095`.
+- set the simulator's React Native packager host override to
+  `10.32.118.42:8095` via `RCT_jsLocation` because this app does not include
+  `expo-dev-client`, so `expo-development-client` URLs only open the app and do
+  not change the debug bundle URL.
+- `debugger-status` on port 8095 confirmed the current app and simulator:
+  project root `gpt-5-5`, device `iPhone Air`, app
+  `com.ramimaalouf.twilight-expo`, connected `true`, loaded scripts `13`.
+- Week mode rendered the dashboard greeting, segmented controls, last-night
+  empty state, Week chart empty state, and floating tab bar:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-XwW5NK/media/678945000-1784242245679.png`.
+- 7-Night Avg mode rendered the rolling-average empty state:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-XwW5NK/media/447189000-1784242254447.png`.
+- Score mode rendered the alignment-score empty state:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-XwW5NK/media/28667000-1784242266028.png`.
+- Core mode rendered the core-signals metric pills:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-XwW5NK/media/901092000-1784242287901.png`.
+- root cause of the earlier stale launch: the debug app defaulted to Metro port
+  8081, where a sibling app was already serving onboarding content. The stale
+  screen came from sibling source, not this worktree.
 
 code quality gate:
 
@@ -200,9 +213,10 @@ code quality gate:
 
 known gaps:
 
-- checkpoint 5 does not pass the required manual side-by-side gate yet. Static
-  checks and unit tests pass, but the current simulator install is stale and not
-  loading this worktree's bundle.
+- checkpoint 5 runtime loading is now verified on iPhone Air. Side-by-side with
+  populated Swift reference data is still limited because this simulator state
+  has no seeded sleep sessions; empty-state rendering was verified across all
+  dashboard modes.
 - task 19 logs a visual approximation in `DEVIATIONS.md`: the moving-average card
   area fill is colored by latest target state instead of being split at every
   target crossing.
