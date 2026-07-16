@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Gesture, GestureDetector, Pressable } from 'react-native-gesture-handler';
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -40,6 +41,10 @@ type DrawerShellProps = {
 const EDGE_HIT_SLOP = 24;
 const DRAWER_MAX_WIDTH = 360;
 const ANIMATION_DURATION = 240;
+const ANIMATION_CONFIG = {
+  duration: ANIMATION_DURATION,
+  easing: Easing.out(Easing.cubic),
+};
 
 export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProps) {
   const { width: screenWidth } = useWindowDimensions();
@@ -60,7 +65,7 @@ export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProp
       }
       progress.set(withTiming(
         target,
-        { duration: ANIMATION_DURATION },
+        ANIMATION_CONFIG,
         (finished) => {
           if (finished) {
             scheduleOnRN(setIsDrawerVisible, target === 1);
@@ -79,7 +84,7 @@ export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProp
     const target = resolveDrawerTarget(progress.get(), velocityX) as 0 | 1;
     progress.set(withTiming(
       target,
-      { duration: ANIMATION_DURATION },
+      ANIMATION_CONFIG,
       (finished) => {
         if (finished) {
           scheduleOnRN(setIsDrawerVisible, target === 1);

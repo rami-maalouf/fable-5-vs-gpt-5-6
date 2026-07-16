@@ -229,3 +229,38 @@ Code-quality review:
 - Security: the client type restricts selections to the three known models, while the API route independently validates the same allowlist and returns a generic rejection.
 - Maintainability: presentation remains isolated in `ModelPicker`, persistence remains in `useChat`, and request serialization remains in the existing transport.
 - Performance: model writes occur only on explicit selection; no streaming or list-render path gained additional work.
+
+## Native Polish - Task 13
+
+Status: passed on 2026-07-16.
+
+- Scroll recovery: a deliberate drag from the bottom of the five-page lighthouse transcript disengaged following at 86% and exposed the 44-point `Scroll to latest message` control. One tap returned to the exact bottom and removed the control.
+- Manual control: the pure scroll policy passes boundary tests for distance measurement, disengagement above 48 points, and re-engagement at or below the threshold.
+- Appearance: a live in-session switch rendered the empty state, long conversation, drawer, model action sheet, composer, keyboard, and status bar in dark mode without reloading or losing state. Restoring system appearance returned every surface to light mode.
+- Existing recovery states: Task 6's captured dark error state and light loading state remain readable under the same semantic tokens.
+- Keyboard and safe areas: the dark keyboard attached directly below the composer, moved the empty state into the available viewport, and left the header and status bar unobstructed.
+- Motion: new message rows use a 180 ms entrance while streaming updates remain unanimated within the mounted row; drawer settling uses a 240 ms cubic ease-out while direct drags stay one-to-one.
+- Launch assets: the starter icon and splash were replaced by Nova-owned app, adaptive, monochrome, light-splash, and dark-splash assets. The rebuilt native binary contains the new compiled app icon and distinct splash asset variants.
+- Launch behavior: Expo's native splash receives a 220 ms fade, status-bar style is explicitly `auto`, and a clean incremental iOS build completed with 0 errors and 0 warnings.
+- Runtime: a final cold relaunch returned to a fresh unsaved Luna chat and produced zero JavaScript log entries.
+- Automated gates: 22 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed; `git diff --check` passed.
+
+Evidence:
+
+- `verification/13-scroll-recovery-light.png`
+- `verification/13-empty-light.png`
+- `verification/13-empty-dark.png`
+- `verification/13-conversation-dark.png`
+- `verification/13-drawer-dark.png`
+- `verification/13-model-picker-dark.png`
+- `verification/13-keyboard-dark.png`
+- `verification/13-compiled-app-icon.png`
+- `verification/06-loading-light.png`
+- `verification/06-error-dark.png`
+
+Code-quality review:
+
+- Correctness: only user-driven scrolling can disengage following, returning to the threshold or tapping the control restores it, and conversation changes reset the scroll policy before the first layout frame.
+- Accessibility: the recovery action has an explicit label and 44-point target; all audited controls retain at least 44 points in both modes.
+- Maintainability: scroll policy is isolated as pure tested functions, launch artwork retains editable SVG sources, and appearance configuration remains at the root boundary.
+- Performance: scroll events are handled only during active user interaction, entrance animation runs once per row, and drawer motion remains on the UI thread.

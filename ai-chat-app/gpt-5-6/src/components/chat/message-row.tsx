@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { ErrorRow } from '@/components/chat/error-row';
 import { MessageBubble } from '@/components/chat/message-bubble';
@@ -15,7 +16,7 @@ export function MessageRow({ message, onRetry }: MessageRowProps) {
   const showError = message.role === 'assistant' && message.status === 'error';
 
   return (
-    <View style={styles.container}>
+    <Animated.View entering={FadeInDown.duration(180)} style={styles.container}>
       {message.content ? <MessageBubble content={message.content} role={message.role} /> : null}
       {showPending ? (
         <View
@@ -27,7 +28,7 @@ export function MessageRow({ message, onRetry }: MessageRowProps) {
         </View>
       ) : null}
       {showError ? <ErrorRow onRetry={onRetry} /> : null}
-    </View>
+    </Animated.View>
   );
 }
 

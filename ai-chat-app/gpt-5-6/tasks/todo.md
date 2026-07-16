@@ -27,6 +27,6 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 
 ## phase 5: model picker + polish
 - [x] task 12: model picker (per-conversation, allowlist)
-- [ ] task 13: polish audit (light/dark, launch, animations, safe areas)
+- [x] task 13: polish audit (light/dark, launch, animations, safe areas)
 - [ ] task 14: final DoD verification + summary
 - [ ] checkpoint: full definition of done green, evidence captured
