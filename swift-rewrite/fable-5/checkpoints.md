@@ -81,3 +81,33 @@ import() types with top-level type imports on the dashboard; migrated
 DateTimePicker to the non-deprecated onValueChange; fixed a
 setState-during-render warning in the picker's drag handler. no quality debt
 carried forward.
+
+## checkpoint 4: metrics engine (tasks 14-16) - PASS (jul 16)
+
+- fixture parity is proven against the REAL swift implementation, not
+  hand-traced numbers: tests/parity-harness/ compiles the verbatim
+  Utils/SleepMetricsAnalyzer.swift + Views/SleepDataModels.swift (with a
+  minimal BlockedProfileSession stub) into a cli that emits every
+  deterministic metric as json; the five fixture sets in tests/fixtures/
+  (regular sleeper, shift worker, timezone traveler, sub-5-min noise + active
+  session, gaps/streak breaks with canonical-night contention) were run
+  through it (TZ=America/Denver) to produce the golden `-expected.json`
+  files. jest replays the ts engine over the same sessions: 50/50 parity
+  assertions green (records incl. dates/weekdays/offsets, all scalar metrics,
+  moving-average/rolling-consistency/debt/alignment series, trends table,
+  weekday averages, histogram buckets).
+- every spec constant traced to a passing test: ±0.75h goal tolerance
+  (inclusive boundary), -40 pts/hr consistency (Int() truncation), -30 pts/hr
+  accuracy, 18:00 base hour, 0.35/0.30/0.20/0.15 alignment weights with the
+  0.01 sub-threshold drop + renormalization, ema 0.8/0.2, 7-night moving
+  window, 14-night rolling window, 3/7/14/30/90 trends, 8 histogram buckets.
+- port bug found BY the fixtures and fixed: canonical nights must be grouped
+  by the sleepDate instant (startOfDay in each session's end tz), not the
+  wall-clock day string - two same-date nights in different timezones both
+  survive in the original (timezone-traveler red-eye case).
+- verification: 181 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 14-16): analyzer kept pure (no react/expo
+imports); Int()-truncation semantics documented at each site; duplicate
+stddev helper collapsed; harness + generator committed for regeneration
+auditability. no quality debt carried forward.
