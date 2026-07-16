@@ -5,7 +5,8 @@
 // selection rule + centered popover
 import { Canvas, Circle, DashPathEffect, Line, Path, RoundedRect, vec } from '@shopify/react-native-skia';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
   calculateYAxisDomain,
@@ -121,6 +122,17 @@ export function WeekChart({
   const selected = selectedIndex != null ? days[selectedIndex] : null;
   const selectedDeviation = (offset: number, target: number | null) =>
     target == null ? null : Math.trunc((offset - target) * 60);
+
+  const indexAtX = (x: number) => {
+    const i = Math.floor(x / Math.max(bandW, 1));
+    return Math.min(days.length - 1, Math.max(0, i));
+  };
+  const scrubGesture = Gesture.Pan()
+    .minDistance(0)
+    .runOnJS(true)
+    .onBegin((e) => setSelectedIndex(indexAtX(e.x)))
+    .onUpdate((e) => setSelectedIndex(indexAtX(e.x)))
+    .onFinalize(() => setSelectedIndex(null));
 
   return (
     <View style={{ width, height }}>
@@ -256,22 +268,18 @@ export function WeekChart({
         </View>
       ))}
 
-      {/* tap bands for chartXSelection */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-        {days.map((_, i) => (
-          <Pressable
-            key={`sel-${i}`}
-            style={{
-              position: 'absolute',
-              left: MARGIN.left + bandW * i,
-              top: 0,
-              width: bandW,
-              height: MARGIN.top + plotH,
-            }}
-            onPress={() => setSelectedIndex((prev) => (prev === i ? null : i))}
-          />
-        ))}
-      </View>
+      {/* chartXSelection: scrub while pressing, cleared on release */}
+      <GestureDetector gesture={scrubGesture}>
+        <View
+          style={{
+            position: 'absolute',
+            left: MARGIN.left,
+            top: 0,
+            width: plotW,
+            height: MARGIN.top + plotH,
+          }}
+        />
+      </GestureDetector>
 
       {/* selection popover, centered like the original chartOverlay */}
       {selected && selected.durationSeconds > 0 && (
