@@ -229,7 +229,7 @@ by side.
 
 ## phase 6: remaining screens (spec priority 4-5)
 
-- [ ] **task 20: settings tab**
+- [x] **task 20: settings tab**
   - description: sleep goal (native time pickers writing minutes-since-midnight),
     appearance (palette picker: twilight/amethyst; mode: system/sunset/night),
     wind-down toggle + sleep hygiene tips screen, community links section.
