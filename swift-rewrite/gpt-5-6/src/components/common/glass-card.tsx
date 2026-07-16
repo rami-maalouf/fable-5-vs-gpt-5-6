@@ -24,7 +24,7 @@ export function GlassCard({ children, style }: GlassCardProps) {
         style={styles.stroke}
       >
         <BlurView
-          experimentalBlurMethod="dimezisBlurView"
+          blurMethod="dimezisBlurView"
           intensity={28}
           style={styles.blur}
           tint={theme.colorScheme}

@@ -200,6 +200,24 @@ describe('session repository', () => {
     await repository.delete(short.id);
     expect(await repository.listValid()).toEqual([]);
   });
+
+  it('creates a completed manual log without occupying the active-session slot', async () => {
+    const repository = new SessionRepository(new MemorySessionDatabase(), {
+      createId: () => 'manual-1',
+      now: () => 9_000,
+    });
+
+    const manual = await repository.createCompleted({
+      endTime: 500_000,
+      endTimeZone: 'America/Edmonton',
+      startTime: 100_000,
+      startTimeZone: 'America/Edmonton',
+      tag: 'Manual Log',
+    });
+    expect(manual).toMatchObject({ id: 'manual-1', tag: 'Manual Log' });
+    expect(await repository.getActive()).toBeNull();
+    expect(await repository.listValid()).toEqual([manual]);
+  });
 });
 
 describe('settings store', () => {

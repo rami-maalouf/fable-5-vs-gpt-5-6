@@ -16,17 +16,19 @@ import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
   StyleSheet,
   Text,
   View,
   type GestureResponderEvent,
 } from 'react-native';
-import {
+import Animated, {
   cancelAnimation,
   Easing,
+  type SharedValue,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -86,8 +88,8 @@ export function CircularTimePicker({
   const pendingKnob = useRef<TimePickerKnob | null>(null);
   const activeKnobRef = useRef<TimePickerKnob | null>(null);
   const lastSnap = useRef<number | null>(null);
-  const [sleepScale] = useState(() => new Animated.Value(1));
-  const [wakeScale] = useState(() => new Animated.Value(1));
+  const sleepScale = useSharedValue(1);
+  const wakeScale = useSharedValue(1);
   const pulse = useSharedValue(0.88);
 
   useEffect(() => {
@@ -100,8 +102,16 @@ export function CircularTimePicker({
   }, [pulse]);
 
   useEffect(() => {
-    animateKnob(sleepScale, activeKnob === 'sleep');
-    animateKnob(wakeScale, activeKnob === 'wake');
+    sleepScale.value = withSpring(activeKnob === 'sleep' ? 1.15 : 1, {
+      damping: 7,
+      mass: 0.3,
+      stiffness: 130,
+    });
+    wakeScale.value = withSpring(activeKnob === 'wake' ? 1.15 : 1, {
+      damping: 7,
+      mass: 0.3,
+      stiffness: 130,
+    });
   }, [activeKnob, sleepScale, wakeScale]);
 
   const responderAngle = (event: GestureResponderEvent) =>
@@ -279,11 +289,14 @@ function Knob({
   icon: 'moon.fill' | 'sun.max.fill';
   isActive: boolean;
   position: { x: number; y: number };
-  scale: Animated.Value;
+  scale: SharedValue<number>;
   testID: string;
 }) {
   const { isSleeping } = useTheme();
   const resolvedColor = isSleeping ? desaturateColor(color) : color;
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
   return (
     <Animated.View
       accessibilityLabel={accessibilityLabel}
@@ -291,12 +304,12 @@ function Knob({
       testID={testID}
       style={[
         styles.knob,
+        animatedStyle,
         {
           left: position.x - 26,
           shadowColor: resolvedColor,
           shadowRadius: isActive ? 12 : 6,
           top: position.y - 26,
-          transform: [{ scale }],
         },
       ]}
     >
@@ -409,16 +422,6 @@ function polarPoint(center: number, radius: number, angle: number) {
     x: center + Math.sin(radians) * radius,
     y: center - Math.cos(radians) * radius,
   };
-}
-
-function animateKnob(value: Animated.Value, isActive: boolean) {
-  Animated.spring(value, {
-    damping: 7,
-    mass: 0.3,
-    stiffness: 130,
-    toValue: isActive ? 1.15 : 1,
-    useNativeDriver: true,
-  }).start();
 }
 
 function normalizeMinutes(minutes: number): number {

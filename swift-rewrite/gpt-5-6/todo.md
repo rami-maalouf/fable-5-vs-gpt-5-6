@@ -144,7 +144,7 @@ original look.
   - verify: `bun run test`; manual side-by-side with seeded data.
   - depends: 10. files: app/(tabs)/logs.tsx, src/components/logs/. size: S
 
-- [ ] **task 13: log editor sheet**
+- [x] **task 13: log editor sheet**
   - description: full-sheet editor (inline title, gradient toolbar): wake-day date
     picker + circular picker (task 9), live goal-match %, bedtime-crossing-midnight
     date sync, create ("Manual Log" tag) and edit paths.

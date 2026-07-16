@@ -42,6 +42,11 @@ export interface EndSleepSessionInput {
   endTimeZone: string;
 }
 
+export interface CreateCompletedSleepSessionInput extends CreateSleepSessionInput {
+  endTime: number;
+  endTimeZone: string;
+}
+
 interface SessionRepositoryOptions {
   createId?: () => string;
   now?: () => number;
@@ -133,6 +138,34 @@ export class SessionRepository {
       updatedAt: timestamp,
     };
 
+    await this.database.runAsync(insertSessionSql, [
+      session.id,
+      session.tag,
+      session.startTime,
+      session.endTime,
+      session.startTimeZone,
+      session.endTimeZone,
+      session.createdAt,
+      session.updatedAt,
+    ]);
+    return session;
+  }
+
+  async createCompleted(input: CreateCompletedSleepSessionInput): Promise<SleepSession> {
+    if (input.endTime < input.startTime) {
+      throw new Error('Sleep session end time cannot precede its start time');
+    }
+    const timestamp = this.now();
+    const session: SleepSession = {
+      id: input.id ?? this.createId(),
+      tag: input.tag,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      startTimeZone: input.startTimeZone,
+      endTimeZone: input.endTimeZone,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
     await this.database.runAsync(insertSessionSql, [
       session.id,
       session.tag,
