@@ -87,3 +87,21 @@
   selection point, and line, but its area fill uses one latest-state color instead
   of splitting exactly at every target crossing. The numeric behavior is preserved;
   the crossing-split fill can be tightened during the chart polish pass.
+
+## tasks 20-24
+
+- the shared external `todo.md` had tasks 20-24 checked, but this app still had
+  placeholder Settings and Metrics tabs and no onboarding flow. Treated the app
+  worktree as authoritative and implemented the missing local features.
+- task 21 keeps the scoped four-step onboarding flow from `todo.md` and `plan.md`
+  rather than the older six-step prose in the spec. Apple Health and NFC steps
+  remain out of scope for this port.
+- task 22-24 charts use the metric engine and render the required sections, but
+  populated side-by-side visual parity is not fully proven because the simulator
+  used for checkpoint 6 has no seeded sleep sessions. Empty states and route
+  behavior are verified; numeric chart models are covered by unit tests.
+  Pixel-level chart polish remains for the animation and visual pass.
+- task 24 implements the timeline as the Metrics toolbar modal instead of a
+  separate route file. It renders horizontal sleep-window bars inside the sheet;
+  if deep-linking directly to the timeline becomes required, this should move to
+  `src/app/timeline-sheet.tsx`.

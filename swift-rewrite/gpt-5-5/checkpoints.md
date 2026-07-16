@@ -220,3 +220,73 @@ known gaps:
 - task 19 logs a visual approximation in `DEVIATIONS.md`: the moving-average card
   area fill is colored by latest target state instead of being split at every
   target crossing.
+
+## checkpoint 6 - remaining screens walkable
+
+covered tasks:
+
+- task 20: Settings tab, sleep goal pickers, appearance controls, wind-down toggle,
+  sleep tips screen, and community section.
+- task 21: four-step onboarding flow with schedule picker, notification permission
+  step, root onboarding gate, completion persistence, and restart-onboarding path.
+- task 22: Metrics screen shell with range picker, overview cards, highlights,
+  empty state, timeline sheet, and explanation sheet.
+- task 23: Metrics duration momentum, rolling consistency, and rolling component
+  chart cards.
+- task 24: Metrics sleep debt, weekday averages, duration histogram, and horizontal
+  sleep-window timeline bars.
+
+verification:
+
+- `bun run test`: passed, 28 suites and 108 tests.
+- `bunx tsc --noEmit`: passed.
+- `bun run lint`: passed.
+- `git diff --check -- .`: passed.
+- em-dash and emoji scan over `src`, `app.json`, and `package.json`: no matches.
+- iOS simulator runtime stayed connected to this worktree on iPhone Air
+  `7547AFAC-A35A-46C9-9924-488E2F2530CC` through Metro port 8095.
+
+visual qa:
+
+- Settings tab rendered the scoped sections with persisted 9-hour goal and live
+  appearance controls:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/166129000-1784243392166.png`.
+- Settings lower sections rendered wind-down, community, and restart-onboarding
+  path:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/127699000-1784243418128.png`.
+- Sleep hygiene tips screen opened from Settings:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/99775000-1784242962100.png`.
+- Onboarding fresh gate rendered step 1, schedule picker, notification step,
+  finish step, and completed back to the dashboard. Representative finish screen:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/912648000-1784243365913.png`.
+- Restart-onboarding dev path returned to onboarding step 1:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/589081000-1784243433589.png`.
+- Metrics shell rendered range picker, empty state, overview cards, highlights,
+  Guide sheet, and Timeline sheet:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/583255000-1784243847583.png`,
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/513896000-1784243864514.png`,
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/283776000-1784243885284.png`.
+- Metrics chart sections rendered empty states for Detailed Trends, recovery, and
+  behavior cards:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/716278000-1784244201716.png`,
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/872476000-1784244388872.png`.
+
+code quality gate:
+
+- used `code-review-and-quality` to review changes since checkpoint 5 across
+  correctness, readability, architecture, security, and performance.
+- tests cover pure settings, onboarding, metrics shell, and metrics chart models.
+- confirmed app-facing settings and theme state remain centralized in
+  `SleepAppearanceProvider`, while chart calculations stay in pure model modules.
+- no blocking findings. The main watch item is file size: Settings, Onboarding,
+  MetricsScreen, and MetricsCharts are each 468-567 lines. They remain under the
+  1000-line warning threshold, but future additions should extract subcomponents
+  before these files grow materially.
+
+known gaps:
+
+- populated side-by-side metrics chart parity is not fully proven in the simulator
+  because checkpoint 6 used an empty local store. Empty states and route behavior
+  were manually verified; metric chart models are unit-tested.
+- task 24 timeline is implemented as the Metrics toolbar modal rather than a
+  separate `timeline-sheet` route. This is logged in `DEVIATIONS.md`.
