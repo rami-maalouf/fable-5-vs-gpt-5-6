@@ -4,6 +4,7 @@ import {
   font,
   foregroundStyle,
   frame,
+  labelsHidden,
   lineLimit,
   monospacedDigit,
   padding,
@@ -30,15 +31,16 @@ function SleepActivity(
 
   const accent = environment.isLuminanceReduced ? '#8b9dc3' : '#00d4ff';
   const secondary = environment.colorScheme === 'dark' ? '#a9b7c6' : '#53677a';
+  const isWindDown = props.phase === 'windDown';
   const startedAt = new Date(props.startedAt);
   const goalEndAt = new Date(Math.max(props.startedAt + 1, props.goalEndAt));
   const timerInterval = { lower: startedAt, upper: goalEndAt };
   const moon = (
     <Image
       color={accent}
-      modifiers={[accessibilityLabel('Twilight sleep session')]}
+      modifiers={[accessibilityLabel(isWindDown ? 'Twilight wind-down' : 'Twilight sleep session')]}
       size={22}
-      systemName="moon.stars.fill"
+      systemName={isWindDown ? 'moon.zzz.fill' : 'moon.stars.fill'}
     />
   );
   const elapsed = (
@@ -65,6 +67,9 @@ function SleepActivity(
       timerInterval={timerInterval}
     />
   );
+  const primaryTimer = isWindDown ? remaining : elapsed;
+  const primaryTimerLabel = isWindDown ? 'until bed' : 'elapsed';
+  const progressLabel = isWindDown ? 'Wind-down progress' : 'Sleep goal progress';
 
   return {
     banner: (
@@ -87,20 +92,20 @@ function SleepActivity(
           </VStack>
           <Spacer />
           <VStack alignment="trailing" spacing={1}>
-            {elapsed}
+            {primaryTimer}
             <Text modifiers={[font({ size: 10, weight: 'semibold' }), foregroundStyle(secondary)]}>
-              elapsed
+              {primaryTimerLabel}
             </Text>
           </VStack>
         </HStack>
         <ProgressView
           countsDown={false}
-          modifiers={[tint(accent), accessibilityLabel('Sleep goal progress')]}
+          modifiers={[tint(accent), labelsHidden(), accessibilityLabel(progressLabel)]}
           timerInterval={timerInterval}
         />
         <HStack spacing={5}>
           <Text modifiers={[font({ size: 11, weight: 'semibold' }), foregroundStyle(secondary)]}>
-            Goal remaining
+            {isWindDown ? 'Slow down gently' : 'Goal remaining'}
           </Text>
           <Spacer />
           {remaining}
@@ -112,14 +117,25 @@ function SleepActivity(
         {moon}
         <Text modifiers={[font({ size: 14, weight: 'bold' }), lineLimit(1)]}>{props.title}</Text>
         <Spacer />
-        {elapsed}
+        {primaryTimer}
       </HStack>
     ),
     compactLeading: moon,
-    compactTrailing: elapsed,
+    compactTrailing: primaryTimer,
     minimal: moon,
     expandedCenter: (
-      <Text modifiers={[font({ size: 15, weight: 'bold' }), lineLimit(1)]}>{props.title}</Text>
+      <VStack alignment="center" spacing={2}>
+        <Text modifiers={[font({ size: 15, weight: 'bold' }), lineLimit(1)]}>{props.title}</Text>
+        <Text
+          modifiers={[
+            font({ size: 11, weight: 'medium' }),
+            foregroundStyle(secondary),
+            lineLimit(1),
+          ]}
+        >
+          {props.status}
+        </Text>
+      </VStack>
     ),
     expandedLeading: (
       <VStack alignment="leading" modifiers={[padding({ all: 8 })]} spacing={3}>
@@ -131,18 +147,22 @@ function SleepActivity(
     ),
     expandedTrailing: (
       <VStack alignment="trailing" modifiers={[padding({ all: 8 })]} spacing={2}>
-        {elapsed}
+        {primaryTimer}
         <Text modifiers={[font({ size: 10, weight: 'semibold' }), foregroundStyle(secondary)]}>
-          asleep
+          {isWindDown ? 'until bed' : 'asleep'}
         </Text>
       </VStack>
     ),
     expandedBottom: (
       <VStack modifiers={[frame({ maxWidth: 320 }), padding({ horizontal: 12, vertical: 8 })]} spacing={7}>
-        <ProgressView countsDown={false} modifiers={[tint(accent)]} timerInterval={timerInterval} />
+        <ProgressView
+          countsDown={false}
+          modifiers={[tint(accent), labelsHidden()]}
+          timerInterval={timerInterval}
+        />
         <HStack spacing={5}>
           <Text modifiers={[font({ size: 11, weight: 'semibold' }), foregroundStyle(secondary)]}>
-            Until sleep goal
+            {isWindDown ? 'Dim the lights. Let tomorrow begin gently.' : 'Until sleep goal'}
           </Text>
           <Spacer />
           {remaining}

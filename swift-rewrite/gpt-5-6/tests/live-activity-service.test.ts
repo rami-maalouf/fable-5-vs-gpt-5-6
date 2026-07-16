@@ -10,6 +10,7 @@ jest.mock('../widgets/SleepLiveActivity', () => ({
 import {
   createSleepActivityProps,
   createSleepLiveActivityService,
+  createWindDownActivityProps,
   type SleepLiveActivityInstance,
 } from '@/services/live-activity';
 
@@ -38,11 +39,13 @@ function activity(id: string) {
 function harness({
   enabled = true,
   instances = [],
+  now = new Date(2026, 6, 16, 12).getTime(),
   persistedId = null,
   platform = 'ios',
 }: {
   enabled?: boolean;
   instances?: SleepLiveActivityInstance[];
+  now?: number;
   persistedId?: string | null;
   platform?: string;
 } = {}) {
@@ -64,7 +67,12 @@ function harness({
     })),
     set: jest.fn(async () => undefined),
   };
-  const service = createSleepLiveActivityService({ factory, platform, settings });
+  const service = createSleepLiveActivityService({
+    factory,
+    now: () => now,
+    platform,
+    settings,
+  });
   return { factory, service, settings, started };
 }
 
@@ -83,6 +91,30 @@ describe('sleep live activity service', () => {
       status: 'Sleep session active',
       title: 'Rejuvenating...',
     });
+  });
+
+  it('creates a wind-down projection during the three-hour window before bedtime', () => {
+    const now = new Date(2026, 6, 16, 22).getTime();
+
+    const props = createWindDownActivityProps(
+      { optimalSleepMinutes: 30 },
+      now,
+    );
+
+    expect(props).toEqual({
+      goalEndAt: now + 150 * 60_000,
+      phase: 'windDown',
+      sessionId: 'wind-down',
+      startedAt: now - 30 * 60_000,
+      status: 'Bedtime is approaching',
+      title: 'Wind Down Time',
+    });
+  });
+
+  it('does not create a wind-down projection outside the three-hour window', () => {
+    const now = new Date(2026, 6, 16, 18).getTime();
+
+    expect(createWindDownActivityProps({ optimalSleepMinutes: 30 }, now)).toBeNull();
   });
 
   it('starts and persists an activity when an enabled session has no native instance', async () => {
@@ -137,6 +169,39 @@ describe('sleep live activity service', () => {
       expect.any(Date),
     );
     expect(settings.set).toHaveBeenCalledWith('liveActivityId', null);
+  });
+
+  it('starts the wind-down activity when no session is active inside the window', async () => {
+    const now = new Date(2026, 6, 16, 20).getTime();
+    const { factory, service, settings } = harness({ now });
+
+    const result = await service.reconcile(null);
+
+    expect(result).toEqual({ activityId: 'started-activity', status: 'started' });
+    expect(factory.start).toHaveBeenCalledWith(
+      expect.objectContaining({
+        goalEndAt: now + 2 * 60 * 60_000,
+        phase: 'windDown',
+        title: 'Wind Down Time',
+      }),
+      'twilight://',
+    );
+    expect(settings.set).toHaveBeenCalledWith('liveActivityId', 'started-activity');
+  });
+
+  it('transitions an existing sleep activity into wind-down state after an evening wake-up', async () => {
+    const existing = activity('existing-activity');
+    const now = new Date(2026, 6, 16, 20).getTime();
+    const { factory, service } = harness({ instances: [existing], now });
+
+    const result = await service.reconcile(null);
+
+    expect(result).toEqual({ activityId: 'existing-activity', status: 'updated' });
+    expect(existing.update).toHaveBeenCalledWith(
+      expect.objectContaining({ phase: 'windDown', title: 'Wind Down Time' }),
+    );
+    expect(existing.end).not.toHaveBeenCalled();
+    expect(factory.start).not.toHaveBeenCalled();
   });
 
   it('respects the disabled setting without starting a duplicate', async () => {

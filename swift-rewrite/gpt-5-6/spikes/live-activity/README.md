@@ -34,3 +34,5 @@ The runnable spike remains isolated under `spikes/live-activity` and the unlinke
 ## Production adoption
 
 Task 27 promoted the read-only parity path into `widgets/SleepLiveActivity.tsx` and `src/services/live-activity.ts`. The production activity now starts and ends with the SQLite session lifecycle, displays system-updating elapsed and remaining timers, tracks the configured sleep goal, persists its identifier, adopts the native instance after relaunch, removes duplicates, and respects the iOS setting. The spike reexports the production widget so the extension registers one factory only.
+
+Task 28 completed the fallback with a three-hour pre-bedtime state. Launch and foreground reconciliation calculate the next local bedtime, start or update one wind-down activity inside that window, and end it outside the window. The lock-screen banner and Dynamic Island variants now switch iconography, countdown labels, guidance, and progress by phase. The rejected wake button was not promoted into production because it still lacks a durable background handoff.

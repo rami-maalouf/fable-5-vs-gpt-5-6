@@ -312,7 +312,7 @@ by side.
   - verify: simulator lock screen; physical device pass queued for checkpoint 8.
   - depends: 6, 10. files: widgets/*, src/services/live-activity.ts. size: M
 
-- [ ] **task 28: superpower - interactive island + wind-down state**
+- [x] **task 28: superpower - interactive island + wind-down state**
   - description: per spike decision: interactive wake-up button on lock screen +
     expanded island ending the session, and a wind-down countdown state before
     bedtime. if the spike chose the fallback: wind-down state + richer island

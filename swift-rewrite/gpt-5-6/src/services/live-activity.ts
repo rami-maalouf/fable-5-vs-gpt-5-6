@@ -27,6 +27,7 @@ interface SleepLiveActivitySettings {
 
 interface SleepLiveActivityDependencies {
   factory?: SleepLiveActivityFactory;
+  now?: () => number;
   platform?: string;
   settings?: SleepLiveActivitySettings;
 }
@@ -38,6 +39,7 @@ export type SleepLiveActivityReconcileResult = {
 
 const deepLink = 'twilight://';
 const millisecondsPerHour = 60 * 60 * 1_000;
+const windDownLeadMilliseconds = 3 * millisecondsPerHour;
 
 export function createSleepActivityProps(
   session: SleepSession,
@@ -54,6 +56,37 @@ export function createSleepActivityProps(
     startedAt: session.startTime,
     status: 'Sleep session active',
     title: 'Rejuvenating...',
+  };
+}
+
+export function createWindDownActivityProps(
+  settings: Pick<SleepSettings, 'optimalSleepMinutes'>,
+  now: number,
+): SleepActivityProps | null {
+  const bedtime = new Date(now);
+  bedtime.setHours(
+    Math.floor(settings.optimalSleepMinutes / 60),
+    settings.optimalSleepMinutes % 60,
+    0,
+    0,
+  );
+  if (bedtime.getTime() <= now) {
+    bedtime.setDate(bedtime.getDate() + 1);
+  }
+
+  const goalEndAt = bedtime.getTime();
+  const startedAt = goalEndAt - windDownLeadMilliseconds;
+  if (now < startedAt) {
+    return null;
+  }
+
+  return {
+    goalEndAt,
+    phase: 'windDown',
+    sessionId: 'wind-down',
+    startedAt,
+    status: 'Bedtime is approaching',
+    title: 'Wind Down Time',
   };
 }
 
@@ -79,6 +112,7 @@ export function getSleepLiveActivityId(instance: SleepLiveActivityInstance): str
 
 export function createSleepLiveActivityService({
   factory,
+  now = Date.now,
   platform = Platform.OS,
   settings = settingsStore,
 }: SleepLiveActivityDependencies = {}) {
@@ -88,10 +122,10 @@ export function createSleepLiveActivityService({
     instances: readonly SleepLiveActivityInstance[],
     session: SleepSession | null,
   ): Promise<void> {
-    const now = Date.now();
-    const finalProps = endedProps(session, now);
+    const endedAt = now();
+    const finalProps = endedProps(session, endedAt);
     const outcomes = await Promise.allSettled(
-      instances.map((instance) => instance.end('immediate', finalProps, new Date(now))),
+      instances.map((instance) => instance.end('immediate', finalProps, new Date(endedAt))),
     );
     const failure = outcomes.find((outcome) => outcome.status === 'rejected');
     if (failure?.status === 'rejected') {
@@ -110,7 +144,10 @@ export function createSleepLiveActivityService({
 
     const liveActivityFactory = factory ?? await getDefaultFactory();
     const instances = liveActivityFactory.getInstances();
-    if (!activeSession || !currentSettings.liveActivityEnabled) {
+    const props = activeSession
+      ? createSleepActivityProps(activeSession, currentSettings)
+      : createWindDownActivityProps(currentSettings, now());
+    if (!currentSettings.liveActivityEnabled || !props) {
       try {
         await endInstances(instances, activeSession);
       } finally {
@@ -119,7 +156,6 @@ export function createSleepLiveActivityService({
       return { activityId: null, status: 'ended' };
     }
 
-    const props = createSleepActivityProps(activeSession, currentSettings);
     if (instances.length === 0) {
       const started = liveActivityFactory.start(props, deepLink);
       const activityId = getSleepLiveActivityId(started);
