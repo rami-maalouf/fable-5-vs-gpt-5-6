@@ -190,7 +190,7 @@ by side.
 
 ## phase 5: dashboard fidelity (spec priority 3)
 
-- [ ] **task 17: dashboard layout**
+- [x] **task 17: dashboard layout**
   - description: full dashboard: greeting (9 banks + selection logic, tap to
     shuffle), date line, info button -> metrics-explanation sheet (detents
     0.6/large + drag indicator), view-mode segmented picker (Week / 7-Night Avg /
