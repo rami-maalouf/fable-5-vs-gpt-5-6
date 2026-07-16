@@ -71,7 +71,7 @@ original look.
 
 ## phase 2: risk burn-down (timeboxed spikes - decisions, not polish)
 
-- [ ] **task 6: spike - expo-widgets live activity**
+- [x] **task 6: spike - expo-widgets live activity**
   - description: read current expo-widgets docs (newer than training data); minimal
     live activity: start/update/end from js, then attempt an interactive button
     (button -> intent -> js/session mutation).

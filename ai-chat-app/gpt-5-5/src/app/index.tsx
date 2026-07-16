@@ -7,12 +7,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
+import { ConversationDrawerContent } from '@/components/drawer/ConversationDrawerContent';
 import { Drawer } from '@/components/drawer/Drawer';
 import { createExpoSqlDatabaseAdapter } from '@/data';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
 import { useDrawerStore } from '@/state/drawer';
 import {
+  loadConversationTranscriptAsync,
   persistAssistantMessageContentAsync,
   persistAssistantMessageStatusAsync,
   persistAssistantTurnStartAsync,
@@ -32,6 +34,8 @@ export default function HomeScreen() {
   const finishAssistantMessage = useChatStore((state) => state.finishAssistantMessage);
   const isAwaitingFirstToken = useChatStore((state) => state.isAwaitingFirstToken);
   const messages = useChatStore((state) => state.messages);
+  const loadConversationTranscript = useChatStore((state) => state.loadConversationTranscript);
+  const resetTranscript = useChatStore((state) => state.resetTranscript);
   const setCurrentConversationId = useChatStore((state) => state.setCurrentConversationId);
   const startAssistantTurn = useChatStore((state) => state.startAssistantTurn);
   const isDrawerOpen = useDrawerStore((state) => state.isOpen);
@@ -109,6 +113,25 @@ export default function HomeScreen() {
     chatStream.stop();
   };
 
+  const startNewChat = () => {
+    chatStream.stop();
+    resetTranscript();
+    setDrawerOpen(false);
+  };
+
+  const selectConversation = (conversationId: string) => {
+    chatStream.stop();
+
+    void loadConversationTranscriptAsync(db, conversationId).then(({ conversation, messages }) => {
+      loadConversationTranscript({
+        conversationId: conversation.id,
+        messages,
+        model: conversation.model,
+      });
+      setDrawerOpen(false);
+    });
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <SafeAreaView
@@ -141,6 +164,7 @@ export default function HomeScreen() {
           <Pressable
             accessibilityLabel="start new chat"
             accessibilityRole="button"
+            onPress={startNewChat}
             style={[
               styles.iconButton,
               styles.rightHeaderButton,
@@ -175,11 +199,13 @@ export default function HomeScreen() {
       </SafeAreaView>
 
       <Drawer isOpen={isDrawerOpen} onOpenChange={setDrawerOpen}>
-        <View style={styles.drawerEmptyState}>
-          <Text style={[styles.drawerEmptyTitle, { color: theme.colors.text }]}>
-            No saved chats
-          </Text>
-        </View>
+        <ConversationDrawerContent
+          activeConversationId={currentConversationId}
+          db={db}
+          isOpen={isDrawerOpen}
+          onNewChat={startNewChat}
+          onSelectConversation={selectConversation}
+        />
       </Drawer>
     </View>
   );
@@ -232,14 +258,5 @@ const styles = StyleSheet.create({
   },
   rightHeaderButton: {
     right: spacing.md,
-  },
-  drawerEmptyState: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.lg,
-  },
-  drawerEmptyTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    lineHeight: 20,
   },
 });
