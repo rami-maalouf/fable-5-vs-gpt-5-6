@@ -14,3 +14,4 @@
 - Store SQLite timestamps as Unix milliseconds and use application-generated text IDs. This preserves JavaScript precision, gives deterministic ordering, and avoids coupling UI state to SQLite insert IDs.
 - Persist a failed partial assistant response only when the user retries or sends the next turn. This preserves the Task 6 retry state without treating a transient reader failure as completed history, while a deliberate stop persists immediately as required.
 - Keep launch on a fresh in-memory chat even when SQLite contains history. Persisted conversations are loaded only through `openConversation`, which satisfies the fresh-launch requirement and gives the drawer a single explicit restoration boundary.
+- Use a custom Reanimated drawer shell with a 24-point leading-edge gesture target. Expo Router's stack has no drawer primitive, and this keeps motion, accessibility isolation, and responsive sizing explicit without adding a navigation dependency for one screen.

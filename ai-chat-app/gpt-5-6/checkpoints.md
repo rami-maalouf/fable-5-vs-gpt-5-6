@@ -128,3 +128,26 @@ Code-quality review:
 - Data integrity: the first conversation and user message share one exclusive transaction, and multi-message move-on writes are atomic before a new request starts.
 - Security: every SQL value is bound through SQLite parameters, and persisted provider errors remain generic user-visible state rather than database content.
 - Performance: SQLite writes occur only at turn boundaries; stream chunks continue to update in memory, and the list follows exact measured content height only while the user has not opted out by dragging.
+
+## Conversation Drawer - Task 9
+
+Status: passed on 2026-07-16.
+
+- Header control: the 44-point sidebar button opens the drawer while preserving Nova's centered title.
+- Interactive motion: a slow 17.5% edge drag tracked the finger and settled closed; a 63.5% drag settled open; a full leftward drawer drag closed it.
+- Dismissal: the dimmed overlay and explicit close control both close the drawer.
+- Accessibility: opening the drawer hides the chat controls from the accessibility tree and exposes only the drawer dismissal controls.
+- Responsive shell: width is capped at 360 points, remains at least 280 points, and uses 86% of narrower screens.
+- Runtime: a clean app restart produced no JavaScript warnings or errors.
+- Automated gates: 20 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed.
+
+Evidence:
+
+- `verification/09-drawer-open-light.png`
+
+Code-quality review:
+
+- Correctness: velocity takes priority over the halfway threshold, cancelled gestures always settle, and opening is limited to a 24-point leading-edge target.
+- Accessibility: the overlay and close button share an explicit dismissal label, and background descendants cannot receive focus while open.
+- Maintainability: pure clamp and settlement rules are isolated from the animated shell and covered by focused tests.
+- Performance: one shared progress value drives translation and opacity on the UI thread; React state changes only at transition boundaries.
