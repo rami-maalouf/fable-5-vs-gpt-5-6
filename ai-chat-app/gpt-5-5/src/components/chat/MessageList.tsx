@@ -55,6 +55,14 @@ export function MessageList({
     />
   ), [bottom]);
 
+  const renderMessage = useCallback(({ item }: { item: ChatTranscriptMessage }) => (
+    <MessageRow
+      isAwaitingFirstToken={isAwaitingFirstToken}
+      message={item}
+      onRetryMessage={onRetryMessage}
+    />
+  ), [isAwaitingFirstToken, onRetryMessage]);
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -85,13 +93,7 @@ export function MessageList({
         onContentSizeChange={handleContentSizeChange}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
-        renderItem={({ item }) => (
-          <MessageRow
-            isAwaitingFirstToken={isAwaitingFirstToken}
-            message={item}
-            onRetryMessage={onRetryMessage}
-          />
-        )}
+        renderItem={renderMessage}
         renderScrollComponent={renderScrollComponent}
         scrollEventThrottle={16}
         style={styles.list}

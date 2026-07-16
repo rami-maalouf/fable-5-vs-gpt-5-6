@@ -133,6 +133,35 @@ describe('MessageList', () => {
     expect(visibleText).toContain('hi from nova');
   });
 
+  it('renders assistant text as an unconstrained wrapping text node', async () => {
+    const longReply = 'Nova gives a complete answer that needs enough vertical space to wrap across several lines without clipping the final words.';
+    const tree = await renderMessageList({
+      isAwaitingFirstToken: false,
+      messages: [
+        {
+          content: longReply,
+          createdAt: 1,
+          id: 'assistant-1',
+          role: 'assistant',
+          status: 'complete',
+        },
+      ],
+    });
+
+    const assistantText = tree.root.findAllByType(Text).find((node) => (
+      node.props.children === longReply
+    ));
+
+    expect(assistantText).toBeDefined();
+    expect(assistantText?.props.numberOfLines).toBeUndefined();
+    expect(assistantText?.props.style).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        flexShrink: 1,
+        width: '100%',
+      }),
+    ]));
+  });
+
   it('renders a loading indicator before the first assistant token', async () => {
     const tree = await renderMessageList({
       isAwaitingFirstToken: true,

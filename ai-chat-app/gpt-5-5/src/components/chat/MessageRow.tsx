@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, LinearTransition } from 'react-native-reanimated';
 
@@ -11,7 +12,7 @@ type MessageRowProps = {
   onRetryMessage?: (assistantMessageId: string) => void;
 };
 
-export function MessageRow({
+function MessageRowComponent({
   isAwaitingFirstToken,
   message,
   onRetryMessage,
@@ -53,12 +54,11 @@ export function MessageRow({
           <ActivityIndicator color={theme.colors.secondaryText} size="small" />
         </View>
       ) : shouldShowEmptyErrorText ? null : (
-        <Animated.Text
-          layout={LinearTransition.duration(120)}
+        <Text
           style={[styles.assistantText, { color: theme.colors.text }]}
         >
           {message.content}
-        </Animated.Text>
+        </Text>
       )}
 
       {shouldShowError ? (
@@ -72,6 +72,8 @@ export function MessageRow({
     </Animated.View>
   );
 }
+
+export const MessageRow = memo(MessageRowComponent);
 
 const styles = StyleSheet.create({
   userRow: {
@@ -95,8 +97,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   assistantText: {
+    flexShrink: 1,
     fontSize: 16,
     lineHeight: 23,
+    width: '100%',
   },
   loadingRow: {
     minHeight: 24,
