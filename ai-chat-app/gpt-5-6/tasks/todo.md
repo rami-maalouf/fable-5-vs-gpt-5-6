@@ -4,7 +4,7 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 
 ## phase 1: walking skeleton
 - [x] task 1: project setup (deps, server output, strip starter scaffolding)
-- [ ] task 2: streaming api route with model allowlist
+- [x] task 2: streaming api route with model allowlist
 - [ ] task 3: walking skeleton - send, stream, render, stop
 - [ ] checkpoint: e2e streaming works; typecheck + lint clean; commit
 

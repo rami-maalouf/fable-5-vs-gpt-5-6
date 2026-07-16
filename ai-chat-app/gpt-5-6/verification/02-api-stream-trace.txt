@@ -1,0 +1,148 @@
+03:23:27.971745 == Info: Host localhost:8081 was resolved.
+03:23:27.972130 == Info: IPv6: ::1
+03:23:27.972131 == Info: IPv4: 127.0.0.1
+03:23:27.972146 == Info:   Trying [::1]:8081...
+03:23:27.972302 == Info: Connected to localhost (::1) port 8081
+03:23:27.972322 => Send header, 135 bytes (0x87)
+0000: POST /chat HTTP/1.1
+0015: Host: localhost:8081
+002b: User-Agent: curl/8.7.1
+0043: Accept: */*
+0050: Content-Type: application/json
+0070: Content-Length: 138
+0085:
+03:23:27.972357 => Send data, 138 bytes (0x8a)
+0000: {"messages":[{"role":"user","content":"Introduce yourself in thr
+0040: ee short sentences, one sentence per paragraph."}],"model":"gpt-
+0080: 5.6-luna"}
+03:23:27.972365 == Info: upload completely sent off: 138 bytes
+03:23:29.121517 <= Recv header, 17 bytes (0x11)
+0000: HTTP/1.1 200 OK
+03:23:29.121549 <= Recv header, 33 bytes (0x21)
+0000: X-Content-Type-Options: nosniff
+03:23:29.121557 <= Recv header, 29 bytes (0x1d)
+0000: Surrogate-Control: no-store
+03:23:29.121563 <= Recv header, 25 bytes (0x19)
+0000: cache-control: no-cache
+03:23:29.121569 <= Recv header, 18 bytes (0x12)
+0000: Pragma: no-cache
+03:23:29.121574 <= Recv header, 12 bytes (0xc)
+0000: Expires: 0
+03:23:29.121579 <= Recv header, 41 bytes (0x29)
+0000: content-type: text/plain; charset=utf-8
+03:23:29.121584 <= Recv header, 37 bytes (0x25)
+0000: Date: Thu, 16 Jul 2026 09:23:28 GMT
+03:23:29.121590 <= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+03:23:29.121595 <= Recv header, 23 bytes (0x17)
+0000: Keep-Alive: timeout=5
+03:23:29.121603 <= Recv header, 28 bytes (0x1c)
+0000: Transfer-Encoding: chunked
+03:23:29.121609 <= Recv header, 2 bytes (0x2)
+0000:
+03:23:29.121614 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: I
+03:23:29.123383 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003: ...m
+03:23:29.125109 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  Nova
+03:23:29.127328 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: ,
+03:23:29.127442 <= Recv data, 7 bytes (0x7)
+0000: 2
+0003:  a
+03:23:29.140287 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  warm
+03:23:29.140374 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003:  and
+03:23:29.140474 <= Recv data, 13 bytes (0xd)
+0000: 8
+0003:  curious
+03:23:29.143381 <= Recv data, 8 bytes (0x8)
+0000: 3
+0003:  AI
+03:23:29.163209 <= Recv data, 15 bytes (0xf)
+0000: a
+0003:  companion
+03:23:29.200237 <= Recv data, 8 bytes (0x8)
+0000: 3
+0003: ...
+03:23:29.200327 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: I
+03:23:29.200437 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003: ...m
+03:23:29.214495 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  here
+03:23:29.214580 <= Recv data, 8 bytes (0x8)
+0000: 3
+0003:  to
+03:23:29.214684 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  help
+03:23:29.220587 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003:  you
+03:23:29.230686 <= Recv data, 11 bytes (0xb)
+0000: 6
+0003:  think
+03:23:29.232919 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: ,
+03:23:29.233902 <= Recv data, 12 bytes (0xc)
+0000: 7
+0003:  create
+03:23:29.238735 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: ,
+03:23:29.258467 <= Recv data, 11 bytes (0xb)
+0000: 6
+0003:  learn
+03:23:29.258573 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: ,
+03:23:29.258660 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003:  and
+03:23:29.258766 <= Recv data, 13 bytes (0xd)
+0000: 8
+0003:  explore
+03:23:29.260337 <= Recv data, 8 bytes (0x8)
+0000: 3
+0003: ...
+03:23:29.269779 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003: What
+03:23:29.283786 <= Recv data, 11 bytes (0xb)
+0000: 6
+0003:  would
+03:23:29.292961 <= Recv data, 9 bytes (0x9)
+0000: 4
+0003:  you
+03:23:29.295715 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  like
+03:23:29.297898 <= Recv data, 8 bytes (0x8)
+0000: 3
+0003:  to
+03:23:29.297947 <= Recv data, 10 bytes (0xa)
+0000: 5
+0003:  talk
+03:23:29.308884 <= Recv data, 11 bytes (0xb)
+0000: 6
+0003:  about
+03:23:29.311241 <= Recv data, 6 bytes (0x6)
+0000: 1
+0003: ?
+03:23:29.770811 <= Recv data, 5 bytes (0x5)
+0000: 0
+0003:
+03:23:29.770888 == Info: Connection #0 to host localhost left intact
