@@ -90,7 +90,7 @@ original look.
   - verify: spike screenshot vs original; decision note committed.
   - depends: 5. files: spike note + scratch component. size: S
 
-- [ ] **task 8: spike - grayscale-while-asleep**
+- [x] **task 8: spike - grayscale-while-asleep**
   - description: compare desaturated-palette swap (+ skia saturation(0) on canvases)
     vs a native color-filter module for the app-root grayscale effect.
   - acceptance: written decision with chosen approach; if palette swap, the
