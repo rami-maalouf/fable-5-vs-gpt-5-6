@@ -84,6 +84,11 @@ export default function SettingsScreen() {
 
   const pickMode = () => {
     const options: ThemeMode[] = ['system', 'light', 'dark'];
+    if (Platform.OS !== 'ios') {
+      // android boot scope: cycle through modes instead of the ios action sheet
+      setMode(options[(options.indexOf(mode) + 1) % options.length]);
+      return;
+    }
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: [...options.map((m) => MODE_LABELS[m]), 'Cancel'],
@@ -101,6 +106,10 @@ export default function SettingsScreen() {
 
   const pickPalette = () => {
     const options: ThemePalette[] = ['twilight', 'amethyst'];
+    if (Platform.OS !== 'ios') {
+      setPalette(options[(options.indexOf(palette) + 1) % options.length]);
+      return;
+    }
     ActionSheetIOS.showActionSheetWithOptions(
       {
         options: [...options.map((p) => PALETTE_LABELS[p]), 'Cancel'],

@@ -145,3 +145,44 @@ extracted for all date-series charts; insight pills theme-aware; jest
 transform allowlist extended for expo-router's esm dependency. known minor
 debt: log rows use fixed dark ios list colors (correct for the reference
 dark theme; light-mode pass scheduled with task 25 polish).
+
+## checkpoint 6: remaining screens (tasks 20-24) - PASS (jul 16)
+
+every screen walkable side by side vs the reference set (self-verified,
+evidence under evidence/task-20..24):
+
+- settings vs IMG_4811: large title, support row, sleep goal card (indigo
+  bedtime / orange wake native compact time pickers + "Goal: 9 hr" pill), app
+  appearance pickers (display mode System/Sunset/Night Sky; theme color
+  twilight/amethyst - live switch verified, background/tints update in
+  place), wind-down toggle + description, wind-down routine timeline screen
+  with times derived from the bedtime, live activity toggle, community
+  links. NFC & QR / apple health / data sections intentionally absent (spec
+  scope; DEVIATIONS.md).
+- onboarding (4-step flow per the spec decision): welcome with glowing moon +
+  4 trust cards + staggered entrances, schedule step with the 260pt circular
+  picker writing the goal live, notification step with preview card + real
+  permission prompt (granted -> green "Notifications Enabled" like the
+  original), finish writes is_onboarded and lands on the dashboard. fresh
+  install gate verified live; dev restart row in settings.
+- metrics vs IMG_4802-4807: overview 6-tile + highlights 4-tile grids,
+  duration momentum (target-colored bars + 7-night catmullRom line + dashed
+  target), trend/median chips, trends analysis table (3/7/14/30/90 rows with
+  change chips + sparklines), regularity 6-tile grid, latest chips, rolling
+  consistency (teal area/line + 80 rule + scrub bubble), rolling 14-night
+  components (indigo/orange/green-dash lw2.8 + all/bedtime/wake/accuracy
+  filter + legend), cumulative debt (accent line/area + zero rule), weekday
+  averages (purple weekends + per-day labels), histogram with % annotations,
+  range-start/total-range footer tiles, empty state, 30D/90D/1Y/All ranges.
+- timeline sheet (detent 0.82 + grabber): horizontal bed->wake bars with
+  indigo/orange endpoints, dashed target rules, target pills, hour axis on
+  the 18:00-offset scale, per-night rows with date labels.
+
+verification: 201 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 20-24): typed the scrub gesture prop (no any);
+guarded ios-only ActionSheet pickers with an android cycle fallback (boot
+scope); reactive settings hook (useSettings) replaced direct kv reads across
+dashboard/editor so goal edits propagate live. known debt: "latest" chips and
+rolling charts legitimately show "-"/empty until 14 nights exist (mirrors the
+original's windowing).

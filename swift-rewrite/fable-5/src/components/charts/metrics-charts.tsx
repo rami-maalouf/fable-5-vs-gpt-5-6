@@ -4,7 +4,7 @@
 import { Canvas, Circle, DashPathEffect, Line, Path, RoundedRect, Skia, vec } from '@shopify/react-native-skia';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, type PanGesture } from 'react-native-gesture-handler';
 
 import type {
   ConsistencyPoint,
@@ -63,7 +63,7 @@ function useScrub(count: number, xAt: (i: number) => number) {
   return { selected, gesture };
 }
 
-function ScrubOverlay({ gesture, plotW, plotH }: { gesture: any; plotW: number; plotH: number }) {
+function ScrubOverlay({ gesture, plotW, plotH }: { gesture: PanGesture; plotW: number; plotH: number }) {
   return (
     <GestureDetector gesture={gesture}>
       <View style={{ position: 'absolute', left: M.left, top: 0, width: plotW, height: M.top + plotH }} />
