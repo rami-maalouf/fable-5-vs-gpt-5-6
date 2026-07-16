@@ -100,7 +100,7 @@ export function MessageBubble({ role, text, streaming }: MessageBubbleProps) {
 ## Backend contract (fixed - do not deviate)
 
 - `src/app/chat+api.ts`, POST, body = `{ messages, model }` (full history + requested model)
-- server validates `model` against the allowlist `['gpt-5.6-luna', 'gpt-5.6', 'gpt-5.5']`;
+- server validates `model` against the allowlist `['gpt-5.6-luna', 'gpt-5.6-sol', 'gpt-5.6-terra']`;
   anything else returns 400. never pass an unvalidated model string through.
 - response = streamed plain text (the assistant reply only)
 - generated with `@openai/agents`, streaming, agent name `Nova`, instructions verbatim:
@@ -129,8 +129,8 @@ export function MessageBubble({ role, text, streaming }: MessageBubbleProps) {
    (swipe-to-delete additionally acceptable); titles auto-set from the first user
    message, truncated to ~40 chars
 6. model picker: chat header shows the active conversation's model; tapping opens a
-   picker with exactly `gpt-5.6-luna` (default), `gpt-5.6`, `gpt-5.5`. choice is stored
-   per conversation and sent with every request.
+   picker with exactly `gpt-5.6-luna` (default), `gpt-5.6-sol`, `gpt-5.6-terra`. choice
+   is stored per conversation and sent with every request.
 7. persistence: conversations, messages, and per-conversation model survive relaunch
    (expo-sqlite)
 8. launch behavior: app opens into a fresh empty conversation (empty state); history is
@@ -213,7 +213,8 @@ tooling and evidence:
 
 ## Runtime notes
 
-1. before building the model picker, curl the route with all three model ids; if one is
-   not live, note it in the final summary and proceed with the working ones
+1. the three model ids were verified live against the api on jul 16; still curl the
+   route with all three before building the picker, and if one is not live, note it in
+   the final summary and proceed with the working ones
 2. keyboard handling: try the native approach first; if interactive dismiss can't clear
    the bar, add react-native-keyboard-controller
