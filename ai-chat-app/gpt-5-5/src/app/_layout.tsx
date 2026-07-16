@@ -11,7 +11,7 @@ import {
   NOVA_DATABASE_NAME,
 } from '@/data';
 import { SystemChrome } from '@/components/SystemChrome';
-import { useNovaTheme } from '@/theme';
+import { novaColorSchemes, useNovaTheme } from '@/theme';
 
 async function initializeDatabase(db: SQLiteDatabase) {
   await migrateDatabaseAsync(createExpoSqlDatabaseAdapter(db));
@@ -20,13 +20,16 @@ async function initializeDatabase(db: SQLiteDatabase) {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const novaTheme = useNovaTheme();
+  const rootBackgroundColor = novaColorSchemes[
+    novaTheme.scheme === 'dark' ? 'dark' : 'light'
+  ].background;
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: novaTheme.colors.background }}>
         <KeyboardProvider>
           <SQLiteProvider databaseName={NOVA_DATABASE_NAME} onInit={initializeDatabase}>
-            <SystemChrome backgroundColor={novaTheme.colors.background} />
+            <SystemChrome backgroundColor={rootBackgroundColor} />
             <Stack
               screenOptions={{
                 headerShown: false,

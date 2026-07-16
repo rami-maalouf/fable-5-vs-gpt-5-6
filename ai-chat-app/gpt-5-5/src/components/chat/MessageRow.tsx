@@ -26,7 +26,9 @@ export function MessageRow({
         style={styles.userRow}
       >
         <View style={[styles.userBubble, { backgroundColor: theme.colors.accent }]}>
-          <Text style={styles.userText}>{message.content}</Text>
+          <Text style={[styles.userText, { color: theme.colors.accentText }]}>
+            {message.content}
+          </Text>
         </View>
       </Animated.View>
     );
@@ -84,7 +86,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   userText: {
-    color: '#ffffff',
     fontSize: 16,
     lineHeight: 22,
   },

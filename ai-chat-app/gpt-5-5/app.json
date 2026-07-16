@@ -7,9 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "nova",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#ffffff",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.ramimaalouf.nova"
+      "bundleIdentifier": "com.ramimaalouf.nova",
+      "backgroundColor": "#ffffff"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,12 +31,17 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000",
+            "image": "./assets/images/splash-icon.png"
+          },
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-system-ui"
     ],
     "experiments": {
       "typedRoutes": true

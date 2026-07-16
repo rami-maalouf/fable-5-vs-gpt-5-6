@@ -111,6 +111,7 @@ export function Drawer({ children, isOpen, onOpenChange }: DrawerProps) {
   return (
     <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
       <AnimatedPressable
+        accessibilityElementsHidden={!isOpen}
         accessibilityLabel="close drawer"
         accessibilityRole="button"
         importantForAccessibility={isOpen ? 'auto' : 'no-hide-descendants'}
@@ -121,6 +122,7 @@ export function Drawer({ children, isOpen, onOpenChange }: DrawerProps) {
 
       <GestureDetector gesture={drawerGesture}>
         <Animated.View
+          accessibilityElementsHidden={!isOpen}
           accessibilityLabel="conversation drawer"
           importantForAccessibility={isOpen ? 'auto' : 'no-hide-descendants'}
           pointerEvents={isOpen ? 'auto' : 'none'}
