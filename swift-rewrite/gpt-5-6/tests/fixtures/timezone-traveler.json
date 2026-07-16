@@ -1,0 +1,26 @@
+{
+  "name": "timezone traveler",
+  "goals": { "sleepMinutes": 1380, "wakeMinutes": 420 },
+  "referenceDayKey": "2026-07-19",
+  "sessions": [
+    { "id": "t1", "start": "2026-07-13T14:00:00.000Z", "end": "2026-07-13T22:00:00.000Z", "startTimeZone": "Asia/Tokyo", "endTimeZone": "America/Edmonton" },
+    { "id": "t2", "start": "2026-07-18T14:00:00.000Z", "end": "2026-07-18T22:00:00.000Z", "startTimeZone": "Asia/Tokyo", "endTimeZone": "America/Edmonton" }
+  ],
+  "expected": {
+    "dayKeys": ["2026-07-13", "2026-07-18"],
+    "weekdays": [2, 7],
+    "durations": [8, 8],
+    "bedtimeOffsets": [5, 5],
+    "wakeOffsets": [22, 22],
+    "midpointOffsets": [9, 9],
+    "scalars": { "average": 8, "median": 8, "total": 16, "longest": 8, "shortest": 8, "coverage30": 7, "coverageAll": 29, "goalHitRate": 100, "trend": null, "currentStreak": 1, "longestStreak": 1, "sleepConsistency": 100, "wakeConsistency": 100, "scheduleAccuracy": 0, "regularity": 100, "socialJetlag": 0, "cumulativeDebt": 0 },
+    "movingAverages": [null, null],
+    "debtSeries": [0, 0],
+    "weekdayAverages": [0, 8, 0, 0, 0, 0, 8],
+    "weekdayNights": [0, 1, 0, 0, 0, 0, 1],
+    "bucketCounts": [0, 0, 0, 0, 0, 0, 0, 2],
+    "rollingLast": null,
+    "alignmentDaily": [100, 100],
+    "alignmentTrend": [100, 100]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "sub-5-minute noise",
+  "goals": { "sleepMinutes": 1320, "wakeMinutes": 360 },
+  "referenceDayKey": "2026-07-11",
+  "sessions": [
+    { "id": "valid", "start": "2026-07-09T22:00:00.000Z", "end": "2026-07-10T06:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "noise", "start": "2026-07-11T05:56:01.000Z", "end": "2026-07-11T06:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "active", "start": "2026-07-12T22:00:00.000Z", "end": null, "startTimeZone": "UTC", "endTimeZone": null }
+  ],
+  "expected": {
+    "dayKeys": ["2026-07-10"],
+    "weekdays": [6],
+    "durations": [8],
+    "bedtimeOffsets": [4],
+    "wakeOffsets": [12],
+    "midpointOffsets": [8],
+    "scalars": { "average": 8, "median": 8, "total": 8, "longest": 8, "shortest": 8, "coverage30": 3, "coverageAll": 50, "goalHitRate": 100, "trend": null, "currentStreak": 1, "longestStreak": 1, "sleepConsistency": 100, "wakeConsistency": 100, "scheduleAccuracy": 100, "regularity": 100, "socialJetlag": null, "cumulativeDebt": 0 },
+    "movingAverages": [null],
+    "debtSeries": [0],
+    "weekdayAverages": [0, 0, 0, 0, 0, 8, 0],
+    "weekdayNights": [0, 0, 0, 0, 0, 1, 0],
+    "bucketCounts": [0, 0, 0, 0, 0, 0, 0, 1],
+    "rollingLast": null,
+    "alignmentDaily": [100],
+    "alignmentTrend": [100]
+  }
+}

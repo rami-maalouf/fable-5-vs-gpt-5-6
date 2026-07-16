@@ -1,0 +1,27 @@
+{
+  "name": "shift worker crossing midnight",
+  "goals": { "sleepMinutes": 1020, "wakeMinutes": 60 },
+  "referenceDayKey": "2026-07-12",
+  "sessions": [
+    { "id": "s1", "start": "2026-07-09T17:00:00.000Z", "end": "2026-07-10T01:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "s2", "start": "2026-07-10T17:00:00.000Z", "end": "2026-07-11T01:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "s3", "start": "2026-07-11T17:00:00.000Z", "end": "2026-07-12T01:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" }
+  ],
+  "expected": {
+    "dayKeys": ["2026-07-10", "2026-07-11", "2026-07-12"],
+    "weekdays": [6, 7, 1],
+    "durations": [8, 8, 8],
+    "bedtimeOffsets": [23, 23, 23],
+    "wakeOffsets": [7, 7, 7],
+    "midpointOffsets": [27, 27, 27],
+    "scalars": { "average": 8, "median": 8, "total": 24, "longest": 8, "shortest": 8, "coverage30": 10, "coverageAll": 100, "goalHitRate": 100, "trend": null, "currentStreak": 3, "longestStreak": 3, "sleepConsistency": 100, "wakeConsistency": 100, "scheduleAccuracy": 100, "regularity": 100, "socialJetlag": 0, "cumulativeDebt": 0 },
+    "movingAverages": [null, null, null],
+    "debtSeries": [0, 0, 0],
+    "weekdayAverages": [8, 0, 0, 0, 0, 8, 8],
+    "weekdayNights": [1, 0, 0, 0, 0, 1, 1],
+    "bucketCounts": [0, 0, 0, 0, 0, 0, 0, 3],
+    "rollingLast": null,
+    "alignmentDaily": [100, 100, 100],
+    "alignmentTrend": [100, 100, 100]
+  }
+}

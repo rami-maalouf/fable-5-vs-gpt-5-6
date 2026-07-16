@@ -1,0 +1,38 @@
+{
+  "name": "gaps and streak breaks",
+  "goals": { "sleepMinutes": 1320, "wakeMinutes": 360 },
+  "referenceDayKey": "2026-07-16",
+  "sessions": [
+    { "id": "g01", "start": "2026-06-30T22:00:00.000Z", "end": "2026-07-01T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g02", "start": "2026-07-01T22:00:00.000Z", "end": "2026-07-02T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g03", "start": "2026-07-02T22:00:00.000Z", "end": "2026-07-03T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g04", "start": "2026-07-03T22:00:00.000Z", "end": "2026-07-04T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g05", "start": "2026-07-04T22:00:00.000Z", "end": "2026-07-05T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g06", "start": "2026-07-05T22:00:00.000Z", "end": "2026-07-06T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g07", "start": "2026-07-06T22:00:00.000Z", "end": "2026-07-07T04:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g08", "start": "2026-07-08T22:00:00.000Z", "end": "2026-07-09T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g09", "start": "2026-07-09T22:00:00.000Z", "end": "2026-07-10T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g10", "start": "2026-07-10T22:00:00.000Z", "end": "2026-07-11T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g11", "start": "2026-07-11T22:00:00.000Z", "end": "2026-07-12T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g12", "start": "2026-07-12T22:00:00.000Z", "end": "2026-07-13T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g13", "start": "2026-07-13T22:00:00.000Z", "end": "2026-07-14T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" },
+    { "id": "g14", "start": "2026-07-14T22:00:00.000Z", "end": "2026-07-15T07:00:00.000Z", "startTimeZone": "UTC", "endTimeZone": "UTC" }
+  ],
+  "expected": {
+    "dayKeys": ["2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-09", "2026-07-10", "2026-07-11", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15"],
+    "weekdays": [4, 5, 6, 7, 1, 2, 3, 5, 6, 7, 1, 2, 3, 4],
+    "durations": [6, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9, 9, 9],
+    "bedtimeOffsets": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    "wakeOffsets": [10, 10, 10, 10, 10, 10, 10, 13, 13, 13, 13, 13, 13, 13],
+    "midpointOffsets": [7, 7, 7, 7, 7, 7, 7, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5, 8.5],
+    "scalars": { "average": 7.5, "median": 7.5, "total": 105, "longest": 9, "shortest": 6, "coverage30": 47, "coverageAll": 88, "goalHitRate": 0, "trend": 50, "currentStreak": 7, "longestStreak": 7, "sleepConsistency": 100, "wakeConsistency": 40, "scheduleAccuracy": 78, "regularity": 70, "socialJetlag": 0, "cumulativeDebt": -7 },
+    "movingAverages": [null, null, null, null, null, null, 6, 6.428571, 6.857143, 7.285714, 7.714286, 8.142857, 8.571429, 9],
+    "debtSeries": [-2, -4, -6, -8, -10, -12, -14, -13, -12, -11, -10, -9, -8, -7],
+    "weekdayAverages": [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5],
+    "weekdayNights": [2, 2, 2, 2, 2, 2, 2],
+    "bucketCounts": [0, 0, 0, 7, 0, 0, 0, 7],
+    "rollingLast": [100, 40, 78],
+    "alignmentDaily": [35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 82.531364, 80.421767, 79.211651, 78.52289, 78.150521, 77.976457, 77.929408],
+    "alignmentTrend": [35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 35.816946, 45.159829, 52.212217, 57.612104, 61.794261, 65.065513, 67.647702, 69.704043]
+  }
+}

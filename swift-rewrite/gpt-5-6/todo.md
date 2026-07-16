@@ -176,7 +176,7 @@ by side.
   - verify: `bun run test -- metrics`.
   - depends: 14. files: src/domain/metrics/advanced.ts, tests. size: M
 
-- [ ] **task 16: golden fixtures**
+- [x] **task 16: golden fixtures**
   - description: `tests/fixtures/`: five session sets (regular sleeper, shift
     worker crossing midnight, timezone traveler, sub-5-min noise, gaps/streak
     breaks) with expected outputs for every metric, derived by hand-tracing the
