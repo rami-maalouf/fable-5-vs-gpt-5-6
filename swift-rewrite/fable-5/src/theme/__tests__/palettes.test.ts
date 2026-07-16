@@ -1,5 +1,5 @@
 // asserts every token equals the spec's design-token table (ThemeManager.swift)
-import { PALETTES, resolveTheme } from '../palettes';
+import { PALETTES, desaturateTheme, resolveTheme } from '../palettes';
 
 describe('palette tokens', () => {
   test('twilight (teal) matches the spec table', () => {
@@ -48,6 +48,27 @@ describe('palette tokens', () => {
       actionPrimary: '#2b1c40',
       actionSecondary: 'rgba(255, 255, 255, 0.5)',
     });
+  });
+});
+
+describe('desaturateTheme (grayscale-while-asleep palette swap)', () => {
+  test('every slot becomes a pure gray with luminance preserved', () => {
+    for (const palette of ['twilight', 'amethyst'] as const) {
+      const gray = desaturateTheme(PALETTES[palette]);
+      for (const [slot, value] of Object.entries(gray)) {
+        if (slot === 'name') continue;
+        expect(value).toMatch(/^#([0-9a-f]{2})\1\1$|^rgba\((\d+), \2, \2, [\d.]+\)$/);
+      }
+    }
+  });
+
+  test('accent grays match rec.709 luminance', () => {
+    // twilight accent #00d4ff: 0.7152*212 + 0.0722*255 = 170 -> #aaaaaa
+    expect(desaturateTheme(PALETTES.twilight).accent).toBe('#aaaaaa');
+    // white and alpha channels pass through
+    expect(desaturateTheme(PALETTES.twilight).textPrimary).toBe('#ffffff');
+    // #1a1a2e = rgb(26,26,46) -> 0.2126*26 + 0.7152*26 + 0.0722*46 = 27
+    expect(desaturateTheme(PALETTES.twilight).cardBackground).toBe('rgba(27, 27, 27, 0.85)');
   });
 });
 

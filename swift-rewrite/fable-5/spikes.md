@@ -63,4 +63,20 @@ removed from deps if still unused at checkpoint 6.
 note: skia 2.6 deprecates SkPath.moveTo/cubicTo mutation - use
 Skia.PathBuilder (already applied in path-utils.ts).
 
-## spike 3 (task 8): grayscale-while-asleep - pending
+## spike 3 (task 8): grayscale-while-asleep - DECIDED: desaturated palette swap
+
+- rn's `filter` style with `saturate(0)` was tried on the app root first: it is
+  a no-op on ios (rn supports only brightness/opacity filters there; color
+  filters are android-only). verified live on the simulator.
+- a native UIView color filter is not viable either - CALayer.filters is
+  macos-only api; ios apps cannot apply a compositing saturation filter to an
+  arbitrary view tree.
+- decision: **luminance-preserving palette swap** (`desaturateTheme` in
+  src/theme/palettes.ts, rec.709 weights). ThemeProvider takes a `desaturated`
+  prop; task 11 drives it from the active-session state. verified on the
+  simulator: gradient, bars, accents, tab tint all go gray
+  (evidence/task-08/grayscale-palette-swap.png).
+- residue for task 11: components with fixed (non-theme) colors - chart rule
+  colors (indigo/orange/green), the gold moon - must consume a desaturation-
+  aware helper so they gray out too; skia canvases whose colors come from the
+  theme need nothing extra.
