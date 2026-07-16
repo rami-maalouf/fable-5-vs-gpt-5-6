@@ -238,7 +238,7 @@ by side.
   - verify: manual side-by-side; `bun run test`.
   - depends: 4, 13. files: app/(tabs)/settings.tsx, app/sleep-tips.tsx. size: M
 
-- [ ] **task 21: onboarding**
+- [x] **task 21: onboarding**
   - description: 4-step flow (welcome -> sleep schedule with circular picker ->
     notification permission -> finish), gated at app root by is_onboarded; finish
     writes schedule + flag. same visual language as original steps (gradient
