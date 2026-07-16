@@ -269,6 +269,24 @@ export default function SettingsScreen() {
             Would love to hear your feedback & suggestions!
           </Text>
         </View>
+
+        {__DEV__ && (
+          <View style={styles.section}>
+            <SectionHeader title="Development" color={theme.textSecondary} />
+            <Pressable
+              testID="restart-onboarding"
+              onPress={() => {
+                setSetting('isOnboarded', false);
+                router.push('/onboarding');
+              }}>
+              <Row rowBg={rowBg}>
+                <Text style={[styles.rowLabel, { color: theme.textPrimary }]}>
+                  Restart Onboarding
+                </Text>
+              </Row>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
     </Screen>
   );
