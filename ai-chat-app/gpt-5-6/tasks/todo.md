@@ -5,8 +5,8 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 ## phase 1: walking skeleton
 - [x] task 1: project setup (deps, server output, strip starter scaffolding)
 - [x] task 2: streaming api route with model allowlist
-- [ ] task 3: walking skeleton - send, stream, render, stop
-- [ ] checkpoint: e2e streaming works; typecheck + lint clean; commit
+- [x] task 3: walking skeleton - send, stream, render, stop
+- [x] checkpoint: e2e streaming works; typecheck + lint clean; commit
 
 ## phase 2: native-feel chat screen
 - [ ] task 4: message list feel (bubbles, scroll anchoring, empty state)

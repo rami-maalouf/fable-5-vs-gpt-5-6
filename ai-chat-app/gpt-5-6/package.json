@@ -7,6 +7,7 @@
     "@openai/agents": "^0.13.4",
     "expo": "~57.0.6",
     "expo-constants": "~57.0.5",
+    "expo-dev-client": "~57.0.6",
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",
     "expo-glass-effect": "~57.0.1",
