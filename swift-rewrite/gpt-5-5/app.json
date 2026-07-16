@@ -1,14 +1,15 @@
 {
   "expo": {
-    "name": "_starter",
-    "slug": "_starter",
+    "name": "Twilight",
+    "slug": "twilight-expo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "starter",
+    "scheme": "twilight",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.ramimaalouf.twilight-expo"
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +34,9 @@
           "imageWidth": 76
         }
       ],
-      "expo-widgets"
+      "expo-widgets",
+      "expo-sqlite",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,
