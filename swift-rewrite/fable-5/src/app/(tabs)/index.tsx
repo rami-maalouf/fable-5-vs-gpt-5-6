@@ -1,45 +1,75 @@
-// TEMPORARY spike harness (task 7): week chart seeded with the IMG_4796 data
-// for side-by-side comparison. real dashboard lands in task 17.
-import { ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
+// minimal dashboard (task 10): sleep toggle end to end. the full dashboard
+// (greeting, view modes, charts) lands in tasks 17-19.
+import { useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 
-import { Card } from '@/components/common/Card';
+import { StatusCard } from '@/components/dashboard/StatusCard';
 import { Screen } from '@/components/common/Screen';
-import { WeekChart, type WeekChartDay } from '@/components/charts/WeekChart';
-
-const bed = (h: number, m: number) => ((h < 18 ? h + 24 : h) + m / 60) - 18;
-const wake = (h: number, m: number) => h + m / 60 + 24 - 18;
-
-const DAYS: WeekChartDay[] = [
-  { dayLabel: 'Thu', dateLabel: 'Thu, Jul 10', startOffset: bed(23, 50), endOffset: wake(6, 44), durationSeconds: 6.9 * 3600, changePercent: null },
-  { dayLabel: 'Fri', dateLabel: 'Fri, Jul 11', startOffset: bed(1, 10), endOffset: wake(7, 45), durationSeconds: 6.6 * 3600, changePercent: -4 },
-  { dayLabel: 'Sat', dateLabel: 'Sat, Jul 12', startOffset: bed(23, 20), endOffset: wake(7, 20), durationSeconds: 8.0 * 3600, changePercent: 21 },
-  { dayLabel: 'Sun', dateLabel: 'Sun, Jul 13', startOffset: bed(0, 20), endOffset: wake(7, 55), durationSeconds: 7.6 * 3600, changePercent: -5 },
-  { dayLabel: 'Mon', dateLabel: 'Mon, Jul 14', startOffset: bed(1, 0), endOffset: wake(7, 18), durationSeconds: 6.3 * 3600, changePercent: -17 },
-  { dayLabel: 'Tue', dateLabel: 'Tue, Jul 15', startOffset: bed(0, 30), endOffset: wake(7, 36), durationSeconds: 7.1 * 3600, changePercent: 13 },
-  { dayLabel: 'Wed', dateLabel: 'Wed, Jul 16', startOffset: bed(0, 45), endOffset: wake(7, 21), durationSeconds: 6.6 * 3600, changePercent: -6 },
-];
+import { canonicalNight, dayKey, sessionDurationSeconds, wakeDay } from '@/domain/session-rules';
+import { useSleepStore } from '@/state/sleep-store';
 
 export default function DashboardScreen() {
-  const { width } = useWindowDimensions();
-  const chartWidth = width - 16 * 2 - 16 * 2;
+  const activeSession = useSleepStore((s) => s.activeSession);
+  const sessions = useSleepStore((s) => s.sessions);
+  const toggleSleep = useSleepStore((s) => s.toggleSleep);
+  const refresh = useSleepStore((s) => s.refresh);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // canonical night of the most recent wake day, vs the previous one
+  const lastSession = latestNight(sessions);
+  const changePercent = lastSession ? durationChangePercent(sessions, lastSession) : null;
+
+  const onToggle = () => {
+    const result = toggleSleep();
+    if (result.joke) {
+      Alert.alert('Pause...', result.joke);
+    }
+  };
+
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content}>
-        <Card style={styles.card}>
-          <WeekChart
-            days={DAYS}
-            optimalSleepMinutes={30}
-            optimalWakeMinutes={7 * 60 + 30}
-            width={chartWidth}
-            height={300}
-          />
-        </Card>
+        <StatusCard
+          isSleeping={activeSession != null}
+          lastSession={lastSession}
+          changePercent={changePercent}
+          streak={0}
+          onToggle={onToggle}
+        />
       </ScrollView>
     </Screen>
   );
 }
 
+// most recent wake day's canonical (longest) session
+function latestNight(sessions: readonly import('@/domain/models').SleepSession[]) {
+  if (sessions.length === 0) return null;
+  const newestDay = dayKey(wakeDay(sessions[0]));
+  const sameDay = sessions.filter((s) => dayKey(wakeDay(s)) === newestDay);
+  return canonicalNight(sameDay);
+}
+
+function durationChangePercent(
+  sessions: readonly import('@/domain/models').SleepSession[],
+  last: import('@/domain/models').SleepSession
+): number | null {
+  const lastDay = dayKey(wakeDay(last));
+  const previous = sessions
+    .filter((s) => dayKey(wakeDay(s)) < lastDay)
+    .sort((a, b) => (dayKey(wakeDay(a)) < dayKey(wakeDay(b)) ? 1 : -1));
+  if (previous.length === 0) return null;
+  const prevDay = dayKey(wakeDay(previous[0]));
+  const prevNight = canonicalNight(previous.filter((s) => dayKey(wakeDay(s)) === prevDay));
+  if (!prevNight) return null;
+  const prevDur = sessionDurationSeconds(prevNight);
+  const lastDur = sessionDurationSeconds(last);
+  if (prevDur <= 0 || lastDur <= 0) return null;
+  return ((lastDur - prevDur) / prevDur) * 100;
+}
+
 const styles = StyleSheet.create({
-  content: { paddingTop: 80, paddingHorizontal: 16 },
-  card: {},
+  content: { paddingTop: 100, paddingHorizontal: 16, gap: 16 },
 });

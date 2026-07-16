@@ -2,6 +2,7 @@
 import {
   BASE_HOUR,
   calculateYAxisDomain,
+  formatDurationHm,
   formatDurationShort,
   formatTimeLabel,
   normalizedDurationY,
@@ -75,5 +76,11 @@ describe('labels', () => {
   test('formatDurationShort renders decimal hours', () => {
     expect(formatDurationShort(6.9 * 3600)).toBe('6.9');
     expect(formatDurationShort(8 * 3600)).toBe('8.0');
+  });
+
+  test('formatDurationHm matches the abbreviated hour+minute style', () => {
+    expect(formatDurationHm(6 * 3600 + 36 * 60)).toBe('6h 36min');
+    expect(formatDurationHm(7 * 3600)).toBe('7h');
+    expect(formatDurationHm(45 * 60)).toBe('45min');
   });
 });

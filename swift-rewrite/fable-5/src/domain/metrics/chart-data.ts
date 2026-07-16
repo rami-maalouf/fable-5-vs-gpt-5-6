@@ -61,3 +61,14 @@ export function formatTimeLabel(offset: number): string {
 export function formatDurationShort(durationSeconds: number): string {
   return (durationSeconds / 3600).toFixed(1);
 }
+
+// ports SleepDataUtils.formatDuration (DateComponentsFormatter, .abbreviated,
+// hour+minute): "6h 36min", "36min", "7h"
+export function formatDurationHm(durationSeconds: number): string {
+  const totalMinutes = Math.trunc(durationSeconds / 60);
+  const h = Math.trunc(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  if (h === 0) return `${m}min`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}min`;
+}
