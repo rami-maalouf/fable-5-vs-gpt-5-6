@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import type { Conversation, Message, MessageStatus } from '@/domain/messages';
-import { DEFAULT_MODEL } from '@/domain/models';
+import { DEFAULT_MODEL, isAllowedModel } from '@/domain/models';
 
 export type SendState = 'idle' | 'awaiting' | 'streaming';
 
@@ -51,7 +51,11 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   setConversationId: (id) => set({ conversationId: id }),
 
-  setModel: (model) => set({ model }),
+  // the allowlist is enforced client-side too: an off-list value can never
+  // become request payload
+  setModel: (model) => {
+    if (isAllowedModel(model)) set({ model });
+  },
 
   // note: model is intentionally untouched - a new chat keeps the last
   // chosen model, like the chatgpt app

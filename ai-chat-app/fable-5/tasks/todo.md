@@ -128,7 +128,7 @@ recorded.
 
 ## phase 5: model picker
 
-- [ ] **task 11: model selection**
+- [x] **task 11: model selection**
   - description: header shows current conversation's model; tap opens a native
     picker with exactly `gpt-5.6-luna` (default), `gpt-5.6-sol`, `gpt-5.6-terra`;
     choice stored per conversation and sent with every request; route 400 already

@@ -141,3 +141,29 @@ task 15 (polish) as planned.
 code-quality gate: reviewed drawer code (Drawer gesture math, DrawerContent,
 ConversationRow, SearchField, stores). zeego dead code fully removed with the
 dependency; no debt carried.
+
+## checkpoint 5 - model picker (task 11) - PASS
+
+date: 2026-07-16 ~04:32. same device/server.
+
+checked (judging step 5):
+
+1. header title shows "Nova" with the active conversation's model as subtitle;
+   tapping opens a native pull-down menu (swiftui Menu + inline Picker) with
+   exactly gpt-5.6-luna / gpt-5.6-sol / gpt-5.6-terra and a checkmark on the
+   current choice. evidence:
+   verification/checkpoint-5-model-menu-three-options.png
+2. switched to gpt-5.6-terra, sent a message (created the conversation with
+   terra), killed the app, relaunched: fresh chat defaults to luna; opening
+   the terra conversation from the drawer restores gpt-5.6-terra in the
+   header + its history; opening the older conversation restores
+   gpt-5.6-luna. db shows the per-conversation model column values. evidence:
+   verification/checkpoint-5-terra-restored-after-relaunch.png,
+   verification/checkpoint-5-luna-restored-after-relaunch.png
+3. allowlist enforced on both sides: server 400 for off-list models (unit +
+   live curl at checkpoint 1); client store guard rejects off-list values
+   (unit test added; 57/57 green).
+
+code-quality gate: ModelPicker is a single focused component; store setModel
+now validates against the allowlist. minor fix: widened the header host so
+the model subtitle never clips. no debt.

@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
+import { ModelPicker } from '@/components/chat/ModelPicker';
 import { useSendMessage } from '@/hooks/useSendMessage';
 import { useChatStore } from '@/state/chat-store';
 import { useDrawerStore } from '@/state/drawer-store';
@@ -46,6 +47,7 @@ export default function ChatScreen() {
         options={{
           title: 'Nova',
           headerShadowVisible: false,
+          headerTitle: () => <ModelPicker />,
           headerLeft: () => (
             <HeaderButton symbol="sidebar.left" label="Open sidebar" onPress={openDrawer} />
           ),

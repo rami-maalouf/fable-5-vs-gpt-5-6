@@ -62,6 +62,15 @@ describe('chat store', () => {
     expect(s.model).toBe('gpt-5.6-terra');
   });
 
+  it('setModel accepts only allowlisted models (client never sends off-list)', () => {
+    useChatStore.getState().setModel('gpt-5.6-sol');
+    expect(useChatStore.getState().model).toBe('gpt-5.6-sol');
+    useChatStore.getState().setModel('gpt-4o');
+    expect(useChatStore.getState().model).toBe('gpt-5.6-sol');
+    useChatStore.getState().setModel('');
+    expect(useChatStore.getState().model).toBe('gpt-5.6-sol');
+  });
+
   it('loadConversation replaces state with the stored conversation', () => {
     useChatStore.getState().loadConversation(
       { id: 'c9', title: 'Trip', model: 'gpt-5.6-sol', createdAt: 1, updatedAt: 2 },
