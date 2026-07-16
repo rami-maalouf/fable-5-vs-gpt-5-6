@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { ErrorRow } from '@/components/chat/ErrorRow';
 import type { Message } from '@/domain/messages';
 import { colors, radius, spacing } from '@/theme/tokens';
 
@@ -8,6 +9,8 @@ type MessageRowProps = {
   message: Message;
   // true while this row is the actively streaming reply with no text yet
   showTypingIndicator?: boolean;
+  // present only when this row is a retryable failed reply (the newest turn)
+  onRetry?: () => void;
 };
 
 // chatgpt convention: user messages in a filled right-aligned bubble,
@@ -15,6 +18,7 @@ type MessageRowProps = {
 export const MessageRow = memo(function MessageRow({
   message,
   showTypingIndicator = false,
+  onRetry,
 }: MessageRowProps) {
   if (message.role === 'user') {
     return (
@@ -31,7 +35,12 @@ export const MessageRow = memo(function MessageRow({
       {showTypingIndicator ? (
         <View style={styles.typingDot} />
       ) : (
-        <Text style={styles.assistantText}>{message.content}</Text>
+        <>
+          {message.content.length > 0 && (
+            <Text style={styles.assistantText}>{message.content}</Text>
+          )}
+          {message.status === 'error' && <ErrorRow onRetry={onRetry} />}
+        </>
       )}
     </View>
   );

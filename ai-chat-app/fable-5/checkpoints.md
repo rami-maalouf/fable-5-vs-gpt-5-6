@@ -167,3 +167,33 @@ checked (judging step 5):
 code-quality gate: ModelPicker is a single focused component; store setModel
 now validates against the allowlist. minor fix: widened the header host so
 the model subtitle never clips. no debt.
+
+## checkpoint 6 - resilience (tasks 12-13) - PASS
+
+date: 2026-07-16 ~04:38. same device/server.
+
+checked:
+
+1. judging step 2 (stop): sent a twenty-paragraph prompt, tapped stop
+   mid-stream. partial reply ends mid-sentence and STAYS in place; ui returned
+   to sendable immediately; db row has status='stopped' with the 1050-char
+   partial. (first attempt failed to catch the stream - the 12-paragraph reply
+   completed in ~10s - retried with an earlier stop.) auto-follow visibly kept
+   the list pinned during the long stream. evidence:
+   verification/checkpoint-6-stopped-partial-midsentence.png
+2. judging step 3 (network failure -> error -> retry): simulated network loss
+   by taking the dev server down (simulator has no true airplane mode; the
+   /chat origin becoming unreachable is the equivalent failure). send showed
+   the readable inline error row (icon + "Something went wrong." + Retry)
+   beneath the failed turn; composer text was NOT restored. after the server
+   returned, Retry streamed the real reply; the errored row was replaced.
+   db shows complete/stopped/complete - the errored message was deleted on
+   retry. evidence: verification/checkpoint-6-inline-error-retry.png,
+   verification/checkpoint-6-retry-succeeded.png
+3. mid-stream death keeping partial + error row: unit-covered
+   (streamChat error path preserves assembled text; MessageRow renders
+   partial + ErrorRow). tests 58/58 green, tsc clean.
+
+code-quality gate: send/retry share one executeTurn tail; retry validates it
+targets the newest errored assistant turn; ErrorRow retry affordance only on
+the retryable (newest) turn. no debt.

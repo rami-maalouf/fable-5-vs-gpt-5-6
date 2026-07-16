@@ -143,7 +143,7 @@ recorded.
 
 ## phase 6: resilience
 
-- [ ] **task 12: stop + partial save**
+- [x] **task 12: stop + partial save**
   - description: stop aborts the in-flight fetch (AbortController), keeps the
     partial reply in place, saves it with status `stopped`, ui returns to
     sendable state cleanly.
@@ -152,7 +152,7 @@ recorded.
   - verify: `bun run test -- stream`; manual stop mid-long-reply.
   - depends: 5, 7. files: src/hooks/useChatStream.ts, state. size: S
 
-- [ ] **task 13: error states + retry**
+- [x] **task 13: error states + retry**
   - description: network/server failure renders a readable inline error beneath
     the (partial) reply with retry; retry re-sends the failed turn; stream death
     mid-reply keeps partial text with error beneath; composer text not restored;

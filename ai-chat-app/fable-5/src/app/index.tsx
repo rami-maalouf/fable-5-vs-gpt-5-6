@@ -34,7 +34,7 @@ export default function ChatScreen() {
   const messages = useChatStore((s) => s.messages);
   const sendState = useChatStore((s) => s.sendState);
   const streamingMessageId = useChatStore((s) => s.streamingMessageId);
-  const { send, stop } = useSendMessage();
+  const { send, stop, retry } = useSendMessage();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
 
@@ -65,6 +65,7 @@ export default function ChatScreen() {
           messages={messages}
           sendState={sendState}
           streamingMessageId={streamingMessageId}
+          onRetry={retry}
         />
         <View style={{ paddingBottom: Math.max(insets.bottom, spacing.sm) }}>
           <Composer generating={sendState !== 'idle'} onSend={send} onStop={stop} />

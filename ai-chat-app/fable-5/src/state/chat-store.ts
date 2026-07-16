@@ -13,9 +13,12 @@ type ChatStore = {
   sendState: SendState;
   streamingMessageId: string | null;
 
-  startTurn: (userMessage: Message, assistantPlaceholder: Message) => void;
+  // userMessage is null when retrying a failed turn (the user message is
+  // already in the history)
+  startTurn: (userMessage: Message | null, assistantPlaceholder: Message) => void;
   setStreamingText: (id: string, text: string) => void;
   finishTurn: (id: string, content: string, status: MessageStatus) => void;
+  removeMessage: (id: string) => void;
   setConversationId: (id: string) => void;
   setModel: (model: string) => void;
   reset: () => void;
@@ -31,10 +34,15 @@ export const useChatStore = create<ChatStore>((set) => ({
 
   startTurn: (userMessage, assistantPlaceholder) =>
     set((s) => ({
-      messages: [...s.messages, userMessage, assistantPlaceholder],
+      messages: userMessage
+        ? [...s.messages, userMessage, assistantPlaceholder]
+        : [...s.messages, assistantPlaceholder],
       sendState: 'awaiting',
       streamingMessageId: assistantPlaceholder.id,
     })),
+
+  removeMessage: (id) =>
+    set((s) => ({ messages: s.messages.filter((m) => m.id !== id) })),
 
   setStreamingText: (id, text) =>
     set((s) => ({

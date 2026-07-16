@@ -12,11 +12,18 @@ type MessageListProps = {
   messages: Message[];
   sendState: SendState;
   streamingMessageId: string | null;
+  onRetry: () => void;
 };
 
-export function MessageList({ messages, sendState, streamingMessageId }: MessageListProps) {
+export function MessageList({
+  messages,
+  sendState,
+  streamingMessageId,
+  onRetry,
+}: MessageListProps) {
   const listRef = useRef<FlatList<Message>>(null);
   const pinned = usePinnedScroll(listRef);
+  const lastMessage = messages[messages.length - 1];
 
   return (
     <FlatList
@@ -30,6 +37,9 @@ export function MessageList({ messages, sendState, streamingMessageId }: Message
           message={item}
           showTypingIndicator={
             item.id === streamingMessageId && sendState === 'awaiting' && item.content === ''
+          }
+          onRetry={
+            item.id === lastMessage?.id && item.status === 'error' ? onRetry : undefined
           }
         />
       )}

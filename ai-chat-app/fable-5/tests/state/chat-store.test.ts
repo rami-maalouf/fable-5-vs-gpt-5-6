@@ -62,6 +62,23 @@ describe('chat store', () => {
     expect(s.model).toBe('gpt-5.6-terra');
   });
 
+  it('startTurn without a user message appends only the placeholder (retry path)', () => {
+    startExampleTurn();
+    useChatStore.getState().finishTurn('a1', '', 'error');
+    useChatStore.getState().removeMessage('a1');
+    useChatStore.getState().startTurn(null, {
+      id: 'a2',
+      conversationId: '',
+      role: 'assistant',
+      content: '',
+      status: 'complete',
+      createdAt: 3,
+    });
+    const s = useChatStore.getState();
+    expect(s.messages.map((m) => m.id)).toEqual(['u1', 'a2']);
+    expect(s.sendState).toBe('awaiting');
+  });
+
   it('setModel accepts only allowlisted models (client never sends off-list)', () => {
     useChatStore.getState().setModel('gpt-5.6-sol');
     expect(useChatStore.getState().model).toBe('gpt-5.6-sol');

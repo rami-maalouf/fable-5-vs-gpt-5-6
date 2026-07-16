@@ -41,6 +41,10 @@ export async function listMessages(db: ChatDb, conversationId: string): Promise<
   return rows.map(toMessage);
 }
 
+export async function deleteMessage(db: ChatDb, id: string): Promise<void> {
+  await db.runAsync('delete from messages where id = ?', id);
+}
+
 export async function updateMessage(
   db: ChatDb,
   id: string,
