@@ -30,3 +30,7 @@ That means the wake button has no durable handoff when the app process is suspen
 - Revisit direct actions only if Expo adds an extension-side handler or a durable App Group event queue with stable activity identity and exactly-once reconciliation.
 
 The runnable spike remains isolated under `spikes/live-activity` and the unlinked `app/live-activity-spike.tsx` route so later SDK versions can be retested without coupling production screens to the rejected interaction model.
+
+## Production adoption
+
+Task 27 promoted the read-only parity path into `widgets/SleepLiveActivity.tsx` and `src/services/live-activity.ts`. The production activity now starts and ends with the SQLite session lifecycle, displays system-updating elapsed and remaining timers, tracks the configured sleep goal, persists its identifier, adopts the native instance after relaunch, removes duplicates, and respects the iOS setting. The spike reexports the production widget so the extension registers one factory only.

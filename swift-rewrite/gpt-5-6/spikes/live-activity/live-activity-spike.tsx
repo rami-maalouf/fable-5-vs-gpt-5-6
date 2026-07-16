@@ -17,11 +17,13 @@ function currentTimeZone(): string {
 }
 
 function activityProps(startedAt: number, status = 'Sleep session active'): SleepActivityProps {
-  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - startedAt) / 60_000));
   return {
-    elapsedLabel: `${elapsedMinutes}m`,
+    goalEndAt: startedAt + 9 * 60 * 60 * 1_000,
+    phase: status === 'Session ended' ? 'ended' : 'sleeping',
+    sessionId: 'live-activity-spike',
     startedAt,
     status,
+    title: status === 'Session ended' ? 'Good morning' : 'Rejuvenating...',
   };
 }
 

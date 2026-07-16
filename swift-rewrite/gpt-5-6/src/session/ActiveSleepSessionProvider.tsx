@@ -16,6 +16,11 @@ import {
 } from '@/components/dashboard/sleep-toggle';
 import { getSessionRepository } from '@/data/session-repo';
 import type { SleepSession } from '@/domain/models';
+import { sleepLiveActivityService } from '@/services/live-activity';
+
+interface ActiveSleepLiveActivityService {
+  reconcile(activeSession: SleepSession | null): Promise<unknown>;
+}
 
 interface ActiveSleepSessionContextValue {
   activeSession: SleepSession | null;
@@ -28,6 +33,7 @@ interface ActiveSleepSessionContextValue {
 }
 
 interface ActiveSleepSessionProviderProps extends PropsWithChildren {
+  liveActivityService?: ActiveSleepLiveActivityService;
   now?: () => number;
   repositoryFactory?: () => Promise<SleepToggleRepository>;
   timeZone?: () => string;
@@ -41,6 +47,7 @@ const defaultTimeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone |
 
 export function ActiveSleepSessionProvider({
   children,
+  liveActivityService = sleepLiveActivityService,
   now = defaultNow,
   repositoryFactory = defaultRepositoryFactory,
   timeZone = defaultTimeZone,
@@ -51,9 +58,11 @@ export function ActiveSleepSessionProvider({
   const [isMutating, setIsMutating] = useState(false);
 
   const refresh = useCallback(async () => {
+    let restoredSession: SleepSession | null;
     try {
       const repository = await repositoryFactory();
-      setActiveSession(await repository.getActive());
+      restoredSession = await repository.getActive();
+      setActiveSession(restoredSession);
       setErrorMessage(null);
     } catch {
       setErrorMessage('Twilight could not restore your sleep session. Please try again.');
@@ -61,7 +70,12 @@ export function ActiveSleepSessionProvider({
     } finally {
       setIsHydrated(true);
     }
-  }, [repositoryFactory]);
+    try {
+      await liveActivityService.reconcile(restoredSession);
+    } catch {
+      setErrorMessage('Your sleep session was restored, but Live Activity could not update.');
+    }
+  }, [liveActivityService, repositoryFactory]);
 
   useEffect(() => {
     void Promise.resolve().then(refresh).catch(() => undefined);
@@ -82,7 +96,17 @@ export function ActiveSleepSessionProvider({
         now: now(),
         timeZone: timeZone(),
       });
-      setActiveSession(result.kind === 'started' ? result.session : null);
+      const nextActiveSession = result.kind === 'started' ? result.session : null;
+      setActiveSession(nextActiveSession);
+      try {
+        await liveActivityService.reconcile(nextActiveSession);
+      } catch {
+        setErrorMessage(
+          result.kind === 'started'
+            ? 'Your sleep session is active, but Live Activity could not update.'
+            : 'Your sleep session ended, but Live Activity could not close.',
+        );
+      }
       return result;
     } catch {
       setErrorMessage('Twilight could not update your sleep session. Please try again.');
@@ -90,7 +114,7 @@ export function ActiveSleepSessionProvider({
     } finally {
       setIsMutating(false);
     }
-  }, [now, repositoryFactory, timeZone]);
+  }, [liveActivityService, now, repositoryFactory, timeZone]);
 
   const clearError = useCallback(() => setErrorMessage(null), []);
   const value = useMemo(

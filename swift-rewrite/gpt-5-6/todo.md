@@ -302,7 +302,7 @@ by side.
 
 ## phase 8: live activity (spec priority 7)
 
-- [ ] **task 27: live activity parity**
+- [x] **task 27: live activity parity**
   - description: expo-widgets live activity matching the original: progress toward
     sleep goal, elapsed/remaining, dynamic island compact/minimal/expanded,
     "Rejuvenating..." title, start/end wired to session lifecycle, id persisted and

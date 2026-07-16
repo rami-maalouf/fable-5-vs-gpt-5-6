@@ -6,6 +6,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -28,6 +29,8 @@ import { settingsStore } from '@/data/settings-store';
 import type { ThemeMode, ThemePalette } from '@/domain/models';
 import { requestNotificationPermission } from '@/services/notification-permissions';
 import { reconcileWindDownNotification } from '@/services/notifications';
+import { sleepLiveActivityService } from '@/services/live-activity';
+import { useActiveSleepSession } from '@/session/ActiveSleepSessionProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface GoalSettings {
@@ -56,10 +59,13 @@ const supportHeartColor = '#ff375f';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { activeSession } = useActiveSleepSession();
   const { mode, palette, setMode, setPalette, theme } = useTheme();
   const [goals, setGoals] = useState<GoalSettings | null>(null);
   const [windDownEnabled, setWindDownEnabled] = useState(true);
   const [windDownBusy, setWindDownBusy] = useState(false);
+  const [liveActivityEnabled, setLiveActivityEnabled] = useState(true);
+  const [liveActivityBusy, setLiveActivityBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,14 +79,16 @@ export default function SettingsScreen() {
       let isCurrent = true;
       const load = async () => {
         try {
-          const [optimalSleepMinutes, optimalWakeMinutes, reminderEnabled] = await Promise.all([
+          const [optimalSleepMinutes, optimalWakeMinutes, reminderEnabled, activityEnabled] = await Promise.all([
             settingsStore.get('optimalSleepMinutes'),
             settingsStore.get('optimalWakeMinutes'),
             settingsStore.get('windDownReminderEnabled'),
+            settingsStore.get('liveActivityEnabled'),
           ]);
           if (isCurrent) {
             setGoals({ sleepMinutes: optimalSleepMinutes, wakeMinutes: optimalWakeMinutes });
             setWindDownEnabled(reminderEnabled);
+            setLiveActivityEnabled(activityEnabled);
             setError(null);
           }
         } catch {
@@ -165,6 +173,28 @@ export default function SettingsScreen() {
       setError('Twilight could not update your scheduled reminder.');
     } finally {
       setWindDownBusy(false);
+    }
+  };
+
+  const updateLiveActivity = async (enabled: boolean) => {
+    const previous = liveActivityEnabled;
+    setLiveActivityEnabled(enabled);
+    setLiveActivityBusy(true);
+    setError(null);
+    try {
+      await settingsStore.set('liveActivityEnabled', enabled);
+      await sleepLiveActivityService.reconcile(activeSession);
+    } catch {
+      setLiveActivityEnabled(previous);
+      try {
+        await settingsStore.set('liveActivityEnabled', previous);
+        await sleepLiveActivityService.reconcile(activeSession);
+      } catch {
+        // launch reconciliation will repair the activity projection later.
+      }
+      setError('Twilight could not update Live Activity.');
+    } finally {
+      setLiveActivityBusy(false);
     }
   };
 
@@ -338,6 +368,31 @@ export default function SettingsScreen() {
               onPress={() => router.push('/sleep-tips')}
             />
           </GlassCard>
+
+          {Platform.OS === 'ios' ? (
+            <>
+              <SectionTitle title="Live Activity" />
+              <GlassCard style={styles.cardFlush}>
+                <View style={styles.preferenceRow}>
+                  <View style={[styles.rowIcon, { backgroundColor: `${theme.accent}22` }]}>
+                    <PlatformSymbol androidName="moon" color={theme.accent} size={20} symbol="moon.stars.fill" />
+                  </View>
+                  <View style={styles.flex}>
+                    <Text style={[styles.rowTitle, { color: theme.textPrimary }]}>Sleep progress</Text>
+                    <Text style={[styles.rowDetail, { color: theme.textSecondary }]}>Show elapsed time and your goal</Text>
+                  </View>
+                  <Switch
+                    accessibilityLabel="Sleep Live Activity"
+                    disabled={liveActivityBusy}
+                    onValueChange={(enabled) => void updateLiveActivity(enabled)}
+                    thumbColor="#ffffff"
+                    trackColor={{ false: theme.actionSecondary, true: theme.actionPrimary }}
+                    value={liveActivityEnabled}
+                  />
+                </View>
+              </GlassCard>
+            </>
+          ) : null}
 
           <SectionTitle title="Community" />
           <GlassCard style={styles.cardFlush}>
