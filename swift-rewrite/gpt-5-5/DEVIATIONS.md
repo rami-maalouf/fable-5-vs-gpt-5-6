@@ -45,3 +45,11 @@
 - chose a hybrid chart approach: Victory Native for scales, Catmull-Rom line
   rendering, and press state; custom Skia marks for floating sleep-window bars,
   dashed target rules, custom dual-axis labels, and selection overlays.
+
+## task 8
+
+- the shared external `todo.md` had task 8 checked, but this app did not contain
+  a grayscale-while-asleep spike or decision note. Treated the app worktree as
+  authoritative and added the local spike.
+- chose desaturated theme palettes plus Skia `ColorMatrix` grayscale filtering
+  over a native root color-filter module for the initial port.
