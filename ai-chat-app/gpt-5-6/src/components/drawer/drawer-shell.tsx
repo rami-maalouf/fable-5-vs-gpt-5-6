@@ -21,25 +21,36 @@ type DrawerControls = {
   openDrawer: () => void;
 };
 
+type DrawerContentControls = {
+  closeDrawer: () => void;
+};
+
 type DrawerShellProps = {
   children: (controls: DrawerControls) => ReactNode;
+  drawerContent?: (controls: DrawerContentControls) => ReactNode;
+  onOpen?: () => void;
 };
 
 const EDGE_HIT_SLOP = 24;
 const DRAWER_MAX_WIDTH = 360;
 const ANIMATION_DURATION = 240;
 
-export function DrawerShell({ children }: DrawerShellProps) {
+export function DrawerShell({ children, drawerContent, onOpen }: DrawerShellProps) {
   const { width: screenWidth } = useWindowDimensions();
   const drawerWidth = Math.min(DRAWER_MAX_WIDTH, Math.max(280, screenWidth * 0.86));
   const progress = useSharedValue(0);
   const gestureStart = useSharedValue(0);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
 
+  const beginDrawerOpen = useCallback(() => {
+    setIsDrawerVisible(true);
+    onOpen?.();
+  }, [onOpen]);
+
   const animateDrawer = useCallback(
     (target: 0 | 1) => {
       if (target === 1) {
-        setIsDrawerVisible(true);
+        beginDrawerOpen();
       }
       progress.set(withTiming(
         target,
@@ -51,7 +62,7 @@ export function DrawerShell({ children }: DrawerShellProps) {
         },
       ));
     },
-    [progress],
+    [beginDrawerOpen, progress],
   );
 
   const openDrawer = useCallback(() => animateDrawer(1), [animateDrawer]);
@@ -77,7 +88,7 @@ export function DrawerShell({ children }: DrawerShellProps) {
     .failOffsetY([-16, 16])
     .onStart(() => {
       gestureStart.set(progress.get());
-      scheduleOnRN(setIsDrawerVisible, true);
+      scheduleOnRN(beginDrawerOpen);
     })
     .onUpdate((event) => {
       progress.set(
@@ -160,6 +171,9 @@ export function DrawerShell({ children }: DrawerShellProps) {
                 />
               </Pressable>
             </View>
+            <View style={styles.drawerContent}>
+              {drawerContent?.({ closeDrawer })}
+            </View>
           </SafeAreaView>
         </Animated.View>
       </GestureDetector>
@@ -204,6 +218,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: 20,
     paddingRight: 8,
+  },
+  drawerContent: {
+    flex: 1,
   },
   drawerSafeArea: {
     flex: 1,

@@ -151,3 +151,28 @@ Code-quality review:
 - Accessibility: the overlay and close button share an explicit dismissal label, and background descendants cannot receive focus while open.
 - Maintainability: pure clamp and settlement rules are isolated from the animated shell and covered by focused tests.
 - Performance: one shared progress value drives translation and opacity on the UI thread; React state changes only at transition boundaries.
+
+## Conversation Drawer - Task 10
+
+Status: passed on 2026-07-16.
+
+- History list: opening the drawer refreshes SQLite history and renders conversations newest first with single-line, truncated titles.
+- Creation boundary: starting and abandoning a new chat kept the history list at one row and created no empty database record.
+- Newest first: sending `Give me one surprising fact about Saturn's rings.` created a second row above the existing lighthouse conversation.
+- Restoration: selecting the lighthouse row restored its full 6,096-character assistant response at the bottom; selecting the Saturn row restored its user and assistant messages.
+- Selection: the active conversation uses the secondary system background while inactive rows remain unframed.
+- Accessibility: New chat and each conversation expose explicit button labels, and the selected row exposes its selected state.
+- Runtime: a clean app restart returned to a fresh chat with zero JavaScript log entries while both histories remained persisted.
+- Automated gates: 20 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed; `git diff --check` passed.
+
+Evidence:
+
+- `verification/10-two-conversations-light.png`
+- `verification/10-restored-conversation-light.png`
+
+Code-quality review:
+
+- Correctness: refresh requests are versioned so stale SQLite results cannot overwrite a later drawer refresh or update an unmounted hook.
+- Data integrity: New chat only resets in-memory state; the existing first-send transaction remains the sole conversation creation boundary.
+- Accessibility: every history action has a 44-point target, semantic role, and descriptive label.
+- Maintainability: the drawer shell owns motion, the conversation list owns presentation, and `useConversations` owns repository loading and failure state.

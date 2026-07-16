@@ -4,8 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Composer } from '@/components/chat/composer';
 import { MessageList } from '@/components/chat/message-list';
+import { ConversationList } from '@/components/drawer/conversation-list';
 import { DrawerShell } from '@/components/drawer/drawer-shell';
 import { useChat } from '@/hooks/use-chat';
+import { useConversations } from '@/hooks/use-conversations';
 import { colors } from '@/theme/colors';
 
 export default function HomeScreen() {
@@ -13,13 +15,44 @@ export default function HomeScreen() {
     activeConversationId,
     isGenerating,
     messages,
+    openConversation,
     retry,
     sendMessage,
+    startNewChat,
     stop,
   } = useChat();
+  const { conversations, error, isLoading, refresh } = useConversations();
 
   return (
-    <DrawerShell>
+    <DrawerShell
+      drawerContent={({ closeDrawer }) => (
+        <ConversationList
+          activeConversationId={activeConversationId}
+          conversations={conversations}
+          error={error}
+          isLoading={isLoading}
+          onNewChat={() => {
+            startNewChat();
+            closeDrawer();
+          }}
+          onRefresh={() => void refresh()}
+          onSelect={(conversationId) => {
+            if (conversationId === activeConversationId) {
+              closeDrawer();
+              return;
+            }
+
+            void openConversation(conversationId).then((didOpen) => {
+              if (didOpen) {
+                closeDrawer();
+              } else {
+                void refresh();
+              }
+            });
+          }}
+        />
+      )}
+      onOpen={() => void refresh()}>
       {({ openDrawer }) => (
         <SafeAreaView style={styles.container}>
           <View style={styles.header}>
