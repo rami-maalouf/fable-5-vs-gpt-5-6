@@ -26,6 +26,8 @@ type ConsumeTextStreamOptions = {
 };
 
 const DEFAULT_STREAM_FLUSH_INTERVAL_MS = 40;
+const CONNECTION_ERROR_MESSAGE = 'Could not connect to Nova. Check your connection, then retry.';
+const RESPONSE_ERROR_MESSAGE = 'Nova could not finish this reply. Retry in a moment.';
 
 function getChatRouteUrl(path: '/chat') {
   const hostUri = Constants.expoConfig?.hostUri ?? Constants.platform?.hostUri;
@@ -70,6 +72,26 @@ function getDevServerOriginFromUrl(value: string | undefined) {
   } catch {
     return null;
   }
+}
+
+function toReadableStreamError(error: unknown) {
+  const message = error instanceof Error ? error.message : '';
+  const normalizedMessage = message.toLowerCase();
+
+  if (
+    normalizedMessage.includes('could not connect')
+      || normalizedMessage.includes('network request failed')
+      || normalizedMessage.includes('failed to fetch')
+      || normalizedMessage.includes('fetch failed')
+  ) {
+    return CONNECTION_ERROR_MESSAGE;
+  }
+
+  if (normalizedMessage.includes('chat request failed')) {
+    return RESPONSE_ERROR_MESSAGE;
+  }
+
+  return message.length > 0 ? message : RESPONSE_ERROR_MESSAGE;
 }
 
 export async function consumeTextStream(
@@ -182,7 +204,7 @@ export function useChatStream() {
         };
       }
 
-      const message = streamError instanceof Error ? streamError.message : 'chat stream failed';
+      const message = toReadableStreamError(streamError);
       setError(message);
 
       return {

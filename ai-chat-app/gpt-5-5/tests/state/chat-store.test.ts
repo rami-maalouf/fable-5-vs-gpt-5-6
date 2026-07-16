@@ -58,6 +58,68 @@ describe('chat store', () => {
     );
   });
 
+  it('stores assistant errors with readable copy', () => {
+    const turn = useChatStore.getState().startAssistantTurn('hello');
+
+    useChatStore.getState().appendAssistantChunk(turn.assistantMessageId, 'partial');
+    useChatStore
+      .getState()
+      .finishAssistantMessage(turn.assistantMessageId, 'error', 'Network request failed');
+
+    expect(useChatStore.getState().activeAssistantMessageId).toBeNull();
+    expect(useChatStore.getState().isAwaitingFirstToken).toBe(false);
+    expect(useChatStore.getState().messages[1]).toEqual(
+      expect.objectContaining({
+        content: 'partial',
+        error: 'Network request failed',
+        status: 'error',
+      }),
+    );
+  });
+
+  it('retries a failed assistant response without duplicating the user message', () => {
+    const firstTurn = useChatStore.getState().startAssistantTurn('hello');
+    useChatStore.getState().appendAssistantChunk(firstTurn.assistantMessageId, 'hi');
+    useChatStore.getState().finishAssistantMessage(firstTurn.assistantMessageId, 'complete');
+
+    const failedTurn = useChatStore.getState().startAssistantTurn('try again');
+    useChatStore.getState().appendAssistantChunk(failedTurn.assistantMessageId, 'partial');
+    useChatStore
+      .getState()
+      .finishAssistantMessage(failedTurn.assistantMessageId, 'error', 'server down');
+
+    const retryTurn = useChatStore
+      .getState()
+      .retryAssistantMessage(failedTurn.assistantMessageId);
+
+    expect(retryTurn).toEqual({
+      assistantMessageId: failedTurn.assistantMessageId,
+      requestMessages: [
+        { content: 'hello', role: 'user' },
+        { content: 'hi', role: 'assistant' },
+        { content: 'try again', role: 'user' },
+      ],
+      userMessageId: failedTurn.userMessageId,
+    });
+    expect(useChatStore.getState().messages.map((message) => message.role)).toEqual([
+      'user',
+      'assistant',
+      'user',
+      'assistant',
+    ]);
+    expect(useChatStore.getState().messages[3]).toEqual(
+      expect.objectContaining({
+        content: '',
+        error: undefined,
+        status: 'streaming',
+      }),
+    );
+    expect(useChatStore.getState().activeAssistantMessageId).toBe(
+      failedTurn.assistantMessageId,
+    );
+    expect(useChatStore.getState().isAwaitingFirstToken).toBe(true);
+  });
+
   it('loads and resets a persisted conversation transcript', () => {
     useChatStore.getState().loadConversationTranscript({
       conversationId: 'conversation-1',

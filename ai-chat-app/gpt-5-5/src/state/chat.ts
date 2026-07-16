@@ -9,6 +9,7 @@ export type ChatTranscriptMessageStatus = AssistantMessageStatus | 'streaming';
 export type ChatTranscriptMessage = {
   content: string;
   createdAt: number;
+  error?: string;
   id: string;
   role: MessageRole;
   status: ChatTranscriptMessageStatus;
@@ -19,7 +20,7 @@ export type ChatRequestMessage = {
   role: MessageRole;
 };
 
-type AssistantTurn = {
+export type AssistantTurn = {
   assistantMessageId: string;
   requestMessages: ChatRequestMessage[];
   userMessageId: string;
@@ -33,6 +34,7 @@ type ChatState = {
   finishAssistantMessage: (
     assistantMessageId: string,
     status: AssistantMessageStatus,
+    error?: string,
   ) => void;
   isAwaitingFirstToken: boolean;
   loadConversationTranscript: (input: {
@@ -42,6 +44,7 @@ type ChatState = {
   }) => void;
   messages: ChatTranscriptMessage[];
   resetTranscript: () => void;
+  retryAssistantMessage: (assistantMessageId: string) => AssistantTurn | null;
   setCurrentConversationId: (conversationId: string) => void;
   setCurrentModel: (model: ChatModel) => void;
   startAssistantTurn: (content: string) => AssistantTurn;
@@ -94,7 +97,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
-  finishAssistantMessage: (assistantMessageId, status) => {
+  finishAssistantMessage: (assistantMessageId, status, error) => {
     set((state) => ({
       activeAssistantMessageId:
         state.activeAssistantMessageId === assistantMessageId
@@ -111,6 +114,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
         return {
           ...message,
+          error: status === 'error'
+            ? error ?? 'Something went wrong while generating this reply.'
+            : undefined,
           status,
         };
       }),
@@ -135,6 +141,50 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isAwaitingFirstToken: false,
       messages: [],
     });
+  },
+
+  retryAssistantMessage: (assistantMessageId) => {
+    const messages = get().messages;
+    const assistantIndex = messages.findIndex((message) => (
+      message.id === assistantMessageId
+        && message.role === 'assistant'
+        && message.status === 'error'
+    ));
+
+    if (assistantIndex < 1 || get().activeAssistantMessageId != null) {
+      return null;
+    }
+
+    const userMessage = messages[assistantIndex - 1];
+
+    if (userMessage?.role !== 'user') {
+      return null;
+    }
+
+    const requestMessages = toRequestMessages(messages.slice(0, assistantIndex));
+
+    set((state) => ({
+      activeAssistantMessageId: assistantMessageId,
+      isAwaitingFirstToken: true,
+      messages: state.messages.map((message) => {
+        if (message.id !== assistantMessageId) {
+          return message;
+        }
+
+        return {
+          ...message,
+          content: '',
+          error: undefined,
+          status: 'streaming',
+        };
+      }),
+    }));
+
+    return {
+      assistantMessageId,
+      requestMessages,
+      userMessageId: userMessage.id,
+    };
   },
 
   setCurrentConversationId: (conversationId) => {
@@ -163,6 +213,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const assistantMessage: ChatTranscriptMessage = {
       content: '',
       createdAt: now + 1,
+      error: undefined,
       id: createMessageId('assistant'),
       role: 'assistant',
       status: 'streaming',

@@ -11,12 +11,17 @@ import { spacing, useNovaTheme } from '@/theme';
 type MessageListProps = {
   isAwaitingFirstToken: boolean;
   messages: ChatTranscriptMessage[];
+  onRetryMessage?: (assistantMessageId: string) => void;
 };
 
 const COMPOSER_RESERVED_SPACE = 20;
 const KEYBOARD_BOTTOM_OFFSET = spacing.sm;
 
-export function MessageList({ isAwaitingFirstToken, messages }: MessageListProps) {
+export function MessageList({
+  isAwaitingFirstToken,
+  messages,
+  onRetryMessage,
+}: MessageListProps) {
   const theme = useNovaTheme();
   const { bottom } = useSafeAreaInsets();
   const listRef = useRef<FlatList<ChatTranscriptMessage>>(null);
@@ -68,7 +73,11 @@ export function MessageList({ isAwaitingFirstToken, messages }: MessageListProps
       }}
       onContentSizeChange={scrollToEnd}
       renderItem={({ item }) => (
-        <MessageRow isAwaitingFirstToken={isAwaitingFirstToken} message={item} />
+        <MessageRow
+          isAwaitingFirstToken={isAwaitingFirstToken}
+          message={item}
+          onRetryMessage={onRetryMessage}
+        />
       )}
       renderScrollComponent={renderScrollComponent}
       scrollEventThrottle={16}

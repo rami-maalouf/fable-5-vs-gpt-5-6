@@ -109,6 +109,49 @@ describe('MessageList', () => {
     expect(tree.root.findByType(ActivityIndicator)).toBeTruthy();
   });
 
+  it('renders an inline error with retry for failed assistant messages', async () => {
+    const retry = jest.fn();
+    const tree = await renderMessageList({
+      isAwaitingFirstToken: false,
+      messages: [
+        {
+          content: 'hello',
+          createdAt: 1,
+          id: 'user-1',
+          role: 'user',
+          status: 'complete',
+        },
+        {
+          content: 'partial reply',
+          createdAt: 2,
+          error: 'Network request failed',
+          id: 'assistant-1',
+          role: 'assistant',
+          status: 'error',
+        },
+      ],
+      onRetryMessage: retry,
+    });
+
+    const visibleText = tree.root.findAllByType(Text).map((node) => node.props.children);
+
+    expect(visibleText).toContain('partial reply');
+    expect(visibleText).toContain('Network request failed');
+    expect(visibleText).toContain('Retry');
+
+    const retryButton = tree.root.findAll((node) => (
+      node.props.accessibilityLabel === 'retry response'
+    ))[0];
+
+    expect(retryButton).toBeDefined();
+
+    await act(async () => {
+      retryButton!.props.onPress();
+    });
+
+    expect(retry).toHaveBeenCalledWith('assistant-1');
+  });
+
   it('uses a keyboard-aware scroll component for interactive dismissal', async () => {
     const tree = await renderMessageList({
       isAwaitingFirstToken: false,

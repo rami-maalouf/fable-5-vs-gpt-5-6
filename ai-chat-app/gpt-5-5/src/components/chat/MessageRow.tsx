@@ -1,14 +1,20 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
+import { ErrorRow } from '@/components/chat/ErrorRow';
 import type { ChatTranscriptMessage } from '@/state/chat';
 import { spacing, useNovaTheme } from '@/theme';
 
 type MessageRowProps = {
   isAwaitingFirstToken: boolean;
   message: ChatTranscriptMessage;
+  onRetryMessage?: (assistantMessageId: string) => void;
 };
 
-export function MessageRow({ isAwaitingFirstToken, message }: MessageRowProps) {
+export function MessageRow({
+  isAwaitingFirstToken,
+  message,
+  onRetryMessage,
+}: MessageRowProps) {
   const theme = useNovaTheme();
 
   if (message.role === 'user') {
@@ -22,6 +28,8 @@ export function MessageRow({ isAwaitingFirstToken, message }: MessageRowProps) {
   }
 
   const shouldShowLoading = isAwaitingFirstToken && message.content.length === 0;
+  const shouldShowError = message.status === 'error';
+  const shouldShowEmptyErrorText = shouldShowError && message.content.length === 0;
 
   return (
     <View style={styles.assistantRow}>
@@ -33,10 +41,19 @@ export function MessageRow({ isAwaitingFirstToken, message }: MessageRowProps) {
         >
           <ActivityIndicator color={theme.colors.secondaryText} size="small" />
         </View>
-      ) : (
+      ) : shouldShowEmptyErrorText ? null : (
         <Text style={[styles.assistantText, { color: theme.colors.text }]}>
           {message.content}
         </Text>
+      )}
+
+      {shouldShowError ? (
+        <ErrorRow
+          message={message.error}
+          onRetry={() => onRetryMessage?.(message.id)}
+        />
+      ) : (
+        null
       )}
     </View>
   );

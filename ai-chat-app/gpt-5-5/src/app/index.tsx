@@ -18,6 +18,7 @@ import {
 } from '@/data';
 import type { ChatModel } from '@/domain';
 import { useChatStream } from '@/hooks/useChatStream';
+import type { AssistantTurn } from '@/state/chat';
 import { useChatStore } from '@/state/chat';
 import { useDrawerStore } from '@/state/drawer';
 import {
@@ -44,12 +45,66 @@ export default function HomeScreen() {
   const messages = useChatStore((state) => state.messages);
   const loadConversationTranscript = useChatStore((state) => state.loadConversationTranscript);
   const resetTranscript = useChatStore((state) => state.resetTranscript);
+  const retryAssistantMessage = useChatStore((state) => state.retryAssistantMessage);
   const setCurrentConversationId = useChatStore((state) => state.setCurrentConversationId);
   const setCurrentModel = useChatStore((state) => state.setCurrentModel);
   const startAssistantTurn = useChatStore((state) => state.startAssistantTurn);
   const isDrawerOpen = useDrawerStore((state) => state.isOpen);
   const openDrawer = useDrawerStore((state) => state.openDrawer);
   const setDrawerOpen = useDrawerStore((state) => state.setDrawerOpen);
+
+  const streamAssistantTurn = async (
+    turn: AssistantTurn,
+    persistStart: () => Promise<{ conversationId: string }>
+  ) => {
+    let assistantWriteQueue = Promise.resolve();
+    const enqueueAssistantWrite = (contentToPersist: string) => {
+      assistantWriteQueue = assistantWriteQueue.then(() => (
+        persistAssistantMessageContentAsync(db, {
+          assistantMessageId: turn.assistantMessageId,
+          content: contentToPersist,
+          updatedAt: Date.now(),
+        })
+      ));
+      void assistantWriteQueue.catch(() => undefined);
+    };
+
+    try {
+      const { conversationId } = await persistStart();
+      setCurrentConversationId(conversationId);
+
+      const result = await chatStream.send({
+        messages: turn.requestMessages,
+        model: currentModel,
+        onText: (chunk) => {
+          appendAssistantChunk(turn.assistantMessageId, chunk);
+
+          const latestAssistantMessage = useChatStore
+            .getState()
+            .messages.find((message) => message.id === turn.assistantMessageId);
+
+          enqueueAssistantWrite(latestAssistantMessage?.content ?? '');
+        },
+      });
+      const latestAssistantMessage = useChatStore
+        .getState()
+        .messages.find((message) => message.id === turn.assistantMessageId);
+
+      finishAssistantMessage(turn.assistantMessageId, result.status, result.error);
+
+      await assistantWriteQueue.catch(() => undefined);
+      await persistAssistantMessageStatusAsync(db, {
+        assistantMessageId: turn.assistantMessageId,
+        content: latestAssistantMessage?.content ?? '',
+        status: result.status,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : undefined;
+
+      finishAssistantMessage(turn.assistantMessageId, 'error', message);
+    }
+  };
 
   const sendMessage = (content: string) => {
     const turn = startAssistantTurn(content);
@@ -65,57 +120,28 @@ export default function HomeScreen() {
       return;
     }
 
-    let assistantWriteQueue = Promise.resolve();
-    const enqueueAssistantWrite = (contentToPersist: string) => {
-      assistantWriteQueue = assistantWriteQueue.then(() => (
-        persistAssistantMessageContentAsync(db, {
-          assistantMessageId: turn.assistantMessageId,
-          content: contentToPersist,
-          updatedAt: Date.now(),
-        })
-      ));
-      void assistantWriteQueue.catch(() => undefined);
-    };
-
-    void persistAssistantTurnStartAsync(db, {
-      assistantMessage,
-      conversationId: currentConversationId,
-      model: currentModel,
-      userMessage,
-    })
-      .then(async ({ conversationId }) => {
-        setCurrentConversationId(conversationId);
-
-        const result = await chatStream.send({
-          messages: turn.requestMessages,
-          model: currentModel,
-          onText: (chunk) => {
-            appendAssistantChunk(turn.assistantMessageId, chunk);
-
-            const latestAssistantMessage = useChatStore
-              .getState()
-              .messages.find((message) => message.id === turn.assistantMessageId);
-
-            enqueueAssistantWrite(latestAssistantMessage?.content ?? '');
-          },
-        });
-        const latestAssistantMessage = useChatStore
-          .getState()
-          .messages.find((message) => message.id === turn.assistantMessageId);
-
-        finishAssistantMessage(turn.assistantMessageId, result.status);
-
-        await assistantWriteQueue.catch(() => undefined);
-        await persistAssistantMessageStatusAsync(db, {
-          assistantMessageId: turn.assistantMessageId,
-          content: latestAssistantMessage?.content ?? '',
-          status: result.status,
-          updatedAt: Date.now(),
-        });
+    void streamAssistantTurn(turn, () => (
+      persistAssistantTurnStartAsync(db, {
+        assistantMessage,
+        conversationId: currentConversationId,
+        model: currentModel,
+        userMessage,
       })
-      .catch(() => {
-        finishAssistantMessage(turn.assistantMessageId, 'error');
-      });
+    ));
+  };
+
+  const retryMessage = (assistantMessageId: string) => {
+    if (currentConversationId == null) {
+      return;
+    }
+
+    const turn = retryAssistantMessage(assistantMessageId);
+
+    if (turn == null) {
+      return;
+    }
+
+    void streamAssistantTurn(turn, async () => ({ conversationId: currentConversationId }));
   };
 
   const stopMessage = () => {
@@ -268,6 +294,7 @@ export default function HomeScreen() {
           <MessageList
             isAwaitingFirstToken={isAwaitingFirstToken}
             messages={messages}
+            onRetryMessage={retryMessage}
           />
 
           <KeyboardStickyView
