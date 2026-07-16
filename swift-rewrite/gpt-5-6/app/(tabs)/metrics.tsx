@@ -9,8 +9,13 @@ import { FadeInSlide } from '@/components/common/fade-in-slide';
 import { PlatformSymbol } from '@/components/common/platform-symbol';
 import { ScreenBackground } from '@/components/common/screen-background';
 import { DurationMomentumChart } from '@/components/charts/DurationMomentumChart';
+import {
+  DurationHistogramChart,
+  WeekdayAveragesChart,
+} from '@/components/charts/BehaviorPatternCharts';
 import { RegularityComponentsChart } from '@/components/charts/RegularityComponentsChart';
 import { RollingConsistencyChart } from '@/components/charts/RollingConsistencyChart';
+import { SleepDebtChart } from '@/components/charts/SleepDebtChart';
 import { MetricsEmptyState } from '@/components/metrics/MetricsEmptyState';
 import { MetricsRangePicker } from '@/components/metrics/MetricsRangePicker';
 import { MultiStatCard } from '@/components/metrics/MultiStatCard';
@@ -142,6 +147,20 @@ export default function MetricsScreen() {
                     targetSleepOffset={targetSleepOffset}
                     targetWakeOffset={targetWakeOffset}
                   />
+                </View>
+              </FadeInSlide>
+              <FadeInSlide delay={360}>
+                <SectionTitle>Recovery</SectionTitle>
+                <SleepDebtChart
+                  records={model.records}
+                  targetDurationHours={targetDurationHours}
+                />
+              </FadeInSlide>
+              <FadeInSlide delay={420}>
+                <SectionTitle>Behavior Patterns</SectionTitle>
+                <View style={styles.chartStack}>
+                  <WeekdayAveragesChart records={model.records} />
+                  <DurationHistogramChart records={model.records} />
                 </View>
               </FadeInSlide>
             </>

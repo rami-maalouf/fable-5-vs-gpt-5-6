@@ -1,6 +1,13 @@
 // ports: twilight/views/sleepmetricsview.swift
 
-import { rollingConsistencySeries } from '@/domain/metrics/advanced';
+import {
+  cumulativeDebtSeries,
+  durationBuckets,
+  rollingConsistencySeries,
+  weekdayAverages,
+  type SleepDurationBucket,
+  type SleepWeekdayAverage,
+} from '@/domain/metrics/advanced';
 import { movingAverageSeries, type SleepNightRecord } from '@/domain/metrics/core';
 
 export interface DurationMomentumPoint extends Record<string, unknown> {
@@ -28,6 +35,36 @@ export interface RegularityChartPoint extends Record<string, unknown> {
 export interface RegularityChartModel {
   data: RegularityChartPoint[];
   domain: [number, number];
+}
+
+export interface DebtChartModel {
+  data: DebtChartPoint[];
+  domain: [number, number];
+}
+
+export interface DebtChartPoint extends Record<string, unknown> {
+  cumulativeHours: number;
+  date: number;
+  dayKey: string;
+}
+
+export interface BehaviorChartModel {
+  buckets: (SleepDurationBucket & { shareLabel: string })[];
+  weekdays: SleepWeekdayAverage[];
+}
+
+export interface TimingTimelinePoint {
+  bedtimeOffset: number;
+  date: number;
+  dayKey: string;
+  wakeOffset: number;
+}
+
+export interface TimingTimelineModel {
+  domain: [number, number];
+  points: TimingTimelinePoint[];
+  targetSleepOffset: number;
+  targetWakeOffset: number;
 }
 
 export function createDurationMomentumModel(
@@ -74,6 +111,62 @@ export function createRegularityChartModel(
       }];
     });
   return { data, domain: regularityDomain(data) };
+}
+
+export function createDebtChartModel(
+  records: readonly SleepNightRecord[],
+  targetDurationHours: number,
+): DebtChartModel {
+  const data = cumulativeDebtSeries(records, targetDurationHours).map((point) => ({ ...point }));
+  const values = [0, ...data.map((point) => point.cumulativeHours)];
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const padding = Math.max(1, (maximum - minimum) * 0.12);
+  return { data, domain: [minimum - padding, maximum + padding] };
+}
+
+export function createWeekdayAndHistogramModel(
+  records: readonly SleepNightRecord[],
+): BehaviorChartModel {
+  return {
+    buckets: durationBuckets(records).map((bucket) => ({
+      ...bucket,
+      shareLabel: `${Math.round(bucket.share * 100)}%`,
+    })),
+    weekdays: weekdayAverages(records),
+  };
+}
+
+export function createTimingTimelineModel(
+  records: readonly SleepNightRecord[],
+  targetSleepOffset: number,
+  targetWakeOffset: number,
+): TimingTimelineModel {
+  const normalizedTargetWake = targetWakeOffset < targetSleepOffset
+    ? targetWakeOffset + 24
+    : targetWakeOffset;
+  const points = records.map((record) => ({
+    bedtimeOffset: record.bedtimeOffset,
+    date: record.date,
+    dayKey: record.dayKey,
+    wakeOffset: record.wakeOffset < record.bedtimeOffset
+      ? record.wakeOffset + 24
+      : record.wakeOffset,
+  }));
+  const values = [
+    targetSleepOffset,
+    normalizedTargetWake,
+    ...points.flatMap((point) => [point.bedtimeOffset, point.wakeOffset]),
+  ];
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const padding = Math.max(0.4, (maximum - minimum) * 0.12);
+  return {
+    domain: [minimum - padding, maximum + padding],
+    points,
+    targetSleepOffset,
+    targetWakeOffset: normalizedTargetWake,
+  };
 }
 
 function regularityDomain(data: readonly RegularityChartPoint[]): [number, number] {

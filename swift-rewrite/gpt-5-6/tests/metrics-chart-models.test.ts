@@ -1,8 +1,16 @@
 import {
+  createDebtChartModel,
   createDurationMomentumModel,
   createRegularityChartModel,
+  createTimingTimelineModel,
+  createWeekdayAndHistogramModel,
 } from '@/components/charts/metrics-chart-models';
-import { rollingConsistencySeries } from '@/domain/metrics/advanced';
+import {
+  cumulativeDebtSeries,
+  durationBuckets,
+  rollingConsistencySeries,
+  weekdayAverages,
+} from '@/domain/metrics/advanced';
 import { movingAverageSeries, type SleepNightRecord } from '@/domain/metrics/core';
 
 function records(count = 16): SleepNightRecord[] {
@@ -66,5 +74,28 @@ describe('metrics chart models', () => {
   it('does not fabricate rolling values before their engine windows exist', () => {
     expect(createDurationMomentumModel([], 7).data).toEqual([]);
     expect(createRegularityChartModel(records(13), 5.5, 12.5).data).toEqual([]);
+  });
+
+  it('keeps debt, weekday, and histogram output anchored to the engine', () => {
+    const nights = records();
+    const debt = createDebtChartModel(nights, 7);
+    const behavior = createWeekdayAndHistogramModel(nights);
+
+    expect(debt.data).toEqual(cumulativeDebtSeries(nights, 7));
+    expect(debt.domain[0]).toBeLessThanOrEqual(0);
+    expect(debt.domain[1]).toBeGreaterThanOrEqual(0);
+    expect(behavior.weekdays).toEqual(weekdayAverages(nights));
+    expect(behavior.buckets.map(({ count, label, share }) => ({ count, label, share }))).toEqual(durationBuckets(nights));
+    expect(behavior.buckets.every((bucket) => bucket.shareLabel.endsWith('%'))).toBe(true);
+  });
+
+  it('builds an overnight-safe timeline domain around actual and target timing', () => {
+    const nights = records(3);
+    const timeline = createTimingTimelineModel(nights, 4.5, 13.25);
+
+    expect(timeline.points.map((point) => point.dayKey)).toEqual(nights.map((night) => night.dayKey));
+    expect(timeline.points.every((point) => point.wakeOffset >= point.bedtimeOffset)).toBe(true);
+    expect(timeline.domain[0]).toBeLessThan(4.5);
+    expect(timeline.domain[1]).toBeGreaterThan(13.25);
   });
 });

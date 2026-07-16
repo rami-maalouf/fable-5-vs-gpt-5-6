@@ -265,7 +265,7 @@ by side.
   - verify: manual side-by-side with fixture data.
   - depends: 22. files: src/components/charts/*. size: M
 
-- [ ] **task 24: metrics charts - debt, weekday, histogram, timeline**
+- [x] **task 24: metrics charts - debt, weekday, histogram, timeline**
   - description: sleep debt (accent line + 0.18 area + zero rule), weekday averages
     (purple weekend bars), duration histogram (% annotations), and the sleep/wake
     timeline sheet (horizontal bars bed->wake, indigo/orange points, detent 0.82).
