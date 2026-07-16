@@ -114,7 +114,7 @@ original look.
     available, else simulator.
   - depends: 5. files: src/components/common/CircularTimePicker.tsx, tests. size: M
 
-- [ ] **task 10: sleep toggle (minimal dashboard)**
+- [x] **task 10: sleep toggle (minimal dashboard)**
   - description: go to sleep / wake up button (title3 bold white, radius 15,
     actionPrimary/warning backgrounds, card-recipe wrapper), creates/ends sessions
     via repo, elapsed timer while active, sub-5-min joke toast (7 messages,
