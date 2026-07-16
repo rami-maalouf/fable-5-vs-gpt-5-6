@@ -81,7 +81,7 @@ original look.
   - verify: activity visible on simulator lock screen; decision note committed.
   - depends: 1. files: spike note + widgets/ scratch. size: S
 
-- [ ] **task 7: spike - chart approach**
+- [x] **task 7: spike - chart approach**
   - description: render the hardest chart (dashboard week chart: negative-offset
     bars width 25, dual y-axis, dashed rulemarks, catmullRom line + points,
     x-selection) in victory-native.
