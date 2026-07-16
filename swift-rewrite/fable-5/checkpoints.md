@@ -111,3 +111,37 @@ code-quality review (tasks 14-16): analyzer kept pure (no react/expo
 imports); Int()-truncation semantics documented at each site; duplicate
 stddev helper collapsed; harness + generator committed for regeneration
 auditability. no quality debt carried forward.
+
+## checkpoint 5: dashboard fidelity (tasks 17-19) - PASS (jul 16)
+
+side-by-side against the reference set (self-verified per the kickoff's
+autonomous-gate rule; evidence under evidence/task-17, task-19,
+checkpoint-05):
+
+- week mode vs IMG_4796: greeting + emoji (9 banks, tap to shuffle verified
+  live), date line, segmented picker, 4 insight pills (full titles via
+  font-scaling like minimumScaleFactor), week chart with dual axis + 3 dashed
+  rules + gray catmullRom duration line + selection scrub, status card with
+  flame streak pill, go-to-sleep button + "Tap to start" caption.
+- 7-night avg vs IMG_4797: vs-7d/vs-target/range pills, above/below-target
+  area segments split at crossings (AreaMark yStart=target semantics), dashed
+  target rule, selection footer with date / avg / vs-target.
+- score vs IMG_4798: daily/trend/main-drag/flame pills, green-orange bars at
+  the 70 threshold, ema trend line, dashed 70 rule, y axis [0,25,50,70,100],
+  component bars duration/timing/phase/consistency with ignored state.
+- core vs IMG_4799: duration + consistency only, composite reweighted (0.35 +
+  0.15), separate streak (best 2d).
+- all three themes captured on the dashboard: twilight, amethyst, sunset
+  (evidence/checkpoint-05/) - sunset revealed a dark pill background, fixed to
+  theme-aware before the gate closed.
+- analytics guide sheet (0.6/large detents + grabber) matches the original's
+  content and layout.
+
+verification: 201 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 17-19): moving-average domain + area-splitting
+logic ported as exported pure functions (testable); shared date-scale helpers
+extracted for all date-series charts; insight pills theme-aware; jest
+transform allowlist extended for expo-router's esm dependency. known minor
+debt: log rows use fixed dark ios list colors (correct for the reference
+dark theme; light-mode pass scheduled with task 25 polish).
