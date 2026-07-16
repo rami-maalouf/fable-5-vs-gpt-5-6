@@ -3,11 +3,12 @@ import { SymbolView } from 'expo-symbols';
 
 import { twilightTabsByRoute } from '@/navigation/twilight-tabs';
 import { themes } from '@/theme';
+import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 import { rgba } from './common/color';
 
 export default function AppTabs() {
-  const theme = themes.twilight;
+  const theme = useSleepAppearanceTheme(themes.twilight);
 
   return (
     <Tabs

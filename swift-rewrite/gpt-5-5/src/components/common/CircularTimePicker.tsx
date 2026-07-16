@@ -1,6 +1,7 @@
 import {
   Canvas,
   Circle,
+  ColorMatrix,
   Group,
   Path,
   Skia,
@@ -15,6 +16,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { themes, type AppTheme } from '@/theme';
+import { desaturateHexColor, skiaGrayscaleMatrix } from '@/theme/sleep-appearance';
 
 import { rgba } from './color';
 import {
@@ -45,6 +47,7 @@ export type CircularTimePickerChange = {
 
 export type CircularTimePickerProps = CircularTimePickerChange & {
   onChange: (change: CircularTimePickerChange) => void;
+  grayscale?: boolean;
   size?: number;
   theme?: AppTheme;
 };
@@ -52,6 +55,7 @@ export type CircularTimePickerProps = CircularTimePickerChange & {
 type CircularTimePickerSymbolName = NonNullable<ComponentProps<typeof SymbolView>['name']>;
 
 export function CircularTimePicker({
+  grayscale = false,
   onChange,
   size = defaultSize,
   sleepMinutes,
@@ -66,6 +70,8 @@ export function CircularTimePicker({
   const durationMinutes = durationMinutesBetweenAngles(sleepAngle, wakeAngle);
   const qualityMessage = getSleepQualityMessage(durationMinutes);
   const healthyDuration = isHealthySleepDuration(durationMinutes);
+  const sleepKnobColor = grayscale ? desaturateHexColor('#7B68EE') : '#7B68EE';
+  const wakeKnobColor = grayscale ? desaturateHexColor('#FFB347') : '#FFB347';
   const sleepPoint = polarPointForAngle({ angle: sleepAngle, center, radius });
   const wakePoint = polarPointForAngle({ angle: wakeAngle, center, radius });
   const activeArcSegments = useMemo(
@@ -147,62 +153,65 @@ export function CircularTimePicker({
       <GestureDetector gesture={gesture}>
         <View style={StyleSheet.absoluteFill}>
           <Canvas style={StyleSheet.absoluteFill}>
-            <Group opacity={0.6}>
-              <Circle cx={center} cy={center} r={radius} style="stroke" strokeWidth={50}>
-                <SweepGradient c={vec(center, center)} colors={['#667eea', '#764ba2', '#3b2d72']} />
-              </Circle>
-            </Group>
-            <Circle cx={center} cy={center} r={radius} style="stroke" strokeWidth={ringStrokeWidth}>
-              <SweepGradient
-                c={vec(center, center)}
-                colors={[rgba('#ffffff', 0.08), rgba('#ffffff', 0.03)]}
-              />
-            </Circle>
-            {activeArcSegments.map((path, index) => (
-              <Group key={`active-arc-${index}`}>
-                <Path
-                  path={path}
-                  style="stroke"
-                  strokeCap="round"
-                  strokeWidth={ringStrokeWidth}
-                  color={rgba('#7B68EE', 0.5)}
-                />
-                <Path path={path} style="stroke" strokeCap="round" strokeWidth={ringStrokeWidth}>
-                  <SweepGradient c={vec(center, center)} colors={activeColors} />
-                </Path>
+            <Group>
+              {grayscale ? <ColorMatrix matrix={[...skiaGrayscaleMatrix]} /> : null}
+              <Group opacity={0.6}>
+                <Circle cx={center} cy={center} r={radius} style="stroke" strokeWidth={50}>
+                  <SweepGradient c={vec(center, center)} colors={['#667eea', '#764ba2', '#3b2d72']} />
+                </Circle>
               </Group>
-            ))}
-            {Array.from({ length: 24 }, (_, hour) => {
-              const tickAngle = minutesToAngle(hour * 60);
-              const tickPoint = polarPointForAngle({ angle: tickAngle, center, radius: radius + 8 });
-              const tickHeight = hour % 3 === 0 ? 8 : 4;
-
-              return (
-                <Group
-                  key={`tick-${hour}`}
-                  origin={vec(tickPoint.x, tickPoint.y)}
-                  transform={[{ rotate: ((tickAngle - 90) * Math.PI) / 180 }]}>
+              <Circle cx={center} cy={center} r={radius} style="stroke" strokeWidth={ringStrokeWidth}>
+                <SweepGradient
+                  c={vec(center, center)}
+                  colors={[rgba('#ffffff', 0.08), rgba('#ffffff', 0.03)]}
+                />
+              </Circle>
+              {activeArcSegments.map((path, index) => (
+                <Group key={`active-arc-${index}`}>
                   <Path
-                    color={rgba('#ffffff', 0.15)}
-                    path={roundedTickPath(tickPoint.x, tickPoint.y, 2, tickHeight)}
-                    style="fill"
+                    path={path}
+                    style="stroke"
+                    strokeCap="round"
+                    strokeWidth={ringStrokeWidth}
+                    color={rgba('#7B68EE', 0.5)}
                   />
+                  <Path path={path} style="stroke" strokeCap="round" strokeWidth={ringStrokeWidth}>
+                    <SweepGradient c={vec(center, center)} colors={activeColors} />
+                  </Path>
                 </Group>
-              );
-            })}
+              ))}
+              {Array.from({ length: 24 }, (_, hour) => {
+                const tickAngle = minutesToAngle(hour * 60);
+                const tickPoint = polarPointForAngle({ angle: tickAngle, center, radius: radius + 8 });
+                const tickHeight = hour % 3 === 0 ? 8 : 4;
+
+                return (
+                  <Group
+                    key={`tick-${hour}`}
+                    origin={vec(tickPoint.x, tickPoint.y)}
+                    transform={[{ rotate: ((tickAngle - 90) * Math.PI) / 180 }]}>
+                    <Path
+                      color={rgba('#ffffff', 0.15)}
+                      path={roundedTickPath(tickPoint.x, tickPoint.y, 2, tickHeight)}
+                      style="fill"
+                    />
+                  </Group>
+                );
+              })}
+            </Group>
           </Canvas>
           <ClockLabels center={center} radius={radius + 35} theme={theme} />
           <CenterReadout duration={durationMinutes} healthy={healthyDuration} message={qualityMessage} theme={theme} />
           <Knob
             active={activeKnob === 'sleep'}
-            color="#7B68EE"
+            color={sleepKnobColor}
             fallback="☾"
             point={sleepPoint}
             symbol={{ ios: 'moon.fill', android: 'dark_mode', web: 'dark_mode' }}
           />
           <Knob
             active={activeKnob === 'wake'}
-            color="#FFB347"
+            color={wakeKnobColor}
             fallback="☀"
             point={wakePoint}
             symbol={{ ios: 'sun.max.fill', android: 'wb_sunny', web: 'wb_sunny' }}

@@ -5,9 +5,11 @@ import { CardBackground, CircularTimePicker } from '@/components/common';
 import { TwilightPlaceholderScreen } from '@/components/twilight-placeholder-screen';
 import { defaultSleepSettings } from '@/domain/models';
 import { themes } from '@/theme';
+import { useIsAsleep, useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 export default function LogsScreen() {
-  const theme = themes.twilight;
+  const theme = useSleepAppearanceTheme(themes.twilight);
+  const asleep = useIsAsleep();
   const [pickerTimes, setPickerTimes] = useState({
     sleepMinutes: defaultSleepSettings.optimalSleepMinutes,
     wakeMinutes: defaultSleepSettings.optimalWakeMinutes,
@@ -31,6 +33,7 @@ export default function LogsScreen() {
             onChange={setPickerTimes}
             sleepMinutes={pickerTimes.sleepMinutes}
             wakeMinutes={pickerTimes.wakeMinutes}
+            grayscale={asleep}
             theme={theme}
           />
         </CardBackground>

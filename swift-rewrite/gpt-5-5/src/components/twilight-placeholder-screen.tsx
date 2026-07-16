@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CardBackground, GlowingMoonView, ScreenChrome } from '@/components/common';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { themes } from '@/theme';
+import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 type TwilightPlaceholderScreenProps = PropsWithChildren<{
   eyebrow: string;
@@ -12,7 +13,7 @@ type TwilightPlaceholderScreenProps = PropsWithChildren<{
 }>;
 
 export function TwilightPlaceholderScreen({ body, children, eyebrow, title }: TwilightPlaceholderScreenProps) {
-  const theme = themes.twilight;
+  const theme = useSleepAppearanceTheme(themes.twilight);
 
   return (
     <ScreenChrome theme={theme}>
@@ -24,7 +25,7 @@ export function TwilightPlaceholderScreen({ body, children, eyebrow, title }: Tw
               <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
               <Text style={[styles.body, { color: theme.textSecondary }]}>{body}</Text>
             </View>
-            <GlowingMoonView size={64} />
+            <GlowingMoonView color={theme.warning} size={64} />
           </View>
         </CardBackground>
         <CardBackground theme={theme} style={styles.card}>

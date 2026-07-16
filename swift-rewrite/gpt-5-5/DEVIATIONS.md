@@ -62,3 +62,12 @@
 - the Swift sub-5-minute joke strings include emoji glyphs. The app keeps the same
   seven message variants and interpolation behavior, but omits emoji glyphs to
   satisfy the repo-wide no-emoji rule.
+
+## task 11
+
+- the shared external `todo.md` had task 11 checked, but this app did not contain
+  app-wide sleep-state desaturation. Treated the app worktree as authoritative and
+  implemented task 11 locally.
+- removed the dev-only spike mounts from Home, Metrics, and Settings so scratch
+  overlays and colorful spike demos no longer obscure or contradict the production
+  sleep-state UI. The spike source and evidence remain under `spikes/`.

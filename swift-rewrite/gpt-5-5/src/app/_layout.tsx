@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
+import { SleepAppearanceProvider } from '@/theme/sleep-appearance';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -14,8 +15,10 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <AppTabs />
+        <SleepAppearanceProvider>
+          <AnimatedSplashOverlay />
+          <AppTabs />
+        </SleepAppearanceProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );
