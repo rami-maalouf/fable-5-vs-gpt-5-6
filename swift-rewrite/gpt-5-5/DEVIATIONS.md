@@ -71,3 +71,12 @@
 - removed the dev-only spike mounts from Home, Metrics, and Settings so scratch
   overlays and colorful spike demos no longer obscure or contradict the production
   sleep-state UI. The spike source and evidence remain under `spikes/`.
+
+## task 17
+
+- the Swift greeting banks include emoji glyphs. The app preserves the greeting bank
+  structure and selection logic, but omits emoji glyphs to satisfy the repo-wide
+  no-emoji rule.
+- task 17 implements the dashboard shell, status cards, view controls, and metric
+  summaries. Dense chart drawings remain intentionally bounded to the later chart
+  tasks so the chart implementation is not duplicated here.

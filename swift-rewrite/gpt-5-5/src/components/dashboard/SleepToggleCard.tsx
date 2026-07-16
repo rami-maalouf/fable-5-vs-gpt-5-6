@@ -27,7 +27,11 @@ function makeClock() {
   };
 }
 
-export function SleepToggleCard() {
+type SleepToggleCardProps = {
+  onSessionChange?: () => void;
+};
+
+export function SleepToggleCard({ onSessionChange }: SleepToggleCardProps) {
   const theme = useSleepAppearanceTheme(themes.twilight);
   const [activeSession, setActiveSession] = useState<SleepSession | null>(null);
   const [now, setNow] = useState(() => new Date());
@@ -81,20 +85,23 @@ export function SleepToggleCard() {
         if (result.status === 'ended') {
           setActiveSession(null);
           setFeedback(result.valid ? `Saved ${formatDuration(result.durationSeconds)}` : result.joke);
+          onSessionChange?.();
         } else {
           setActiveSession(null);
           setFeedback('No active sleep session found.');
+          onSessionChange?.();
         }
       } else {
         const session = await startSleepSession(repository, makeClock());
         setActiveSession(session);
         setNow(new Date());
         setFeedback(null);
+        onSessionChange?.();
       }
     } finally {
       setBusy(false);
     }
-  }, [activeSession, busy]);
+  }, [activeSession, busy, onSessionChange]);
 
   return (
     <CardBackground active={Boolean(activeSession)} theme={theme} style={styles.card}>
@@ -127,7 +134,7 @@ export function SleepToggleCard() {
           <Text style={styles.buttonText}>{activeSession ? 'Wake Up' : 'Go to Sleep'}</Text>
         </Pressable>
         <Text style={[styles.caption, { color: theme.textSecondary }]}>
-          {activeSession ? 'Tap to wake up or scan your NFC tag' : 'Tap to start or scan your NFC tag to automatically start'}
+          {activeSession ? 'Tap to wake up' : 'Tap to start'}
         </Text>
         {feedback ? (
           <View style={[styles.feedback, { borderColor: rgba(theme.warning, 0.35) }]}>
