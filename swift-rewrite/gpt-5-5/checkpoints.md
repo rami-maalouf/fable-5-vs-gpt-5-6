@@ -112,3 +112,42 @@ known gaps:
   `wa-sqlite.wasm` during the dev session. Native iOS verification is unaffected,
   but web should be treated as not verified until that Expo SQLite web packaging
   issue is addressed.
+
+## checkpoint 4 - metrics engine parity
+
+covered tasks:
+
+- task 14: core sleep metrics engine.
+- task 15: advanced sleep metrics engine.
+- task 16: golden metric fixtures and parity test.
+
+verification:
+
+- `bun run test -- metrics`: passed, 2 suites and 16 tests.
+- `bun run test -- parity`: passed, 1 suite and 6 tests.
+- `bun run test`: passed, 20 suites and 83 tests.
+- `bunx tsc --noEmit`: passed.
+- `bun run lint`: passed.
+- `git diff --check -- .`: passed.
+- `git diff --cached --check`: passed before the task 16 commit.
+- em-dash scan over `src`, `tests`, `package.json`, and `tsconfig.json`: no matches.
+
+fixture evidence:
+
+- `tests/fixtures/sleep-metrics/regular-sleeper.json`: consecutive regular sleeper set with 14 nights.
+- `tests/fixtures/sleep-metrics/shift-worker-crossing-midnight.json`: after-midnight shift-worker schedule.
+- `tests/fixtures/sleep-metrics/timezone-traveler.json`: sessions with different start and end time zones.
+- `tests/fixtures/sleep-metrics/sub-five-minute-noise.json`: invalid short sessions, same-day canonical selection, and active-session exclusion.
+- `tests/fixtures/sleep-metrics/gaps-streak-breaks.json`: gaps, streak breaks, and current-streak behavior.
+
+code quality gate:
+
+- Reviewed the phase 4 metric modules and parity harness for task scope, pure-domain boundaries, deterministic date handling, fixture coverage, and dependency impact.
+- Fixed the parity harness typecheck failure by removing Node `fs` and `path` usage instead of adding `@types/node` or changing global TypeScript config.
+- Fixed negative-zero serialization in parity snapshots so fixture diffs remain stable.
+- Confirmed the parity harness exercises public metric outputs rather than private helper internals.
+
+known gaps:
+
+- Checkpoint 3 is not present in this log. I did not backfill it because the current turn did not reproduce the full track-a-night simulator flow.
+- The iOS runtime boot was not rerun for tasks 14-16 because this phase is pure TypeScript metrics work and the prior simulator state showed stale bundle contamination. Runtime boot remains unproven for the latest local commits.
