@@ -80,3 +80,10 @@
 - task 17 implements the dashboard shell, status cards, view controls, and metric
   summaries. Dense chart drawings remain intentionally bounded to the later chart
   tasks so the chart implementation is not duplicated here.
+
+## task 19
+
+- the moving-average card uses the shared metric engine and renders the target rule,
+  selection point, and line, but its area fill uses one latest-state color instead
+  of splitting exactly at every target crossing. The numeric behavior is preserved;
+  the crossing-split fill can be tightened during the chart polish pass.

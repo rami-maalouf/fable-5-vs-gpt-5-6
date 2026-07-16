@@ -13,6 +13,7 @@ import {
 
 import { CardBackground, ScreenChrome } from '@/components/common';
 import { rgba } from '@/components/common/color';
+import { AlignmentScoreCard, MovingAverageCard } from '@/components/charts/DashboardMetricCards';
 import { WeekChart } from '@/components/charts/WeekChart';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { settingsStore } from '@/data/settings-store';
@@ -467,6 +468,10 @@ export function DashboardScreen() {
         <FadeInSlide delay={180}>
           {mode === 'Week' ? (
             <WeekChart records={summary.rangeRecords} settings={data.settings} theme={theme} />
+          ) : mode === '7-Night Avg' ? (
+            <MovingAverageCard records={summary.rangeRecords} settings={data.settings} theme={theme} />
+          ) : mode === 'Score' ? (
+            <AlignmentScoreCard records={summary.rangeRecords} settings={data.settings} theme={theme} />
           ) : (
             <ModeCard mode={mode} settings={data.settings} summary={summary} theme={theme} />
           )}
