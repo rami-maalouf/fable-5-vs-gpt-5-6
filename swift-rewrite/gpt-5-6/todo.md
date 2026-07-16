@@ -158,7 +158,7 @@ by side.
 
 ## phase 4: metrics engine (spec formulas, pure ts)
 
-- [ ] **task 14: metrics core**
+- [x] **task 14: metrics core**
   - description: `src/domain/metrics/`: night records (18:00 base-hour offsets),
     mean/median/total/longest/shortest, tracking coverage, goal-hit rate (±0.75h),
     duration trend %, 7-day moving average series, current/longest streaks.
