@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { WeekChart } from '@/components/charts/WeekChart';
 import { CardBackground } from '@/components/common/card-background';
 import { InsightPills, type InsightPillModel } from '@/components/dashboard/InsightPills';
 import type { DashboardViewMode } from '@/components/dashboard/SegmentedPicker';
@@ -51,7 +52,13 @@ export function DashboardOverviewCard({
             <Text style={[styles.emptyCopy, { color: theme.textSecondary }]}>Track a night to reveal rhythms, averages, and scores.</Text>
           </>
         ) : (
-          <ModePreview mode={mode} records={records} targetDurationHours={targetDurationHours} targetSleepOffset={targetSleepOffset} />
+          <ModePreview
+            mode={mode}
+            records={records}
+            targetDurationHours={targetDurationHours}
+            targetSleepOffset={targetSleepOffset}
+            targetWakeOffset={targetWakeOffset}
+          />
         )}
       </View>
     </CardBackground>
@@ -63,23 +70,22 @@ function ModePreview({
   records,
   targetDurationHours,
   targetSleepOffset,
+  targetWakeOffset,
 }: {
   mode: DashboardViewMode;
   records: readonly SleepNightRecord[];
   targetDurationHours: number;
   targetSleepOffset: number;
+  targetWakeOffset: number;
 }) {
-  const { theme } = useTheme();
   if (mode === 'week') {
     return (
-      <View style={styles.barRow}>
-        {records.slice(-7).map((record) => (
-          <View key={record.id} style={styles.barColumn}>
-            <View style={[styles.bar, { backgroundColor: theme.actionPrimary, height: Math.max(32, record.durationHours * 10) }]} />
-            <Text style={[styles.day, { color: theme.textSecondary }]}>{weekday(record.weekday)}</Text>
-          </View>
-        ))}
-      </View>
+      <WeekChart
+        records={records}
+        targetDurationHours={targetDurationHours}
+        targetSleepOffset={targetSleepOffset}
+        targetWakeOffset={targetWakeOffset}
+      />
     );
   }
   if (mode === 'average') {
@@ -143,20 +149,12 @@ function formatHours(hours: number): string {
   return `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
 }
 
-function weekday(value: number): string {
-  return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][value - 1] ?? '';
-}
-
 const styles = StyleSheet.create({
-  bar: { borderRadius: 5, width: 24 },
-  barColumn: { alignItems: 'center', flex: 1, justifyContent: 'flex-end' },
-  barRow: { alignItems: 'flex-end', flexDirection: 'row', gap: 8, height: 128, width: '100%' },
   card: { marginHorizontal: 16, minHeight: 248, padding: 14 },
-  day: { fontSize: 10, fontWeight: '700', marginTop: 7 },
   emptyCopy: { fontSize: 13, lineHeight: 19, marginTop: 7, maxWidth: 250, textAlign: 'center' },
   emptyTitle: { fontSize: 18, fontWeight: '800', textAlign: 'center' },
   numberPreview: { alignItems: 'center' },
-  preview: { alignItems: 'center', flex: 1, justifyContent: 'center', paddingTop: 16 },
+  preview: { alignItems: 'center', flex: 1, justifyContent: 'center', paddingTop: 8 },
   previewLabel: { fontSize: 12, fontWeight: '600', marginTop: 4 },
   previewNumber: { fontSize: 48, fontWeight: '800' },
 });

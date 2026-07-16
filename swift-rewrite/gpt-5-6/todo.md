@@ -203,7 +203,7 @@ by side.
   - depends: 10, 14, 15. files: app/(tabs)/index.tsx, src/components/dashboard/*,
     src/copy/greetings.ts. size: M
 
-- [ ] **task 18: week chart**
+- [x] **task 18: week chart**
   - description: the dashboard week chart per the spec's mark table: negative-offset
     bars (width 25, accent 0.7, r4), gray duration line (lw3 catmullRom) + points,
     three dashed rulemarks with annotations, dual y-axis with collision hiding,
