@@ -1,10 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Screen } from '@/components/common/Screen';
+import { useTheme } from '@/theme/ThemeProvider';
+
 export default function MetricsScreen() {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Metrics</Text>
-    </View>
+    <Screen>
+      <View style={styles.container}>
+        <Text style={{ color: theme.textPrimary }}>Metrics</Text>
+      </View>
+    </Screen>
   );
 }
 
@@ -13,7 +19,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0a1520',
   },
-  text: { color: '#ffffff' },
 });

@@ -1,10 +1,21 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Card } from '@/components/common/Card';
+import { GlowingMoonView } from '@/components/common/GlowingMoonView';
+import { Screen } from '@/components/common/Screen';
+import { useTheme } from '@/theme/ThemeProvider';
+
 export default function DashboardScreen() {
+  const theme = useTheme();
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Dashboard</Text>
-    </View>
+    <Screen>
+      <View style={styles.container}>
+        <GlowingMoonView />
+        <Card style={styles.card}>
+          <Text style={{ color: theme.textPrimary }}>Dashboard</Text>
+        </Card>
+      </View>
+    </Screen>
   );
 }
 
@@ -13,7 +24,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0a1520',
+    gap: 24,
   },
-  text: { color: '#ffffff' },
+  card: { marginHorizontal: 16, alignSelf: 'stretch' },
 });
