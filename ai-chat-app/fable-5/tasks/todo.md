@@ -167,7 +167,7 @@ recorded.
 
 ## phase 7: native-feel hardening
 
-- [ ] **task 14: scroll anchoring**
+- [x] **task 14: scroll anchoring**
   - description: pinned-to-bottom controller: auto-follow while the newest message
     grows; manual scroll-up disengages follow and shows a scroll-to-bottom pill;
     resuming at bottom re-engages; never hijacks a manual scroll mid-stream.
@@ -176,7 +176,7 @@ recorded.
   - verify: manual long-reply run; hook test for follow-state transitions.
   - depends: 5. files: src/hooks/usePinnedScroll.ts, MessageList. size: M
 
-- [ ] **task 15: animations + launch polish**
+- [x] **task 15: animations + launch polish**
   - description: message send/appear animations, smooth streaming text growth,
     drawer timing curve, correct status bar style per mode, no layout flash on
     launch, touch targets >= 44pt audit.
@@ -184,7 +184,7 @@ recorded.
   - verify: manual sweep, fps overlay.
   - depends: checkpoint 6. files: chat + drawer components. size: S
 
-- [ ] **task 16: light/dark + empty state audit**
+- [x] **task 16: light/dark + empty state audit**
   - description: both modes verified live-switching mid-session; empty state
     (fresh launch) intentional and matching the chatgpt-app convention; dim
     overlay, bubbles, errors, drawer all checked in both modes.

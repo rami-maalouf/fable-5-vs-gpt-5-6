@@ -1,5 +1,12 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { ErrorRow } from '@/components/chat/ErrorRow';
 import type { Message } from '@/domain/messages';
@@ -7,33 +14,47 @@ import { colors, radius, spacing } from '@/theme/tokens';
 
 type MessageRowProps = {
   message: Message;
+  // true when the row mounts as part of a live turn (not a history load)
+  animateIn?: boolean;
   // true while this row is the actively streaming reply with no text yet
   showTypingIndicator?: boolean;
   // present only when this row is a retryable failed reply (the newest turn)
   onRetry?: () => void;
 };
 
+function TypingIndicator() {
+  const opacity = useSharedValue(0.9);
+  useEffect(() => {
+    opacity.value = withRepeat(withTiming(0.25, { duration: 600 }), -1, true);
+  }, [opacity]);
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  return <Animated.View style={[styles.typingDot, style]} />;
+}
+
 // chatgpt convention: user messages in a filled right-aligned bubble,
 // assistant replies as plain full-width text
 export const MessageRow = memo(function MessageRow({
   message,
+  animateIn = false,
   showTypingIndicator = false,
   onRetry,
 }: MessageRowProps) {
+  const entering = animateIn ? FadeInDown.duration(220) : undefined;
+
   if (message.role === 'user') {
     return (
-      <View style={styles.userRow}>
+      <Animated.View entering={entering} style={styles.userRow}>
         <View style={styles.userBubble}>
           <Text style={styles.userText}>{message.content}</Text>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={styles.assistantRow}>
+    <Animated.View entering={entering} style={styles.assistantRow}>
       {showTypingIndicator ? (
-        <View style={styles.typingDot} />
+        <TypingIndicator />
       ) : (
         <>
           {message.content.length > 0 && (
@@ -42,7 +63,7 @@ export const MessageRow = memo(function MessageRow({
           {message.status === 'error' && <ErrorRow onRetry={onRetry} />}
         </>
       )}
-    </View>
+    </Animated.View>
   );
 });
 

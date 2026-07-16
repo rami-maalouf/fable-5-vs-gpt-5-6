@@ -197,3 +197,37 @@ checked:
 code-quality gate: send/retry share one executeTurn tail; retry validates it
 targets the newest errored assistant turn; ErrorRow retry affordance only on
 the retryable (newest) turn. no debt.
+
+## checkpoint 7 - native-feel hardening (tasks 14-16) - PASS (one honest gap)
+
+date: 2026-07-16 ~04:58. same device/server.
+
+checked:
+
+1. scroll anchoring (task 14): long reply streams with the list pinned to
+   bottom; manual scroll-up mid-stream holds position (never hijacked -
+   verified during a live 20-paragraph stream); the scroll-to-bottom pill
+   appears when follow disengages and tapping it returns to the bottom and
+   re-engages follow. evidence:
+   verification/14-scrollup-midstream-not-hijacked.png,
+   verification/14-scroll-to-bottom-pill.png,
+   verification/14-pill-tap-returns-to-bottom.png
+2. animations + launch (task 15): new-turn rows fade in (history loads mount
+   silently by design); typing indicator pulses; drawer spring tuned
+   (no bounce); splash changed from starter blue to adaptive white/black so
+   cold launch has no color flash (native rebuild done); cold-launch console
+   clean (only framework noise, zero app warnings; the one LogBox banner seen
+   earlier was a fast-refresh artifact and does not reproduce).
+3. light/dark (task 16): system flip mid-session updates every surface live
+   (ios semantic colors). screenshot pairs saved for empty state,
+   conversation, drawer, and model menu:
+   verification/16-*.png (light + dark).
+
+honest gap: the "no dropped frames (fps overlay)" item was not measured with
+an fps overlay (dev-menu perf monitor not driveable via automation here). in
+its place: the drawer and dim animate entirely on the ui thread (reanimated
+worklets + spring), streaming re-renders are batched to ~40ms, and all
+transitions look smooth in captures. flagged for rami's physical-device pass.
+
+code-quality gate: reviewed phase-7 diffs (MessageList pill, MessageRow
+animations, usePinnedScroll, splash config). no dead code, no debt.
