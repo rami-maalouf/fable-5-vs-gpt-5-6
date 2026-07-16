@@ -29,6 +29,7 @@ import {
   listMessages,
   updateConversationModel,
 } from '@/lib/db';
+import { createTextBatcher } from '@/lib/text-batcher';
 
 export type { ChatMessage } from '@/lib/chat-state';
 
@@ -88,6 +89,11 @@ export function useChat(initialModel: ChatModel = 'gpt-5.6-luna') {
           setMessages(update);
         }
       };
+      const textBatcher = createTextBatcher((text) => {
+        updateCurrentMessages((current) =>
+          appendAssistantChunk(current, turn.assistantId, text),
+        );
+      });
 
       try {
         if (turn.prepare) {
@@ -106,16 +112,16 @@ export function useChat(initialModel: ChatModel = 'gpt-5.6-luna') {
           fetchImpl: appFetch,
           onChunk: (chunk) => {
             receivedContent += chunk;
-            updateCurrentMessages((current) =>
-              appendAssistantChunk(current, turn.assistantId, chunk),
-            );
+            textBatcher.push(chunk);
           },
         });
+        textBatcher.flush();
         updateCurrentMessages((current) =>
           finishAssistantMessage(current, turn.assistantId),
         );
         await persistAssistant(turn.conversationId, turn.assistantId, receivedContent);
       } catch {
+        textBatcher.flush();
         if (controller.signal.aborted && !receivedContent) {
           updateCurrentMessages((current) =>
             removeAssistantMessage(current, turn.assistantId),

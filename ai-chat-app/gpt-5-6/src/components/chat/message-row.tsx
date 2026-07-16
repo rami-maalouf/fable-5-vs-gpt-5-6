@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -11,7 +12,7 @@ type MessageRowProps = {
   onRetry: () => void;
 };
 
-export function MessageRow({ message, onRetry }: MessageRowProps) {
+export const MessageRow = memo(function MessageRow({ message, onRetry }: MessageRowProps) {
   const showPending = message.role === 'assistant' && message.status === 'pending';
   const showError = message.role === 'assistant' && message.status === 'error';
 
@@ -30,7 +31,7 @@ export function MessageRow({ message, onRetry }: MessageRowProps) {
       {showError ? <ErrorRow onRetry={onRetry} /> : null}
     </Animated.View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

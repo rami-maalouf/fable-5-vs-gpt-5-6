@@ -2,6 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
+  type ListRenderItemInfo,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Pressable,
@@ -64,6 +65,13 @@ export function MessageList({ conversationId, messages, onRetry }: MessageListPr
     setShowScrollToBottom(false);
     scrollToBottom(true);
   };
+
+  const renderMessage = useCallback(
+    ({ item }: ListRenderItemInfo<ChatMessage>) => (
+      <MessageRow message={item} onRetry={onRetry} />
+    ),
+    [onRetry],
+  );
 
   useEffect(() => {
     shouldFollowContent.current = true;
@@ -135,7 +143,7 @@ export function MessageList({ conversationId, messages, onRetry }: MessageListPr
           }
         }}
         removeClippedSubviews={false}
-        renderItem={({ item }) => <MessageRow message={item} onRetry={onRetry} />}
+        renderItem={renderMessage}
         scrollEventThrottle={16}
       />
       {showScrollToBottom ? (
