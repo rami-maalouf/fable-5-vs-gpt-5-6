@@ -8,15 +8,30 @@ jest.mock('@/data/app-db', () => {
   const { memoryDb } = require('./helpers/memory-db');
   const { migrate } = require('@/data/db');
   const { SessionRepo } = require('@/data/session-repo');
+  const { SettingsStore } = require('@/data/settings-store');
   const db = memoryDb();
   migrate(db);
-  return { sessionRepo: new SessionRepo(db), settingsStore: null };
+  const map = new Map<string, string>();
+  const kv = {
+    getItemSync: (key: string) => map.get(key) ?? null,
+    setItemSync: (key: string, value: string) => {
+      map.set(key, value);
+    },
+  };
+  return { sessionRepo: new SessionRepo(db), settingsStore: new SettingsStore(kv) };
 });
 
 // the skia jest mock has no CanvasKit, so path construction is stubbed;
 // chart marks render as noop views while text overlays stay real
 jest.mock('@/components/charts/path-utils', () => ({
   catmullRomPath: () => null,
+}));
+
+// the screen renders outside a navigator in this smoke test
+jest.mock('expo-router', () => ({
+  ...jest.requireActual('expo-router'),
+  useFocusEffect: jest.fn(),
+  router: { push: jest.fn(), back: jest.fn() },
 }));
 
 import DashboardScreen from '@/app/(tabs)/index';

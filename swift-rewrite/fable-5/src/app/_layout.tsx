@@ -17,6 +17,14 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="log-editor" options={{ presentation: 'modal' }} />
+          <Stack.Screen
+            name="metrics-explanation"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.6, 1.0],
+              sheetGrabberVisible: true,
+            }}
+          />
         </Stack>
       </GestureHandlerRootView>
     </ThemeProvider>
