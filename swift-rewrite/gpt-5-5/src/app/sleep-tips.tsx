@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.two,
   },
   pressed: {
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.96 }],
   },
   tipBody: {
     fontSize: 14,

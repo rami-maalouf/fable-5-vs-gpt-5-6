@@ -72,9 +72,11 @@ function FadeInSlide({
   const [progress] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    Animated.timing(progress, {
+    Animated.spring(progress, {
+      damping: 6,
       delay,
-      duration: 360,
+      mass: 1,
+      stiffness: 100,
       toValue: 1,
       useNativeDriver: true,
     }).start();
@@ -89,7 +91,7 @@ function FadeInSlide({
             {
               translateY: progress.interpolate({
                 inputRange: [0, 1],
-                outputRange: [18, 0],
+                outputRange: [30, 0],
               }),
             },
           ],
@@ -621,7 +623,7 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.75,
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.96 }],
   },
   rangeButton: {
     borderRadius: 999,

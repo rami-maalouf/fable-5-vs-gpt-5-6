@@ -105,3 +105,17 @@
   separate route file. It renders horizontal sleep-window bars inside the sheet;
   if deep-linking directly to the timeline becomes required, this should move to
   `src/app/timeline-sheet.tsx`.
+
+## task 25
+
+- aligned dashboard card entrance motion with the spec's y-offset and spring-based
+  fade-in shape, and standardized press scale to 0.96 across newly reviewed
+  pressable controls.
+- shared `RoundedButton` now emits light haptics on press-in and shared
+  `GlassButton` emits medium haptics on long press. Several feature-specific
+  custom pressables still avoid haptics to prevent excessive buzzing in dense
+  chart and settings controls; this can be revisited if physical-device testing
+  shows the original app used haptics on those exact controls.
+- FPS overlay was not available through the current simulator automation path.
+  Starfield and chart interactions were manually smoke-tested for runtime
+  stability, not measured with a numeric FPS trace.

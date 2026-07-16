@@ -1,4 +1,5 @@
 import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
 import type { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, Text, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
@@ -15,9 +16,18 @@ type ButtonProps = PropsWithChildren<
   }
 >;
 
-export function GlassButton({ fullWidth = false, style, theme, title, ...pressableProps }: ButtonProps) {
+export function GlassButton({ fullWidth = false, onLongPress, onPressIn, style, theme, title, ...pressableProps }: ButtonProps) {
   return (
-    <Pressable {...pressableProps} style={({ pressed }) => [fullWidth && styles.fullWidth, pressed && styles.pressed, style]}>
+    <Pressable
+      {...pressableProps}
+      onLongPress={(event) => {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        onLongPress?.(event);
+      }}
+      onPressIn={(event) => {
+        onPressIn?.(event);
+      }}
+      style={({ pressed }) => [fullWidth && styles.fullWidth, pressed && styles.pressed, style]}>
       <BlurView intensity={28} tint="dark" style={[styles.glass, { borderColor: rgba(theme.textPrimary, 0.2) }]}>
         <Text style={[styles.glassText, { color: theme.textPrimary }]}>{title}</Text>
       </BlurView>
@@ -25,9 +35,15 @@ export function GlassButton({ fullWidth = false, style, theme, title, ...pressab
   );
 }
 
-export function RoundedButton({ fullWidth = false, style, theme, title, ...pressableProps }: ButtonProps) {
+export function RoundedButton({ fullWidth = false, onPressIn, style, theme, title, ...pressableProps }: ButtonProps) {
   return (
-    <Pressable {...pressableProps} style={({ pressed }) => [fullWidth && styles.fullWidth, pressed && styles.pressed, style]}>
+    <Pressable
+      {...pressableProps}
+      onPressIn={(event) => {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPressIn?.(event);
+      }}
+      style={({ pressed }) => [fullWidth && styles.fullWidth, pressed && styles.pressed, style]}>
       <BlurView intensity={18} tint="dark" style={[styles.rounded, { borderColor: rgba('#ffffff', 0.15) }]}>
         <Text style={[styles.roundedText, { color: theme.textSecondary }]}>{title}</Text>
       </BlurView>

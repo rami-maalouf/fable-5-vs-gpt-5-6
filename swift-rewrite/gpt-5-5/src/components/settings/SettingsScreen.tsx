@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   pressed: {
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.96 }],
   },
   restartRow: {
     borderCurve: 'continuous',
