@@ -36,3 +36,12 @@
   button path, but Argent accessibility did not expose the Live Activities
   permission prompt or lock-screen button as tappable elements. The spike note
   documents this automation gap.
+
+## task 7
+
+- the shared external `todo.md` had task 7 checked, but this app did not contain
+  a chart spike or decision note. Treated the app worktree as authoritative and
+  added the local spike.
+- chose a hybrid chart approach: Victory Native for scales, Catmull-Rom line
+  rendering, and press state; custom Skia marks for floating sleep-window bars,
+  dashed target rules, custom dual-axis labels, and selection overlays.

@@ -1,16 +1,17 @@
+import type { PropsWithChildren } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CardBackground, GlowingMoonView, ScreenChrome } from '@/components/common';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { themes } from '@/theme';
 
-type TwilightPlaceholderScreenProps = {
+type TwilightPlaceholderScreenProps = PropsWithChildren<{
   eyebrow: string;
   title: string;
   body: string;
-};
+}>;
 
-export function TwilightPlaceholderScreen({ eyebrow, title, body }: TwilightPlaceholderScreenProps) {
+export function TwilightPlaceholderScreen({ body, children, eyebrow, title }: TwilightPlaceholderScreenProps) {
   const theme = themes.twilight;
 
   return (
@@ -33,6 +34,7 @@ export function TwilightPlaceholderScreen({ eyebrow, title, body }: TwilightPlac
             this tab is rendering through the reusable gradient, starfield, glass card, and accent system.
           </Text>
         </CardBackground>
+        {children}
       </ScrollView>
     </ScreenChrome>
   );
