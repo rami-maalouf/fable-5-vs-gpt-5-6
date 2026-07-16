@@ -78,3 +78,29 @@ the last chosen model (chatgpt convention). remaining known debt: none.
 note: @testing-library/react-native v14 has an async api (render/fireEvent
 /rerender must be awaited) - earlier sync-style tests failed misleadingly with
 "render function has not been called".
+
+## checkpoint 3 - persistence (task 7) - PASS
+
+date: 2026-07-16 ~04:12. same device/server.
+
+checked:
+
+1. sent "What is the capital of France?" on-device, got the streamed reply,
+   killed the app (simctl terminate), then inspected the app container's
+   sqlite directly: conversation row present with derived title
+   "What is the capital of France?", model gpt-5.6-luna, bumped updated_at;
+   both messages present with correct roles and status complete.
+   evidence: verification/checkpoint-3-conversation-before-kill.png + the
+   sqlite query output in the session log.
+2. relaunch lands on the fresh empty state, NOT the saved conversation
+   (fresh-launch rule). evidence:
+   verification/checkpoint-3-fresh-empty-state-after-relaunch.png
+3. unsent new chats leave no row: conversation rows are only created inside
+   persistUserTurn on the first send (unit-tested; 56/56 green).
+
+full ui-level relaunch-restore (jump back into the conversation) is exercised
+at checkpoint 4 once the drawer exists.
+
+code-quality gate: persistence module is two small functions against the repo
+layer; send flow persists at message boundaries only (never per token) and
+db failures degrade to console.warn without blocking chat. no debt.

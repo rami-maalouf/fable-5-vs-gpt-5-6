@@ -1,12 +1,14 @@
 import { useCallback } from 'react';
 
+import { persistAssistantMessage, persistUserTurn } from '@/data/chat-persistence';
+import { getDb } from '@/data/client-db';
 import { createId } from '@/domain/id';
 import type { Message } from '@/domain/messages';
 import { useChatStream, type ChatTurnMessage } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat-store';
 
-// orchestrates one chat turn: store mutations + the stream lifecycle.
-// persistence hooks in here in a later task.
+// orchestrates one chat turn: store mutations, sqlite persistence at message
+// boundaries (never per token), and the stream lifecycle
 export function useSendMessage() {
   const { stream, stop } = useChatStream();
 
@@ -16,7 +18,10 @@ export function useSendMessage() {
       if (store.sendState !== 'idle') return;
 
       const now = Date.now();
-      const conversationId = store.conversationId ?? '';
+      const isNewConversation = store.conversationId === null;
+      const conversationId = store.conversationId ?? createId();
+      const model = store.model;
+
       const userMessage: Message = {
         id: createId(),
         conversationId,
@@ -39,14 +44,37 @@ export function useSendMessage() {
         .map((m) => ({ role: m.role, content: m.content }));
 
       store.startTurn(userMessage, assistantPlaceholder);
+      if (isNewConversation) {
+        store.setConversationId(conversationId);
+      }
 
-      const result = await stream(history, store.model, {
+      try {
+        const db = await getDb();
+        await persistUserTurn(db, { isNewConversation, model, message: userMessage });
+      } catch (e) {
+        // persistence must never block the conversation itself
+        console.warn('failed to persist user message', e);
+      }
+
+      const result = await stream(history, model, {
         onText: (t) => useChatStore.getState().setStreamingText(assistantPlaceholder.id, t),
       });
 
       useChatStore
         .getState()
         .finishTurn(assistantPlaceholder.id, result.text, result.outcome);
+
+      try {
+        const db = await getDb();
+        await persistAssistantMessage(db, {
+          ...assistantPlaceholder,
+          content: result.text,
+          status: result.outcome,
+          createdAt: Date.now(),
+        });
+      } catch (e) {
+        console.warn('failed to persist assistant message', e);
+      }
     },
     [stream],
   );

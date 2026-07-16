@@ -81,7 +81,7 @@ recorded.
 
 ## phase 3: persistence
 
-- [ ] **task 7: persistence wiring**
+- [x] **task 7: persistence wiring**
   - description: messages/conversations persist through the repos; a conversation
     is created in the db only on its first message (fresh-launch rule: app opens
     into an unsaved empty conversation); title auto-derives from the first user
