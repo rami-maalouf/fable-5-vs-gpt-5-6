@@ -53,6 +53,7 @@ function ThemedApp() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="log-editor" />
           <Stack.Screen name="metrics-explanation" />
+          <Stack.Screen name="timeline-sheet" />
           <Stack.Screen name="sleep-tips" />
           <Stack.Screen name="live-activity-spike" />
           <Stack.Screen name="chart-spike" />

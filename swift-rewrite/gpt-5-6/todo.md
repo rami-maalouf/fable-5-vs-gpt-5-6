@@ -248,7 +248,7 @@ by side.
   - verify: manual fresh-install run; `bun run test`.
   - depends: 9, 20. files: app/onboarding/*. size: M
 
-- [ ] **task 22: metrics screen shell**
+- [x] **task 22: metrics screen shell**
   - description: metrics tab: range picker (30D/90D/1Y/All), overview MultiStatCard
     grid, highlights, SectionTitle rhythm (lazyvstack 20), empty state, toolbar
     buttons (timeline sheet + explanation sheet).
