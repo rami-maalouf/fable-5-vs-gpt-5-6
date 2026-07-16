@@ -8,6 +8,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FadeInSlide } from '@/components/common/fade-in-slide';
 import { PlatformSymbol } from '@/components/common/platform-symbol';
 import { ScreenBackground } from '@/components/common/screen-background';
+import { DurationMomentumChart } from '@/components/charts/DurationMomentumChart';
+import { RegularityComponentsChart } from '@/components/charts/RegularityComponentsChart';
+import { RollingConsistencyChart } from '@/components/charts/RollingConsistencyChart';
 import { MetricsEmptyState } from '@/components/metrics/MetricsEmptyState';
 import { MetricsRangePicker } from '@/components/metrics/MetricsRangePicker';
 import { MultiStatCard } from '@/components/metrics/MultiStatCard';
@@ -70,6 +73,9 @@ export default function MetricsScreen() {
     }),
     [allRecords, goals.sleepMinutes, goals.wakeMinutes, range],
   );
+  const targetDurationHours = goalDurationHours(goals.sleepMinutes, goals.wakeMinutes);
+  const targetSleepOffset = offsetForMinutes(goals.sleepMinutes);
+  const targetWakeOffset = offsetForMinutes(goals.wakeMinutes);
 
   return (
     <ScreenBackground>
@@ -116,6 +122,28 @@ export default function MetricsScreen() {
                 <SectionTitle>Highlights</SectionTitle>
                 <MultiStatCard stats={model.highlights} />
               </FadeInSlide>
+              <FadeInSlide delay={240}>
+                <SectionTitle>Duration Momentum</SectionTitle>
+                <DurationMomentumChart
+                  records={model.records}
+                  targetDurationHours={targetDurationHours}
+                />
+              </FadeInSlide>
+              <FadeInSlide delay={300}>
+                <SectionTitle>Regularity</SectionTitle>
+                <View style={styles.chartStack}>
+                  <RollingConsistencyChart
+                    records={model.records}
+                    targetSleepOffset={targetSleepOffset}
+                    targetWakeOffset={targetWakeOffset}
+                  />
+                  <RegularityComponentsChart
+                    records={model.records}
+                    targetSleepOffset={targetSleepOffset}
+                    targetWakeOffset={targetWakeOffset}
+                  />
+                </View>
+              </FadeInSlide>
             </>
           )}
         </ScrollView>
@@ -153,7 +181,13 @@ function localDayKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function offsetForMinutes(minutes: number): number {
+  const hour = minutes / 60;
+  return (hour < 18 ? hour + 24 : hour) - 18;
+}
+
 const styles = StyleSheet.create({
+  chartStack: { gap: 16 },
   content: { gap: 20, paddingBottom: 120, paddingHorizontal: 20, paddingTop: 12 },
   header: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   intro: { fontSize: 15, lineHeight: 21, marginTop: 10 },

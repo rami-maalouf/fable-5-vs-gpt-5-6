@@ -257,7 +257,7 @@ by side.
   - depends: 15, 17. files: app/(tabs)/metrics.tsx, src/components/metrics/*.
     size: M
 
-- [ ] **task 23: metrics charts - momentum + consistency**
+- [x] **task 23: metrics charts - momentum + consistency**
   - description: duration momentum (target-colored bars + 7-night line lw2.5),
     rolling consistency (teal area/line + rule 80 + selection bubble), rolling
     14-night components (indigo/orange/green-dash lines lw2.8).

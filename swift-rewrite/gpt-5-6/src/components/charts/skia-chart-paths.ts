@@ -41,3 +41,14 @@ export function createLinearAreaPath(points: readonly ScreenPoint[], baselineY: 
   builder.close();
   return builder.detach();
 }
+
+export function createLinearPath(points: readonly ScreenPoint[]) {
+  const builder = Skia.PathBuilder.Make();
+  const first = points[0];
+  if (!first) return builder.detach();
+  builder.moveTo(first.x, first.y);
+  for (const point of points.slice(1)) {
+    builder.lineTo(point.x, point.y);
+  }
+  return builder.detach();
+}
