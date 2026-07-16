@@ -16,8 +16,8 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 
 ## phase 3: persistence
 - [x] task 7: sqlite layer (schema, migrations, queries)
-- [ ] task 8: wire chat to sqlite (titles, partial-on-stop, relaunch restore)
-- [ ] checkpoint: relaunch restores history; commit
+- [x] task 8: wire chat to sqlite (titles, partial-on-stop, relaunch restore)
+- [x] checkpoint: relaunch restores history; commit
 
 ## phase 4: drawer + conversation management
 - [ ] task 9: drawer shell (edge swipe, dim overlay, header button)

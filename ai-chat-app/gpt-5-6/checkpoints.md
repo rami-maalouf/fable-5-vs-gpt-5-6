@@ -102,3 +102,29 @@ Status: passed on 2026-07-16.
 Evidence:
 
 - `verification/07-sqlite-smoke.json`
+
+## Persistence - Task 8 And Phase Checkpoint
+
+Status: passed on 2026-07-16.
+
+- Creation boundary: the first accepted send atomically created its conversation and user message; launching and abandoning an unsent new chat created no row.
+- Title: the first prompt became `Write a long story about a lighthouse...`, normalized and capped at 40 characters.
+- Stop boundary: stopping the long response persisted the 6,096-character assistant partial as a completed message without writing per stream chunk.
+- Relaunch: terminating and relaunching the native app retained one conversation, its `gpt-5.6-luna` model, the 105-character user message, and the stopped assistant partial.
+- Launch behavior: the relaunched app intentionally landed on a fresh `How can I help?` chat while leaving history available for the drawer.
+- Restore behavior: the temporary checkpoint jump reopened the persisted conversation from SQLite, restored both messages, and placed the long transcript at the exact bottom. The temporary jump was removed before the final gates.
+- Runtime: a final cold relaunch produced no JavaScript warnings or errors.
+- Automated gates: 18 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed; `git diff --check` passed.
+
+Evidence:
+
+- `verification/08-persistence-relaunch.json`
+- `verification/08-restored-history-light.png`
+- `verification/08-fresh-launch-with-history-light.png`
+
+Code-quality review:
+
+- Correctness: session-version guards prevent an old stream from mutating a newly opened chat; abort before content removes the empty assistant, while abort after content persists the partial response.
+- Data integrity: the first conversation and user message share one exclusive transaction, and multi-message move-on writes are atomic before a new request starts.
+- Security: every SQL value is bound through SQLite parameters, and persisted provider errors remain generic user-visible state rather than database content.
+- Performance: SQLite writes occur only at turn boundaries; stream chunks continue to update in memory, and the list follows exact measured content height only while the user has not opted out by dragging.

@@ -22,6 +22,21 @@ export type MessageRecord = {
   createdAt: number;
 };
 
+export type CreateConversationInput = {
+  id: string;
+  title: string;
+  model?: ChatModel;
+  timestamp?: number;
+};
+
+export type InsertMessageInput = {
+  id: string;
+  conversationId: string;
+  role: MessageRecord['role'];
+  content: string;
+  createdAt?: number;
+};
+
 type ConversationRow = {
   id: string;
   title: string;
@@ -76,6 +91,68 @@ function requireContent(value: string) {
     throw new Error('Message content cannot be empty.');
   }
   return value;
+}
+
+function buildConversation(input: CreateConversationInput): ConversationRecord {
+  const timestamp = input.timestamp ?? Date.now();
+  return {
+    id: requireText(input.id, 'Conversation id'),
+    title: requireText(input.title, 'Conversation title'),
+    model: input.model ?? 'gpt-5.6-luna',
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+function buildMessage(input: InsertMessageInput): MessageRecord {
+  return {
+    id: requireText(input.id, 'Message id'),
+    conversationId: requireText(input.conversationId, 'Conversation id'),
+    role: input.role,
+    content: requireContent(input.content),
+    createdAt: input.createdAt ?? Date.now(),
+  };
+}
+
+async function insertConversationRow(database: SQLiteDatabase, conversation: ConversationRecord) {
+  await database.runAsync(
+    `INSERT INTO conversations (id, title, model, created_at, updated_at)
+     VALUES ($id, $title, $model, $createdAt, $updatedAt)`,
+    {
+      $id: conversation.id,
+      $title: conversation.title,
+      $model: conversation.model,
+      $createdAt: conversation.createdAt,
+      $updatedAt: conversation.updatedAt,
+    },
+  );
+}
+
+async function insertMessageRow(database: SQLiteDatabase, message: MessageRecord) {
+  await database.runAsync(
+    `INSERT INTO messages (id, conversation_id, role, content, created_at)
+     VALUES ($id, $conversationId, $role, $content, $createdAt)`,
+    {
+      $id: message.id,
+      $conversationId: message.conversationId,
+      $role: message.role,
+      $content: message.content,
+      $createdAt: message.createdAt,
+    },
+  );
+}
+
+async function touchConversation(
+  database: SQLiteDatabase,
+  conversationId: string,
+  updatedAt: number,
+) {
+  await database.runAsync(
+    `UPDATE conversations
+     SET updated_at = MAX(updated_at, $updatedAt)
+     WHERE id = $conversationId`,
+    { $conversationId: conversationId, $updatedAt: updatedAt },
+  );
 }
 
 async function migrateDatabase(database: SQLiteDatabase) {
@@ -141,35 +218,33 @@ export function getDatabase() {
 
 export async function createConversation(
   database: SQLiteDatabase,
-  input: {
-    id: string;
-    title: string;
-    model?: ChatModel;
-    timestamp?: number;
-  },
+  input: CreateConversationInput,
 ) {
-  const timestamp = input.timestamp ?? Date.now();
-  const conversation: ConversationRecord = {
-    id: requireText(input.id, 'Conversation id'),
-    title: requireText(input.title, 'Conversation title'),
-    model: input.model ?? 'gpt-5.6-luna',
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-
-  await database.runAsync(
-    `INSERT INTO conversations (id, title, model, created_at, updated_at)
-     VALUES ($id, $title, $model, $createdAt, $updatedAt)`,
-    {
-      $id: conversation.id,
-      $title: conversation.title,
-      $model: conversation.model,
-      $createdAt: conversation.createdAt,
-      $updatedAt: conversation.updatedAt,
-    },
-  );
+  const conversation = buildConversation(input);
+  await insertConversationRow(database, conversation);
 
   return conversation;
+}
+
+export async function createConversationWithFirstMessage(
+  database: SQLiteDatabase,
+  conversationInput: CreateConversationInput,
+  messageInput: InsertMessageInput,
+) {
+  const conversation = buildConversation(conversationInput);
+  const message = buildMessage(messageInput);
+
+  if (conversation.id !== message.conversationId) {
+    throw new Error('The first message must belong to its conversation.');
+  }
+
+  await database.withExclusiveTransactionAsync(async (transaction) => {
+    await insertConversationRow(transaction, conversation);
+    await insertMessageRow(transaction, message);
+    await touchConversation(transaction, conversation.id, message.createdAt);
+  });
+
+  return { conversation, message };
 }
 
 export async function getConversation(database: SQLiteDatabase, id: string) {
@@ -235,43 +310,29 @@ export async function updateConversationModel(
 
 export async function insertMessage(
   database: SQLiteDatabase,
-  input: {
-    id: string;
-    conversationId: string;
-    role: MessageRecord['role'];
-    content: string;
-    createdAt?: number;
-  },
+  input: InsertMessageInput,
 ) {
-  const message: MessageRecord = {
-    id: requireText(input.id, 'Message id'),
-    conversationId: requireText(input.conversationId, 'Conversation id'),
-    role: input.role,
-    content: requireContent(input.content),
-    createdAt: input.createdAt ?? Date.now(),
-  };
+  const [message] = await insertMessages(database, [input]);
+  return message;
+}
+
+export async function insertMessages(
+  database: SQLiteDatabase,
+  inputs: InsertMessageInput[],
+) {
+  const messages = inputs.map(buildMessage);
+  if (!messages.length) {
+    return messages;
+  }
 
   await database.withExclusiveTransactionAsync(async (transaction) => {
-    await transaction.runAsync(
-      `INSERT INTO messages (id, conversation_id, role, content, created_at)
-       VALUES ($id, $conversationId, $role, $content, $createdAt)`,
-      {
-        $id: message.id,
-        $conversationId: message.conversationId,
-        $role: message.role,
-        $content: message.content,
-        $createdAt: message.createdAt,
-      },
-    );
-    await transaction.runAsync(
-      `UPDATE conversations
-       SET updated_at = MAX(updated_at, $updatedAt)
-       WHERE id = $conversationId`,
-      { $conversationId: message.conversationId, $updatedAt: message.createdAt },
-    );
+    for (const message of messages) {
+      await insertMessageRow(transaction, message);
+      await touchConversation(transaction, message.conversationId, message.createdAt);
+    }
   });
 
-  return message;
+  return messages;
 }
 
 export async function listMessages(database: SQLiteDatabase, conversationId: string) {

@@ -1,0 +1,39 @@
+{
+  "verifiedAt": "2026-07-16T10:58:22-06:00",
+  "device": "iPhone 17 Pro Max",
+  "os": "iOS 26.5",
+  "bundleId": "com.rami.nova.gpt56",
+  "database": "nova.db",
+  "conversationCount": 1,
+  "latestConversation": {
+    "id": "conversation-1784198983414-mstnqzh5k1",
+    "model": "gpt-5.6-luna",
+    "title": "Write a long story about a lighthouse...",
+    "createdAt": 1784198983414,
+    "updatedAt": 1784198994910
+  },
+  "messages": [
+    {
+      "id": "message-1784198983414-hdnp1aqxfvn",
+      "role": "user",
+      "contentLength": 105,
+      "createdAt": 1784198983414
+    },
+    {
+      "id": "message-1784198983414-etrkkdz2j9",
+      "role": "assistant",
+      "contentLength": 6096,
+      "createdAt": 1784198994910
+    }
+  ],
+  "checks": {
+    "firstSendCreatedConversation": true,
+    "stoppedPartialPersisted": true,
+    "terminateAndRelaunchRetainedRows": true,
+    "restoredTranscriptAtBottom": true,
+    "freshLaunchStayedEmpty": true,
+    "unsentChatCreatedNoRow": true,
+    "runtimeWarnings": 0,
+    "runtimeErrors": 0
+  }
+}

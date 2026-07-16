@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   FlatList,
   type NativeScrollEvent,
@@ -11,6 +11,7 @@ import { MessageRow } from '@/components/chat/message-row';
 import type { ChatMessage } from '@/lib/chat-state';
 
 type MessageListProps = {
+  conversationId: string | null;
   messages: ChatMessage[];
   onRetry: () => void;
 };
@@ -22,19 +23,42 @@ function isNearBottom(event: NativeSyntheticEvent<NativeScrollEvent>) {
   return contentSize.height - contentOffset.y - layoutMeasurement.height <= BOTTOM_THRESHOLD;
 }
 
-export function MessageList({ messages, onRetry }: MessageListProps) {
+export function MessageList({ conversationId, messages, onRetry }: MessageListProps) {
   const list = useRef<FlatList<ChatMessage>>(null);
   const shouldFollowContent = useRef(true);
   const isUserScrolling = useRef(false);
   const previousMessageCount = useRef(messages.length);
+  const contentHeight = useRef(0);
+  const viewportHeight = useRef(0);
+
+  const scrollToBottom = useCallback((animated: boolean) => {
+    const offset = Math.max(0, contentHeight.current - viewportHeight.current);
+    list.current?.scrollToOffset({ animated, offset });
+  }, []);
+
+  useEffect(() => {
+    shouldFollowContent.current = true;
+    isUserScrolling.current = false;
+    let secondFrame: number | undefined;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => scrollToBottom(false));
+    });
+
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame !== undefined) {
+        cancelAnimationFrame(secondFrame);
+      }
+    };
+  }, [conversationId, scrollToBottom]);
 
   useEffect(() => {
     if (messages.length > previousMessageCount.current) {
       shouldFollowContent.current = true;
-      requestAnimationFrame(() => list.current?.scrollToEnd({ animated: true }));
+      requestAnimationFrame(() => scrollToBottom(true));
     }
     previousMessageCount.current = messages.length;
-  }, [messages.length]);
+  }, [messages.length, scrollToBottom]);
 
   return (
     <FlatList
@@ -46,9 +70,16 @@ export function MessageList({ messages, onRetry }: MessageListProps) {
       keyboardDismissMode="interactive"
       keyboardShouldPersistTaps="handled"
       ListEmptyComponent={EmptyState}
-      onContentSizeChange={() => {
+      onContentSizeChange={(_width, height) => {
+        contentHeight.current = height;
         if (shouldFollowContent.current && !isUserScrolling.current) {
-          list.current?.scrollToEnd({ animated: false });
+          scrollToBottom(false);
+        }
+      }}
+      onLayout={(event) => {
+        viewportHeight.current = event.nativeEvent.layout.height;
+        if (shouldFollowContent.current && !isUserScrolling.current) {
+          scrollToBottom(false);
         }
       }}
       onScrollBeginDrag={() => {
