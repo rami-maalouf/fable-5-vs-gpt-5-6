@@ -53,28 +53,32 @@ export function LogRow({
   isLast: boolean;
 }) {
   const theme = useTheme();
+  const isLight = theme.name === 'sunset';
+  const rowBg = isLight ? 'rgba(255, 255, 255, 0.75)' : '#1c1c1e';
+  const badgeBg = isLight ? 'rgba(0, 0, 0, 0.06)' : '#2c2c2e';
+  const timesColor = isLight ? '#5c4b5e' : '#98989f';
   return (
     <ReanimatedSwipeable
       friction={2}
       rightThreshold={40}
       renderRightActions={() => <DeleteAction onDelete={onDelete} />}>
-      <Pressable onPress={onPress} style={styles.row}>
+      <Pressable onPress={onPress} style={[styles.row, { backgroundColor: rowBg }]}>
         <View style={styles.texts}>
           <Text style={[styles.day, { color: theme.textPrimary }]}>{formatDayLabel(session)}</Text>
-          <Text style={styles.times}>
+          <Text style={[styles.times, { color: timesColor }]}>
             {formatClockTime(session.startTime, session.startTimeZone)}
             {'  →  '}
             {session.endTime != null && formatClockTime(session.endTime, resolveEndTimeZone(session))}
           </Text>
         </View>
-        <View style={styles.badge}>
+        <View style={[styles.badge, { backgroundColor: badgeBg }]}>
           <Text style={[styles.badgeText, { color: theme.accent }]}>
             {formatDurationBadge(sessionDurationSeconds(session))}
           </Text>
         </View>
       </Pressable>
       {!isLast && (
-        <View style={styles.separatorTrack}>
+        <View style={[styles.separatorTrack, { backgroundColor: rowBg }]}>
           <View style={styles.separator} />
         </View>
       )}
@@ -88,19 +92,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#1c1c1e',
   },
   texts: { flex: 1, gap: 3 },
   day: { fontSize: 17, fontWeight: '600' },
-  times: { fontSize: 15, color: '#98989f' },
+  times: { fontSize: 15 },
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 8,
-    backgroundColor: '#2c2c2e',
   },
   badgeText: { fontSize: 17, fontVariant: ['tabular-nums'] },
-  separatorTrack: { backgroundColor: '#1c1c1e' },
+  separatorTrack: {},
   separator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(84, 84, 88, 0.6)',
