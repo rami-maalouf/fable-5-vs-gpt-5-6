@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.6",
+    "@openai/agents": "^0.13.4",
     "@react-native-menu/menu": "1.2.2",
     "expo": "~57.0.6",
     "expo-constants": "~57.0.5",
@@ -31,6 +32,7 @@
     "react-native-screens": "4.25.2",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.10.0",
+    "zod": "^4.0.0",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

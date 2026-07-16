@@ -2,10 +2,24 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useChatStream } from '@/hooks/useChatStream';
 import { MODEL_OPTIONS, spacing, useNovaTheme } from '@/theme';
 
 export default function HomeScreen() {
   const theme = useNovaTheme();
+  const chatStream = useChatStream();
+
+  const testAssistant = () => {
+    void chatStream.send({
+      messages: [
+        {
+          content: 'Introduce yourself in one short paragraph.',
+          role: 'user',
+        },
+      ],
+      model: MODEL_OPTIONS[0],
+    });
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -51,6 +65,42 @@ export default function HomeScreen() {
             Start a conversation with Nova. Your history will live in the sidebar once
             there is something to save.
           </Text>
+          <Pressable
+            accessibilityLabel="test Nova stream"
+            accessibilityRole="button"
+            disabled={chatStream.isStreaming}
+            onPress={testAssistant}
+            style={({ pressed }) => [
+              styles.debugButton,
+              {
+                backgroundColor: chatStream.isStreaming
+                  ? theme.colors.disabledFill
+                  : theme.colors.accent,
+                opacity: pressed ? 0.72 : 1,
+              },
+            ]}
+          >
+            <Text style={styles.debugButtonText}>
+              {chatStream.isStreaming ? 'Streaming...' : 'Ask Nova'}
+            </Text>
+          </Pressable>
+          {(chatStream.text.length > 0 || chatStream.error != null) && (
+            <View
+              style={[
+                styles.debugResponse,
+                {
+                  backgroundColor: theme.colors.secondaryFill,
+                },
+              ]}
+            >
+              <Text
+                accessibilityLabel="Nova stream response"
+                style={[styles.debugResponseText, { color: theme.colors.text }]}
+              >
+                {chatStream.error ?? chatStream.text}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View
@@ -138,6 +188,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
     textAlign: 'center',
+  },
+  debugButton: {
+    marginTop: spacing.lg,
+    minHeight: 42,
+    minWidth: 112,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  debugButtonText: {
+    color: '#ffffff',
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  debugResponse: {
+    width: '100%',
+    marginTop: spacing.md,
+    borderRadius: 8,
+    padding: spacing.md,
+  },
+  debugResponseText: {
+    fontSize: 15,
+    lineHeight: 21,
+    textAlign: 'left',
   },
   composer: {
     position: 'absolute',
