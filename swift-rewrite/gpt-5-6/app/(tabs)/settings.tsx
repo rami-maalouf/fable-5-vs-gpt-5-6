@@ -1,6 +1,5 @@
 // ports: twilight/views/blockedprofileview.swift
 
-import { DateTimePicker } from '@expo/ui/community/datetime-picker';
 import * as Linking from 'expo-linking';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -20,11 +19,11 @@ import { GlassCard } from '@/components/common/glass-card';
 import { PlatformSymbol } from '@/components/common/platform-symbol';
 import { ScreenBackground } from '@/components/common/screen-background';
 import {
-  dateFromMinutesSinceMidnight,
   formatGoalDuration,
   minutesSinceMidnightFromDate,
   SETTINGS_MODE_OPTIONS,
 } from '@/components/settings/settings-model';
+import { TimePickerField } from '@/components/settings/time-picker-field';
 import { settingsStore } from '@/data/settings-store';
 import type { ThemeMode, ThemePalette } from '@/domain/models';
 import { requestNotificationPermission } from '@/services/notification-permissions';
@@ -427,41 +426,6 @@ function SectionTitle({ title }: { title: string }) {
   return <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>{title}</Text>;
 }
 
-function TimePickerField({
-  androidIcon,
-  color,
-  icon,
-  label,
-  minutes,
-  onChange,
-}: {
-  androidIcon: 'moon' | 'sunny';
-  color: string;
-  icon: string;
-  label: string;
-  minutes: number;
-  onChange(date: Date): void;
-}) {
-  const { theme } = useTheme();
-  return (
-    <View style={styles.timeField}>
-      <View style={styles.timeLabelRow}>
-        <PlatformSymbol androidName={androidIcon} color={color} size={16} symbol={icon} />
-        <Text style={[styles.timeLabel, { color }]}>{label}</Text>
-      </View>
-      <DateTimePicker
-        accentColor={color}
-        display="compact"
-        mode="time"
-        onValueChange={(_event, date) => onChange(date)}
-        testID={`settings-${label.toLowerCase().replaceAll(' ', '-')}`}
-        themeVariant={theme.colorScheme}
-        value={dateFromMinutesSinceMidnight(minutes)}
-      />
-    </View>
-  );
-}
-
 function PaletteButton({
   colors,
   label,
@@ -569,8 +533,5 @@ const styles = StyleSheet.create({
   swatch: { borderColor: 'rgba(255,255,255,0.7)', borderRadius: 15, borderWidth: 2, height: 30, width: 30 },
   swatchOverlap: { marginLeft: -9 },
   swatchRow: { flexDirection: 'row' },
-  timeField: { alignItems: 'center', flex: 1 },
-  timeLabel: { fontSize: 17, fontWeight: '800' },
-  timeLabelRow: { alignItems: 'center', flexDirection: 'row', gap: 5, marginBottom: 5 },
   title: { fontSize: 36, fontWeight: '800', letterSpacing: 0.2, marginBottom: 22, marginTop: 62 },
 });

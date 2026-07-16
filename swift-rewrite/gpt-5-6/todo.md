@@ -327,7 +327,7 @@ by side.
 
 ## phase 9: android bonus (spec priority 8)
 
-- [ ] **task 29: android boot**
+- [x] **task 29: android boot**
   - description: `bunx expo run:android`; fix launch crashes and blocking layout
     breaks only (live activity is ios-only - guard it). no polish, per spec.
   - acceptance: app boots, all 4 tabs navigate, a session can be toggled.

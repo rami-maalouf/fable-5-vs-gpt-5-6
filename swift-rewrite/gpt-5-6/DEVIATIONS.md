@@ -21,3 +21,9 @@ Every intentional difference from the Swift Twilight source is recorded here.
 - Simulator verification covered session start, live timer updates, wake-up removal, setting disable and re-enable, force-quit relaunch, and duplicate prevention. Dynamic Island layouts still require the queued physical-device checkpoint because the simulator used for this pass cannot prove hardware presentation behavior.
 - The direct lock-screen wake action is intentionally omitted. Expo Widgets 57.0.5 forwards Live Activity interaction through a process-local notification observer, so it cannot durably or exactly once mutate SQLite while the host app is suspended or terminated. The shipped fallback adds a three-hour wind-down countdown, phase-specific lock-screen and island content, and a deep link while keeping start and wake mutations inside the foreground app.
 - ActivityKit does not allow Twilight to schedule a future Live Activity start. The wind-down state begins when the app launches or returns to the foreground inside the three-hour window, then uses system-updating timer and progress views while the app is inactive. Notification delivery remains the background-safe bedtime prompt.
+
+## Android
+
+- Android was built and exercised on a Pixel 7 API 36 arm64 emulator. The first-run flow, notification permission, Home, Metrics, Logs, Settings, bedtime picker cancellation, session start, and wake-up all passed through the installed development build.
+- Expo UI's SDK 57 community DateTimePicker uses dialog presentation by default on Android and opens when mounted. Twilight therefore mounts each Android picker only after its visible time field is pressed, then unmounts it on confirmation or dismissal. iOS keeps the compact picker mounted inline.
+- The iOS-only Live Activity settings section stays absent on Android, and the Live Activity service remains a guarded no-op on that platform.
