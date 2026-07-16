@@ -288,6 +288,8 @@ function WindDownCard({
 }
 
 function CommunityCard({ theme }: { theme: AppTheme }) {
+  const updateSettings = useUpdateSleepSettings();
+
   return (
     <CardBackground theme={theme} style={styles.card}>
       <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>community</Text>
@@ -305,6 +307,20 @@ function CommunityCard({ theme }: { theme: AppTheme }) {
           <Text style={[styles.optionBody, { color: theme.textSecondary }]}>Follow progress.</Text>
         </View>
       </View>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          void updateSettings({ isOnboarded: false });
+          router.replace('/onboarding');
+        }}
+        style={({ pressed }) => [
+          styles.restartRow,
+          { borderColor: rgba(theme.textPrimary, 0.12), backgroundColor: rgba(theme.textPrimary, 0.06) },
+          pressed && styles.pressed,
+        ]}>
+        <Text style={[styles.linkTitle, { color: theme.textPrimary }]}>Restart onboarding</Text>
+        <Text style={[styles.optionBody, { color: theme.textSecondary }]}>Dev reset path</Text>
+      </Pressable>
     </CardBackground>
   );
 }
@@ -439,6 +455,13 @@ const styles = StyleSheet.create({
   },
   pressed: {
     transform: [{ scale: 0.98 }],
+  },
+  restartRow: {
+    borderCurve: 'continuous',
+    borderRadius: 18,
+    borderWidth: 1,
+    marginTop: Spacing.two,
+    padding: Spacing.three,
   },
   subsectionTitle: {
     marginTop: Spacing.four,

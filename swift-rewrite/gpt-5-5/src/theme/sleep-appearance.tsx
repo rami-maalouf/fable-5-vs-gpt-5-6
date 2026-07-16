@@ -23,6 +23,7 @@ export const desaturatedNightThemes = {
 type SleepAppearanceContextValue = {
   asleep: boolean;
   settings: SleepSettings;
+  settingsReady: boolean;
   theme: AppTheme;
   updateSettings: (patch: Partial<SleepSettings>) => Promise<SleepSettings>;
 };
@@ -30,6 +31,7 @@ type SleepAppearanceContextValue = {
 const SleepAppearanceContext = createContext<SleepAppearanceContextValue>({
   asleep: false,
   settings: defaultSleepSettings,
+  settingsReady: false,
   theme: themes.twilight,
   updateSettings: async () => defaultSleepSettings,
 });
@@ -78,6 +80,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
   const colorScheme = useColorScheme();
   const [asleep, setAsleep] = useState(false);
   const [settings, setSettings] = useState(defaultSleepSettings);
+  const [settingsReady, setSettingsReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +90,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
 
       if (!cancelled) {
         setSettings(storedSettings);
+        setSettingsReady(true);
       }
     }
 
@@ -137,7 +141,10 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
     [],
   );
 
-  const value = useMemo(() => ({ asleep, settings, theme, updateSettings }), [asleep, settings, theme, updateSettings]);
+  const value = useMemo(
+    () => ({ asleep, settings, settingsReady, theme, updateSettings }),
+    [asleep, settings, settingsReady, theme, updateSettings],
+  );
 
   return <SleepAppearanceContext.Provider value={value}>{children}</SleepAppearanceContext.Provider>;
 }
@@ -148,6 +155,10 @@ export function useIsAsleep() {
 
 export function useSleepSettings() {
   return useContext(SleepAppearanceContext).settings;
+}
+
+export function useSleepSettingsReady() {
+  return useContext(SleepAppearanceContext).settingsReady;
 }
 
 export function useUpdateSleepSettings() {

@@ -4,9 +4,36 @@ import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import { SleepAppearanceProvider } from '@/theme/sleep-appearance';
+import { OnboardingScreen } from '@/components/onboarding/OnboardingScreen';
+import {
+  SleepAppearanceProvider,
+  useSleepSettings,
+  useSleepSettingsReady,
+} from '@/theme/sleep-appearance';
 
 SplashScreen.preventAutoHideAsync();
+
+function RootNavigator() {
+  const settings = useSleepSettings();
+  const settingsReady = useSleepSettingsReady();
+
+  if (!settingsReady) {
+    return null;
+  }
+
+  if (!settings.isOnboarded) {
+    return <OnboardingScreen />;
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="log-editor" options={{ presentation: 'formSheet' }} />
+      <Stack.Screen name="sleep-tips" options={{ presentation: 'card' }} />
+      <Stack.Screen name="onboarding" options={{ presentation: 'card' }} />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -16,11 +43,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <SleepAppearanceProvider>
           <AnimatedSplashOverlay />
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="log-editor" options={{ presentation: 'formSheet' }} />
-            <Stack.Screen name="sleep-tips" options={{ presentation: 'card' }} />
-          </Stack>
+          <RootNavigator />
         </SleepAppearanceProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
