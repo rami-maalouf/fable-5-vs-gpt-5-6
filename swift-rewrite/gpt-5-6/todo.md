@@ -41,7 +41,7 @@ conventional commit, deviations logged in DEVIATIONS.md.
   - depends: 2. files: src/data/db.ts, src/data/session-repo.ts,
     src/data/settings-store.ts, tests. size: M
 
-- [ ] **task 4: theme module**
+- [x] **task 4: theme module**
   - description: `src/theme/`: the three AppTheme palettes with the spec's exact hex
     tables, ThemeMode (system/light/dark) + palette (twilight/amethyst) selection
     logic (sunset = light mode, not a palette), ThemeProvider + useTheme, persistence
