@@ -1,0 +1,681 @@
+{
+  "name": "regular sleeper",
+  "referenceDate": "2026-07-16T12:00:00.000Z",
+  "settings": {
+    "sleepTargetMinutes": 1320,
+    "wakeTargetMinutes": 360
+  },
+  "sessions": [
+    {
+      "id": "regular-1",
+      "startTime": "2026-07-02T22:00:00.000Z",
+      "endTime": "2026-07-03T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-2",
+      "startTime": "2026-07-03T22:00:00.000Z",
+      "endTime": "2026-07-04T05:30:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-3",
+      "startTime": "2026-07-04T22:00:00.000Z",
+      "endTime": "2026-07-05T06:15:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-4",
+      "startTime": "2026-07-05T22:00:00.000Z",
+      "endTime": "2026-07-06T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-5",
+      "startTime": "2026-07-06T22:00:00.000Z",
+      "endTime": "2026-07-07T05:45:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-6",
+      "startTime": "2026-07-07T22:00:00.000Z",
+      "endTime": "2026-07-08T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-7",
+      "startTime": "2026-07-08T22:00:00.000Z",
+      "endTime": "2026-07-09T06:30:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-8",
+      "startTime": "2026-07-09T22:00:00.000Z",
+      "endTime": "2026-07-10T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-9",
+      "startTime": "2026-07-10T22:00:00.000Z",
+      "endTime": "2026-07-11T06:15:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-10",
+      "startTime": "2026-07-11T22:00:00.000Z",
+      "endTime": "2026-07-12T05:45:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-11",
+      "startTime": "2026-07-12T22:00:00.000Z",
+      "endTime": "2026-07-13T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-12",
+      "startTime": "2026-07-13T22:00:00.000Z",
+      "endTime": "2026-07-14T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-13",
+      "startTime": "2026-07-14T22:00:00.000Z",
+      "endTime": "2026-07-15T05:30:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "regular-14",
+      "startTime": "2026-07-15T22:00:00.000Z",
+      "endTime": "2026-07-16T06:15:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    }
+  ],
+  "expected": {
+    "advanced": {
+      "cumulativeDebtHours": -0.25,
+      "cumulativeDebtSeries": [
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-03"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-04"
+        },
+        {
+          "cumulativeHours": -0.25,
+          "dateKey": "2026-07-05"
+        },
+        {
+          "cumulativeHours": -0.25,
+          "dateKey": "2026-07-06"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-07"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-08"
+        },
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-09"
+        },
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-10"
+        },
+        {
+          "cumulativeHours": 0.25,
+          "dateKey": "2026-07-11"
+        },
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-12"
+        },
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-13"
+        },
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-14"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-15"
+        },
+        {
+          "cumulativeHours": -0.25,
+          "dateKey": "2026-07-16"
+        }
+      ],
+      "durationBuckets": [
+        {
+          "count": 0,
+          "label": "<5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5-5.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5.5-6h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6-6.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6.5-7h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "7-7.5h",
+          "share": 0
+        },
+        {
+          "count": 4,
+          "label": "7.5-8h",
+          "share": 0.286
+        },
+        {
+          "count": 10,
+          "label": "8h+",
+          "share": 0.714
+        }
+      ],
+      "regularityScore": 95,
+      "rollingConsistency14": [
+        {
+          "dateKey": "2026-07-03",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-04",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-05",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-06",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-07",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-08",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-09",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-10",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-11",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-12",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-13",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-14",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-15",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-16",
+          "scheduleAccuracy": 98,
+          "sleepConsistency": 100,
+          "wakeConsistency": 90
+        }
+      ],
+      "scheduleAccuracyScore": 98,
+      "sleepAlignmentSeries": [
+        {
+          "consistencyScore": 1,
+          "dailyScore": 100,
+          "dateKey": "2026-07-03",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 100
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 92.222,
+          "dateKey": "2026-07-04",
+          "durationScore": 0.852,
+          "phaseScore": 0.986,
+          "timingScore": 0.938,
+          "trendScore": 98.444
+        },
+        {
+          "consistencyScore": 0.971,
+          "dailyScore": 97.812,
+          "dateKey": "2026-07-05",
+          "durationScore": 0.984,
+          "phaseScore": 0.996,
+          "timingScore": 0.963,
+          "trendScore": 98.318
+        },
+        {
+          "consistencyScore": 0.978,
+          "dailyScore": 99.662,
+          "dateKey": "2026-07-06",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 98.587
+        },
+        {
+          "consistencyScore": 0.98,
+          "dailyScore": 97.324,
+          "dateKey": "2026-07-07",
+          "durationScore": 0.961,
+          "phaseScore": 0.997,
+          "timingScore": 0.969,
+          "trendScore": 98.334
+        },
+        {
+          "consistencyScore": 0.983,
+          "dailyScore": 99.748,
+          "dateKey": "2026-07-08",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 98.617
+        },
+        {
+          "consistencyScore": 0.973,
+          "dailyScore": 94.924,
+          "dateKey": "2026-07-09",
+          "durationScore": 0.939,
+          "phaseScore": 0.986,
+          "timingScore": 0.925,
+          "trendScore": 97.878
+        },
+        {
+          "consistencyScore": 0.977,
+          "dailyScore": 99.646,
+          "dateKey": "2026-07-10",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 98.232
+        },
+        {
+          "consistencyScore": 0.977,
+          "dailyScore": 97.91,
+          "dateKey": "2026-07-11",
+          "durationScore": 0.984,
+          "phaseScore": 0.996,
+          "timingScore": 0.963,
+          "trendScore": 98.168
+        },
+        {
+          "consistencyScore": 0.978,
+          "dailyScore": 97.281,
+          "dateKey": "2026-07-12",
+          "durationScore": 0.961,
+          "phaseScore": 0.997,
+          "timingScore": 0.969,
+          "trendScore": 97.99
+        },
+        {
+          "consistencyScore": 0.98,
+          "dailyScore": 99.691,
+          "dateKey": "2026-07-13",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 98.331
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 99.717,
+          "dateKey": "2026-07-14",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 98.608
+        },
+        {
+          "consistencyScore": 0.977,
+          "dailyScore": 92.168,
+          "dateKey": "2026-07-15",
+          "durationScore": 0.852,
+          "phaseScore": 0.986,
+          "timingScore": 0.938,
+          "trendScore": 97.32
+        },
+        {
+          "consistencyScore": 0.977,
+          "dailyScore": 97.91,
+          "dateKey": "2026-07-16",
+          "durationScore": 0.984,
+          "phaseScore": 0.996,
+          "timingScore": 0.963,
+          "trendScore": 97.438
+        }
+      ],
+      "sleepConsistencyScore": 100,
+      "socialJetlagHours": 0.028,
+      "wakeConsistencyScore": 90,
+      "weekdayAverages": [
+        {
+          "averageHours": 8,
+          "dayName": "Sun",
+          "nights": 2,
+          "weekday": 1
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Mon",
+          "nights": 2,
+          "weekday": 2
+        },
+        {
+          "averageHours": 7.88,
+          "dayName": "Tue",
+          "nights": 2,
+          "weekday": 3
+        },
+        {
+          "averageHours": 7.75,
+          "dayName": "Wed",
+          "nights": 2,
+          "weekday": 4
+        },
+        {
+          "averageHours": 8.38,
+          "dayName": "Thu",
+          "nights": 2,
+          "weekday": 5
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Fri",
+          "nights": 2,
+          "weekday": 6
+        },
+        {
+          "averageHours": 7.88,
+          "dayName": "Sat",
+          "nights": 2,
+          "weekday": 7
+        }
+      ]
+    },
+    "core": {
+      "averageDurationHours": 7.98,
+      "currentStreak": 14,
+      "durationTrendPercent7": 0,
+      "goalHitRate": 100,
+      "longestNightHours": 8.5,
+      "longestStreak": 14,
+      "medianDurationHours": 8,
+      "movingAverage7": [
+        {
+          "dateKey": "2026-07-03",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-04",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-05",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-06",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-07",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-08",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-09",
+          "movingAverageHours": 8
+        },
+        {
+          "dateKey": "2026-07-10",
+          "movingAverageHours": 8
+        },
+        {
+          "dateKey": "2026-07-11",
+          "movingAverageHours": 8.11
+        },
+        {
+          "dateKey": "2026-07-12",
+          "movingAverageHours": 8.04
+        },
+        {
+          "dateKey": "2026-07-13",
+          "movingAverageHours": 8.04
+        },
+        {
+          "dateKey": "2026-07-14",
+          "movingAverageHours": 8.07
+        },
+        {
+          "dateKey": "2026-07-15",
+          "movingAverageHours": 8
+        },
+        {
+          "dateKey": "2026-07-16",
+          "movingAverageHours": 7.96
+        }
+      ],
+      "range30Count": 14,
+      "shortestNightHours": 7.5,
+      "totalSleepHours": 111.75,
+      "trackingCoverage30D": 47,
+      "trackingCoverageAll": 100
+    },
+    "records": [
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-03",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-1",
+        "wakeOffsetHours": 12,
+        "weekday": 6
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-04",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 7.75,
+        "sessionId": "regular-2",
+        "wakeOffsetHours": 11.5,
+        "weekday": 7
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-05",
+        "durationHours": 8.25,
+        "midpointOffsetHours": 8.13,
+        "sessionId": "regular-3",
+        "wakeOffsetHours": 12.25,
+        "weekday": 1
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-06",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-4",
+        "wakeOffsetHours": 12,
+        "weekday": 2
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-07",
+        "durationHours": 7.75,
+        "midpointOffsetHours": 7.88,
+        "sessionId": "regular-5",
+        "wakeOffsetHours": 11.75,
+        "weekday": 3
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-08",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-6",
+        "wakeOffsetHours": 12,
+        "weekday": 4
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-09",
+        "durationHours": 8.5,
+        "midpointOffsetHours": 8.25,
+        "sessionId": "regular-7",
+        "wakeOffsetHours": 12.5,
+        "weekday": 5
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-10",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-8",
+        "wakeOffsetHours": 12,
+        "weekday": 6
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-11",
+        "durationHours": 8.25,
+        "midpointOffsetHours": 8.13,
+        "sessionId": "regular-9",
+        "wakeOffsetHours": 12.25,
+        "weekday": 7
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-12",
+        "durationHours": 7.75,
+        "midpointOffsetHours": 7.88,
+        "sessionId": "regular-10",
+        "wakeOffsetHours": 11.75,
+        "weekday": 1
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-13",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-11",
+        "wakeOffsetHours": 12,
+        "weekday": 2
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-14",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "regular-12",
+        "wakeOffsetHours": 12,
+        "weekday": 3
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-15",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 7.75,
+        "sessionId": "regular-13",
+        "wakeOffsetHours": 11.5,
+        "weekday": 4
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-16",
+        "durationHours": 8.25,
+        "midpointOffsetHours": 8.13,
+        "sessionId": "regular-14",
+        "wakeOffsetHours": 12.25,
+        "weekday": 5
+      }
+    ],
+    "targets": {
+      "targetDurationHours": 8,
+      "targetSleepOffsetHours": 4,
+      "targetWakeOffsetHours": 12
+    }
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "name": "gaps and streak breaks",
+  "referenceDate": "2026-07-16T12:00:00.000Z",
+  "settings": {
+    "sleepTargetMinutes": 1320,
+    "wakeTargetMinutes": 360
+  },
+  "sessions": [
+    {
+      "id": "gap-1",
+      "startTime": "2026-06-30T22:00:00.000Z",
+      "endTime": "2026-07-01T05:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-2",
+      "startTime": "2026-07-01T22:00:00.000Z",
+      "endTime": "2026-07-02T05:30:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-3",
+      "startTime": "2026-07-02T22:00:00.000Z",
+      "endTime": "2026-07-03T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-4",
+      "startTime": "2026-07-06T23:00:00.000Z",
+      "endTime": "2026-07-07T05:30:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-5",
+      "startTime": "2026-07-09T22:30:00.000Z",
+      "endTime": "2026-07-10T07:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-6",
+      "startTime": "2026-07-13T22:00:00.000Z",
+      "endTime": "2026-07-14T05:15:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "gap-7",
+      "startTime": "2026-07-14T22:00:00.000Z",
+      "endTime": "2026-07-15T05:45:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    }
+  ],
+  "expected": {
+    "advanced": {
+      "cumulativeDebtHours": -3.5,
+      "cumulativeDebtSeries": [
+        {
+          "cumulativeHours": -1,
+          "dateKey": "2026-07-01"
+        },
+        {
+          "cumulativeHours": -1.5,
+          "dateKey": "2026-07-02"
+        },
+        {
+          "cumulativeHours": -1.5,
+          "dateKey": "2026-07-03"
+        },
+        {
+          "cumulativeHours": -3,
+          "dateKey": "2026-07-07"
+        },
+        {
+          "cumulativeHours": -2.5,
+          "dateKey": "2026-07-10"
+        },
+        {
+          "cumulativeHours": -3.25,
+          "dateKey": "2026-07-14"
+        },
+        {
+          "cumulativeHours": -3.5,
+          "dateKey": "2026-07-15"
+        }
+      ],
+      "durationBuckets": [
+        {
+          "count": 0,
+          "label": "<5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5-5.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5.5-6h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6-6.5h",
+          "share": 0
+        },
+        {
+          "count": 1,
+          "label": "6.5-7h",
+          "share": 0.143
+        },
+        {
+          "count": 2,
+          "label": "7-7.5h",
+          "share": 0.286
+        },
+        {
+          "count": 2,
+          "label": "7.5-8h",
+          "share": 0.286
+        },
+        {
+          "count": 2,
+          "label": "8h+",
+          "share": 0.286
+        }
+      ],
+      "regularityScore": 81,
+      "rollingConsistency14": [
+        {
+          "dateKey": "2026-07-01",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-02",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-03",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-07",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-10",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-14",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-15",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        }
+      ],
+      "scheduleAccuracyScore": 89,
+      "sleepAlignmentSeries": [
+        {
+          "consistencyScore": 1,
+          "dailyScore": 75.944,
+          "dateKey": "2026-07-01",
+          "durationScore": 0.527,
+          "phaseScore": 0.946,
+          "timingScore": 0.875,
+          "trendScore": 75.944
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 92.222,
+          "dateKey": "2026-07-02",
+          "durationScore": 0.852,
+          "phaseScore": 0.986,
+          "timingScore": 0.938,
+          "trendScore": 79.2
+        },
+        {
+          "consistencyScore": 0.951,
+          "dailyScore": 99.247,
+          "dateKey": "2026-07-03",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 83.209
+        },
+        {
+          "consistencyScore": 0.91,
+          "dailyScore": 55.809,
+          "dateKey": "2026-07-07",
+          "durationScore": 0.237,
+          "phaseScore": 0.986,
+          "timingScore": 0.813,
+          "trendScore": 77.729
+        },
+        {
+          "consistencyScore": 0.843,
+          "dailyScore": 86.581,
+          "dateKey": "2026-07-10",
+          "durationScore": 0.939,
+          "phaseScore": 0.882,
+          "timingScore": 0.788,
+          "trendScore": 79.5
+        },
+        {
+          "consistencyScore": 0.859,
+          "dailyScore": 83.163,
+          "dateKey": "2026-07-14",
+          "durationScore": 0.698,
+          "phaseScore": 0.97,
+          "timingScore": 0.906,
+          "trendScore": 80.232
+        },
+        {
+          "consistencyScore": 0.876,
+          "dailyScore": 95.688,
+          "dateKey": "2026-07-15",
+          "durationScore": 0.961,
+          "phaseScore": 0.997,
+          "timingScore": 0.969,
+          "trendScore": 83.323
+        }
+      ],
+      "sleepConsistencyScore": 86,
+      "socialJetlagHours": null,
+      "wakeConsistencyScore": 76,
+      "weekdayAverages": [
+        {
+          "averageHours": 0,
+          "dayName": "Sun",
+          "nights": 0,
+          "weekday": 1
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Mon",
+          "nights": 0,
+          "weekday": 2
+        },
+        {
+          "averageHours": 6.88,
+          "dayName": "Tue",
+          "nights": 2,
+          "weekday": 3
+        },
+        {
+          "averageHours": 7.38,
+          "dayName": "Wed",
+          "nights": 2,
+          "weekday": 4
+        },
+        {
+          "averageHours": 7.5,
+          "dayName": "Thu",
+          "nights": 1,
+          "weekday": 5
+        },
+        {
+          "averageHours": 8.25,
+          "dayName": "Fri",
+          "nights": 2,
+          "weekday": 6
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Sat",
+          "nights": 0,
+          "weekday": 7
+        }
+      ]
+    },
+    "core": {
+      "averageDurationHours": 7.5,
+      "currentStreak": 2,
+      "durationTrendPercent7": null,
+      "goalHitRate": 71,
+      "longestNightHours": 8.5,
+      "longestStreak": 3,
+      "medianDurationHours": 7.5,
+      "movingAverage7": [
+        {
+          "dateKey": "2026-07-01",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-02",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-03",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-07",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-10",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-14",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-15",
+          "movingAverageHours": 7.5
+        }
+      ],
+      "range30Count": 7,
+      "shortestNightHours": 6.5,
+      "totalSleepHours": 52.5,
+      "trackingCoverage30D": 23,
+      "trackingCoverageAll": 44
+    },
+    "records": [
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-01",
+        "durationHours": 7,
+        "midpointOffsetHours": 7.5,
+        "sessionId": "gap-1",
+        "wakeOffsetHours": 11,
+        "weekday": 4
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-02",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 7.75,
+        "sessionId": "gap-2",
+        "wakeOffsetHours": 11.5,
+        "weekday": 5
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-03",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "gap-3",
+        "wakeOffsetHours": 12,
+        "weekday": 6
+      },
+      {
+        "bedtimeOffsetHours": 5,
+        "dateKey": "2026-07-07",
+        "durationHours": 6.5,
+        "midpointOffsetHours": 8.25,
+        "sessionId": "gap-4",
+        "wakeOffsetHours": 11.5,
+        "weekday": 3
+      },
+      {
+        "bedtimeOffsetHours": 4.5,
+        "dateKey": "2026-07-10",
+        "durationHours": 8.5,
+        "midpointOffsetHours": 8.75,
+        "sessionId": "gap-5",
+        "wakeOffsetHours": 13,
+        "weekday": 6
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-14",
+        "durationHours": 7.25,
+        "midpointOffsetHours": 7.63,
+        "sessionId": "gap-6",
+        "wakeOffsetHours": 11.25,
+        "weekday": 3
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-15",
+        "durationHours": 7.75,
+        "midpointOffsetHours": 7.88,
+        "sessionId": "gap-7",
+        "wakeOffsetHours": 11.75,
+        "weekday": 4
+      }
+    ],
+    "targets": {
+      "targetDurationHours": 8,
+      "targetSleepOffsetHours": 4,
+      "targetWakeOffsetHours": 12
+    }
+  }
+}

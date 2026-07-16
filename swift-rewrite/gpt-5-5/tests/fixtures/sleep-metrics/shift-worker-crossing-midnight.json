@@ -1,0 +1,330 @@
+{
+  "name": "shift worker crossing midnight",
+  "referenceDate": "2026-07-16T12:00:00.000Z",
+  "settings": {
+    "sleepTargetMinutes": 120,
+    "wakeTargetMinutes": 600
+  },
+  "sessions": [
+    {
+      "id": "shift-1",
+      "startTime": "2026-07-09T02:00:00.000Z",
+      "endTime": "2026-07-09T10:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "shift-2",
+      "startTime": "2026-07-10T02:30:00.000Z",
+      "endTime": "2026-07-10T10:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "shift-3",
+      "startTime": "2026-07-11T01:45:00.000Z",
+      "endTime": "2026-07-11T10:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "shift-4",
+      "startTime": "2026-07-12T03:00:00.000Z",
+      "endTime": "2026-07-12T10:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "shift-5",
+      "startTime": "2026-07-13T02:15:00.000Z",
+      "endTime": "2026-07-13T10:15:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    }
+  ],
+  "expected": {
+    "advanced": {
+      "cumulativeDebtHours": -1.25,
+      "cumulativeDebtSeries": [
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-09"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-10"
+        },
+        {
+          "cumulativeHours": -0.25,
+          "dateKey": "2026-07-11"
+        },
+        {
+          "cumulativeHours": -1.25,
+          "dateKey": "2026-07-12"
+        },
+        {
+          "cumulativeHours": -1.25,
+          "dateKey": "2026-07-13"
+        }
+      ],
+      "durationBuckets": [
+        {
+          "count": 0,
+          "label": "<5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5-5.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5.5-6h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6-6.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6.5-7h",
+          "share": 0
+        },
+        {
+          "count": 1,
+          "label": "7-7.5h",
+          "share": 0.2
+        },
+        {
+          "count": 1,
+          "label": "7.5-8h",
+          "share": 0.2
+        },
+        {
+          "count": 3,
+          "label": "8h+",
+          "share": 0.6
+        }
+      ],
+      "regularityScore": 89,
+      "rollingConsistency14": [
+        {
+          "dateKey": "2026-07-09",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-10",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-11",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-12",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-13",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        }
+      ],
+      "scheduleAccuracyScore": 94,
+      "sleepAlignmentSeries": [
+        {
+          "consistencyScore": 1,
+          "dailyScore": 100,
+          "dateKey": "2026-07-09",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 100
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 92.222,
+          "dateKey": "2026-07-10",
+          "durationScore": 0.852,
+          "phaseScore": 0.986,
+          "timingScore": 0.938,
+          "trendScore": 98.444
+        },
+        {
+          "consistencyScore": 0.971,
+          "dailyScore": 97.828,
+          "dateKey": "2026-07-11",
+          "durationScore": 0.984,
+          "phaseScore": 0.997,
+          "timingScore": 0.963,
+          "trendScore": 98.321
+        },
+        {
+          "consistencyScore": 0.933,
+          "dailyScore": 75.157,
+          "dateKey": "2026-07-12",
+          "durationScore": 0.527,
+          "phaseScore": 0.946,
+          "timingScore": 0.875,
+          "trendScore": 93.688
+        },
+        {
+          "consistencyScore": 0.942,
+          "dailyScore": 96.748,
+          "dateKey": "2026-07-13",
+          "durationScore": 1,
+          "phaseScore": 0.986,
+          "timingScore": 0.931,
+          "trendScore": 94.3
+        }
+      ],
+      "sleepConsistencyScore": 83,
+      "socialJetlagHours": 0.023,
+      "wakeConsistencyScore": 96,
+      "weekdayAverages": [
+        {
+          "averageHours": 7,
+          "dayName": "Sun",
+          "nights": 1,
+          "weekday": 1
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Mon",
+          "nights": 1,
+          "weekday": 2
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Tue",
+          "nights": 0,
+          "weekday": 3
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Wed",
+          "nights": 0,
+          "weekday": 4
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Thu",
+          "nights": 1,
+          "weekday": 5
+        },
+        {
+          "averageHours": 7.5,
+          "dayName": "Fri",
+          "nights": 1,
+          "weekday": 6
+        },
+        {
+          "averageHours": 8.25,
+          "dayName": "Sat",
+          "nights": 1,
+          "weekday": 7
+        }
+      ]
+    },
+    "core": {
+      "averageDurationHours": 7.75,
+      "currentStreak": 0,
+      "durationTrendPercent7": null,
+      "goalHitRate": 80,
+      "longestNightHours": 8.25,
+      "longestStreak": 5,
+      "medianDurationHours": 8,
+      "movingAverage7": [
+        {
+          "dateKey": "2026-07-09",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-10",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-11",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-12",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-13",
+          "movingAverageHours": null
+        }
+      ],
+      "range30Count": 5,
+      "shortestNightHours": 7,
+      "totalSleepHours": 38.75,
+      "trackingCoverage30D": 17,
+      "trackingCoverageAll": 63
+    },
+    "records": [
+      {
+        "bedtimeOffsetHours": 8,
+        "dateKey": "2026-07-09",
+        "durationHours": 8,
+        "midpointOffsetHours": 12,
+        "sessionId": "shift-1",
+        "wakeOffsetHours": 16,
+        "weekday": 5
+      },
+      {
+        "bedtimeOffsetHours": 8.5,
+        "dateKey": "2026-07-10",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 12.25,
+        "sessionId": "shift-2",
+        "wakeOffsetHours": 16,
+        "weekday": 6
+      },
+      {
+        "bedtimeOffsetHours": 7.75,
+        "dateKey": "2026-07-11",
+        "durationHours": 8.25,
+        "midpointOffsetHours": 11.88,
+        "sessionId": "shift-3",
+        "wakeOffsetHours": 16,
+        "weekday": 7
+      },
+      {
+        "bedtimeOffsetHours": 9,
+        "dateKey": "2026-07-12",
+        "durationHours": 7,
+        "midpointOffsetHours": 12.5,
+        "sessionId": "shift-4",
+        "wakeOffsetHours": 16,
+        "weekday": 1
+      },
+      {
+        "bedtimeOffsetHours": 8.25,
+        "dateKey": "2026-07-13",
+        "durationHours": 8,
+        "midpointOffsetHours": 12.25,
+        "sessionId": "shift-5",
+        "wakeOffsetHours": 16.25,
+        "weekday": 2
+      }
+    ],
+    "targets": {
+      "targetDurationHours": 8,
+      "targetSleepOffsetHours": 8,
+      "targetWakeOffsetHours": 16
+    }
+  }
+}

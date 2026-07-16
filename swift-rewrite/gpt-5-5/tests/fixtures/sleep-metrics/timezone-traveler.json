@@ -1,0 +1,252 @@
+{
+  "name": "timezone traveler",
+  "referenceDate": "2026-07-16T12:00:00.000Z",
+  "settings": {
+    "sleepTargetMinutes": 1320,
+    "wakeTargetMinutes": 360
+  },
+  "sessions": [
+    {
+      "id": "traveler-tokyo-vancouver",
+      "startTime": "2026-07-11T14:00:00.000Z",
+      "endTime": "2026-07-11T22:00:00.000Z",
+      "startTimeZone": "Asia/Tokyo",
+      "endTimeZone": "America/Vancouver"
+    },
+    {
+      "id": "traveler-vancouver-toronto",
+      "startTime": "2026-07-13T06:30:00.000Z",
+      "endTime": "2026-07-13T14:00:00.000Z",
+      "startTimeZone": "America/Vancouver",
+      "endTimeZone": "America/Toronto"
+    },
+    {
+      "id": "traveler-toronto-london",
+      "startTime": "2026-07-15T03:00:00.000Z",
+      "endTime": "2026-07-15T10:00:00.000Z",
+      "startTimeZone": "America/Toronto",
+      "endTimeZone": "Europe/London"
+    }
+  ],
+  "expected": {
+    "advanced": {
+      "cumulativeDebtHours": -1.5,
+      "cumulativeDebtSeries": [
+        {
+          "cumulativeHours": 0,
+          "dateKey": "2026-07-11"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-13"
+        },
+        {
+          "cumulativeHours": -1.5,
+          "dateKey": "2026-07-15"
+        }
+      ],
+      "durationBuckets": [
+        {
+          "count": 0,
+          "label": "<5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5-5.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5.5-6h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6-6.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6.5-7h",
+          "share": 0
+        },
+        {
+          "count": 1,
+          "label": "7-7.5h",
+          "share": 0.333
+        },
+        {
+          "count": 1,
+          "label": "7.5-8h",
+          "share": 0.333
+        },
+        {
+          "count": 1,
+          "label": "8h+",
+          "share": 0.333
+        }
+      ],
+      "regularityScore": 52,
+      "rollingConsistency14": [
+        {
+          "dateKey": "2026-07-11",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-13",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-15",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        }
+      ],
+      "scheduleAccuracyScore": 0,
+      "sleepAlignmentSeries": [
+        {
+          "consistencyScore": 1,
+          "dailyScore": 86.856,
+          "dateKey": "2026-07-11",
+          "durationScore": 1,
+          "phaseScore": 0.801,
+          "timingScore": 0.725,
+          "trendScore": 86.856
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 77.74,
+          "dateKey": "2026-07-13",
+          "durationScore": 0.852,
+          "phaseScore": 0.707,
+          "timingScore": 0.663,
+          "trendScore": 85.033
+        },
+        {
+          "consistencyScore": 0.934,
+          "dailyScore": 75.172,
+          "dateKey": "2026-07-15",
+          "durationScore": 0.527,
+          "phaseScore": 0.946,
+          "timingScore": 0.875,
+          "trendScore": 83.061
+        }
+      ],
+      "sleepConsistencyScore": 91,
+      "socialJetlagHours": 0.125,
+      "wakeConsistencyScore": 14,
+      "weekdayAverages": [
+        {
+          "averageHours": 0,
+          "dayName": "Sun",
+          "nights": 0,
+          "weekday": 1
+        },
+        {
+          "averageHours": 7.5,
+          "dayName": "Mon",
+          "nights": 1,
+          "weekday": 2
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Tue",
+          "nights": 0,
+          "weekday": 3
+        },
+        {
+          "averageHours": 7,
+          "dayName": "Wed",
+          "nights": 1,
+          "weekday": 4
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Thu",
+          "nights": 0,
+          "weekday": 5
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Fri",
+          "nights": 0,
+          "weekday": 6
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Sat",
+          "nights": 1,
+          "weekday": 7
+        }
+      ]
+    },
+    "core": {
+      "averageDurationHours": 7.5,
+      "currentStreak": 1,
+      "durationTrendPercent7": null,
+      "goalHitRate": 67,
+      "longestNightHours": 8,
+      "longestStreak": 1,
+      "medianDurationHours": 7.5,
+      "movingAverage7": [
+        {
+          "dateKey": "2026-07-11",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-13",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-15",
+          "movingAverageHours": null
+        }
+      ],
+      "range30Count": 3,
+      "shortestNightHours": 7,
+      "totalSleepHours": 22.5,
+      "trackingCoverage30D": 10,
+      "trackingCoverageAll": 50
+    },
+    "records": [
+      {
+        "bedtimeOffsetHours": 5,
+        "dateKey": "2026-07-11",
+        "durationHours": 8,
+        "midpointOffsetHours": 9,
+        "sessionId": "traveler-tokyo-vancouver",
+        "wakeOffsetHours": 21,
+        "weekday": 7
+      },
+      {
+        "bedtimeOffsetHours": 5.5,
+        "dateKey": "2026-07-13",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 9.25,
+        "sessionId": "traveler-vancouver-toronto",
+        "wakeOffsetHours": 16,
+        "weekday": 2
+      },
+      {
+        "bedtimeOffsetHours": 5,
+        "dateKey": "2026-07-15",
+        "durationHours": 7,
+        "midpointOffsetHours": 8.5,
+        "sessionId": "traveler-toronto-london",
+        "wakeOffsetHours": 17,
+        "weekday": 4
+      }
+    ],
+    "targets": {
+      "targetDurationHours": 8,
+      "targetSleepOffsetHours": 4,
+      "targetWakeOffsetHours": 12
+    }
+  }
+}

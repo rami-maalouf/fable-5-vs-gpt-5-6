@@ -1,0 +1,242 @@
+{
+  "name": "sub five minute noise",
+  "referenceDate": "2026-07-16T12:00:00.000Z",
+  "settings": {
+    "sleepTargetMinutes": 1320,
+    "wakeTargetMinutes": 360
+  },
+  "sessions": [
+    {
+      "id": "noise-short-1",
+      "startTime": "2026-07-12T23:00:00.000Z",
+      "endTime": "2026-07-12T23:03:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "noise-valid-1",
+      "startTime": "2026-07-12T22:30:00.000Z",
+      "endTime": "2026-07-13T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC",
+      "tag": "Manual Log"
+    },
+    {
+      "id": "noise-short-2",
+      "startTime": "2026-07-14T01:00:00.000Z",
+      "endTime": "2026-07-14T01:02:24.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "noise-valid-shorter-same-day",
+      "startTime": "2026-07-13T23:00:00.000Z",
+      "endTime": "2026-07-14T05:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "noise-valid-longest-same-day",
+      "startTime": "2026-07-13T22:00:00.000Z",
+      "endTime": "2026-07-14T06:00:00.000Z",
+      "startTimeZone": "UTC",
+      "endTimeZone": "UTC"
+    },
+    {
+      "id": "noise-active",
+      "startTime": "2026-07-14T22:00:00.000Z",
+      "endTime": null,
+      "startTimeZone": "UTC",
+      "endTimeZone": null
+    }
+  ],
+  "expected": {
+    "advanced": {
+      "cumulativeDebtHours": -0.5,
+      "cumulativeDebtSeries": [
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-13"
+        },
+        {
+          "cumulativeHours": -0.5,
+          "dateKey": "2026-07-14"
+        }
+      ],
+      "durationBuckets": [
+        {
+          "count": 0,
+          "label": "<5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5-5.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "5.5-6h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6-6.5h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "6.5-7h",
+          "share": 0
+        },
+        {
+          "count": 0,
+          "label": "7-7.5h",
+          "share": 0
+        },
+        {
+          "count": 1,
+          "label": "7.5-8h",
+          "share": 0.5
+        },
+        {
+          "count": 1,
+          "label": "8h+",
+          "share": 0.5
+        }
+      ],
+      "regularityScore": 95,
+      "rollingConsistency14": [
+        {
+          "dateKey": "2026-07-13",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        },
+        {
+          "dateKey": "2026-07-14",
+          "scheduleAccuracy": null,
+          "sleepConsistency": null,
+          "wakeConsistency": null
+        }
+      ],
+      "scheduleAccuracyScore": 97,
+      "sleepAlignmentSeries": [
+        {
+          "consistencyScore": 1,
+          "dailyScore": 92.484,
+          "dateKey": "2026-07-13",
+          "durationScore": 0.852,
+          "phaseScore": 0.986,
+          "timingScore": 0.938,
+          "trendScore": 92.484
+        },
+        {
+          "consistencyScore": 0.981,
+          "dailyScore": 99.717,
+          "dateKey": "2026-07-14",
+          "durationScore": 1,
+          "phaseScore": 1,
+          "timingScore": 1,
+          "trendScore": 93.93
+        }
+      ],
+      "sleepConsistencyScore": 90,
+      "socialJetlagHours": null,
+      "wakeConsistencyScore": 100,
+      "weekdayAverages": [
+        {
+          "averageHours": 0,
+          "dayName": "Sun",
+          "nights": 0,
+          "weekday": 1
+        },
+        {
+          "averageHours": 7.5,
+          "dayName": "Mon",
+          "nights": 1,
+          "weekday": 2
+        },
+        {
+          "averageHours": 8,
+          "dayName": "Tue",
+          "nights": 1,
+          "weekday": 3
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Wed",
+          "nights": 0,
+          "weekday": 4
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Thu",
+          "nights": 0,
+          "weekday": 5
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Fri",
+          "nights": 0,
+          "weekday": 6
+        },
+        {
+          "averageHours": 0,
+          "dayName": "Sat",
+          "nights": 0,
+          "weekday": 7
+        }
+      ]
+    },
+    "core": {
+      "averageDurationHours": 7.75,
+      "currentStreak": 0,
+      "durationTrendPercent7": null,
+      "goalHitRate": 100,
+      "longestNightHours": 8,
+      "longestStreak": 2,
+      "medianDurationHours": 7.75,
+      "movingAverage7": [
+        {
+          "dateKey": "2026-07-13",
+          "movingAverageHours": null
+        },
+        {
+          "dateKey": "2026-07-14",
+          "movingAverageHours": null
+        }
+      ],
+      "range30Count": 2,
+      "shortestNightHours": 7.5,
+      "totalSleepHours": 15.5,
+      "trackingCoverage30D": 7,
+      "trackingCoverageAll": 50
+    },
+    "records": [
+      {
+        "bedtimeOffsetHours": 4.5,
+        "dateKey": "2026-07-13",
+        "durationHours": 7.5,
+        "midpointOffsetHours": 8.25,
+        "sessionId": "noise-valid-1",
+        "wakeOffsetHours": 12,
+        "weekday": 2
+      },
+      {
+        "bedtimeOffsetHours": 4,
+        "dateKey": "2026-07-14",
+        "durationHours": 8,
+        "midpointOffsetHours": 8,
+        "sessionId": "noise-valid-longest-same-day",
+        "wakeOffsetHours": 12,
+        "weekday": 3
+      }
+    ],
+    "targets": {
+      "targetDurationHours": 8,
+      "targetSleepOffsetHours": 4,
+      "targetWakeOffsetHours": 12
+    }
+  }
+}
