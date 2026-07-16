@@ -3,7 +3,7 @@ import { SymbolView } from 'expo-symbols';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, useColorScheme } from 'react-native';
 
-import { colors, minTouchTarget, spacing } from '@/theme/tokens';
+import { colors, spacing } from '@/theme/tokens';
 
 type ComposerProps = {
   // true from send until the reply finishes/stops/errors
@@ -117,13 +117,12 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     marginRight: spacing.sm,
   },
+  // visual circle is 34pt; hitSlop 8 keeps the touch target >= 44pt
   actionButton: {
     minWidth: 36,
     minHeight: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    // keep the visual circle small but the target >= 44pt via hitSlop
-    maxHeight: minTouchTarget,
   },
   actionCircle: {
     width: 34,

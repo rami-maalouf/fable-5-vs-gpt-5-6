@@ -43,3 +43,38 @@ carried forward.
 
 known deviations logged: expo/fetch relative-url resolution workaround
 (DEVIATIONS.md #5).
+
+## checkpoint 2 - core chat (tasks 4-6) - PASS
+
+date: 2026-07-16 ~04:08. same device/server as checkpoint 1.
+
+checked:
+
+1. judging step 1: typed "Hey Nova, introduce yourself" in the composer, sent.
+   observed in order: user message as right-aligned filled bubble, composer
+   cleared immediately, typing-indicator dot during send-to-first-token, stop
+   button replacing send while generating, streamed reply rendered as plain
+   full-width text, send button restored (disabled on empty input) after
+   completion. evidence: verification/checkpoint-2-sent-loading-dot-stop-button.png,
+   verification/checkpoint-2-streamed-reply-step1.png
+2. keyboard: composer attaches to the keyboard on focus with no gap
+   (verification/checkpoint-2-composer-keyboard-attached.png), interactive
+   drag-down dismissal settles the composer back to the safe-area bottom
+   (verification/checkpoint-2-interactive-dismiss-settled.png), keyboard
+   re-show keeps it attached. driven by keyboard-controller's
+   KeyboardAvoidingView behavior="translate-with-padding" with
+   keyboardVerticalOffset=headerHeight.
+   note: screenshots capture endpoint states; frame-by-frame lag will be
+   re-scrutinized in the task-15 polish pass with slow animations.
+3. tests: 51/51 green (adds stream-core batching/abort/error suite, composer
+   component suite, chat-store suite); tsc clean.
+
+code-quality gate: reviewed phase-2 code (Composer, MessageRow, MessageList,
+EmptyState, usePinnedScroll, useSendMessage, chat-store, screen wiring).
+findings fixed inline: dead maxHeight style + unused import in Composer,
+no-op model line in chat-store reset. judgment call recorded: new chat keeps
+the last chosen model (chatgpt convention). remaining known debt: none.
+
+note: @testing-library/react-native v14 has an async api (render/fireEvent
+/rerender must be awaited) - earlier sync-style tests failed misleadingly with
+"render function has not been called".

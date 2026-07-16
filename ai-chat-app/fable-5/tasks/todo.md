@@ -47,7 +47,7 @@ recorded.
 
 ## phase 2: core chat
 
-- [ ] **task 4: composer**
+- [x] **task 4: composer**
   - description: multiline input with growth cap, send button (disabled when
     empty), stop button swap while generating, sending disabled while generating,
     clears on send without restore-on-error, light haptic on send.
@@ -56,7 +56,7 @@ recorded.
   - verify: `bun run test -- composer`; manual on simulator.
   - depends: 1. files: src/components/chat/Composer.tsx, tests. size: M
 
-- [ ] **task 5: message list + streaming render**
+- [x] **task 5: message list + streaming render**
   - description: FlatList with maintainVisibleContentPosition; user messages as
     filled right-aligned bubbles, assistant as plain full-width text (chatgpt
     convention); useChatStream completed: chunk batching (~30-60ms), loading
@@ -68,7 +68,7 @@ recorded.
   - depends: 3, 4. files: src/components/chat/MessageList.tsx, MessageRow.tsx,
     src/hooks/useChatStream.ts, src/state/*. size: M
 
-- [ ] **task 6: keyboard integration**
+- [x] **task 6: keyboard integration**
   - description: react-native-keyboard-controller wiring: composer moves with the
     keyboard (no gap/lag/jump), interactive dismissal dragging down on the list,
     safe areas correct with keyboard up.
