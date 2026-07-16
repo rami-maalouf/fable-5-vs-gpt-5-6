@@ -28,14 +28,21 @@ type AssistantTurn = {
 type ChatState = {
   activeAssistantMessageId: string | null;
   appendAssistantChunk: (assistantMessageId: string, chunk: string) => void;
+  currentConversationId: string | null;
   currentModel: ChatModel;
   finishAssistantMessage: (
     assistantMessageId: string,
     status: AssistantMessageStatus,
   ) => void;
   isAwaitingFirstToken: boolean;
+  loadConversationTranscript: (input: {
+    conversationId: string;
+    messages: ChatTranscriptMessage[];
+    model: ChatModel;
+  }) => void;
   messages: ChatTranscriptMessage[];
   resetTranscript: () => void;
+  setCurrentConversationId: (conversationId: string) => void;
   startAssistantTurn: (content: string) => AssistantTurn;
 };
 
@@ -58,6 +65,7 @@ function toRequestMessages(messages: ChatTranscriptMessage[]) {
 
 export const useChatStore = create<ChatState>((set, get) => ({
   activeAssistantMessageId: null,
+  currentConversationId: null,
   currentModel: DEFAULT_CHAT_MODEL,
   isAwaitingFirstToken: false,
   messages: [],
@@ -108,12 +116,28 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }));
   },
 
+  loadConversationTranscript: ({ conversationId, messages, model }) => {
+    set({
+      activeAssistantMessageId: null,
+      currentConversationId: conversationId,
+      currentModel: model,
+      isAwaitingFirstToken: false,
+      messages,
+    });
+  },
+
   resetTranscript: () => {
     set({
       activeAssistantMessageId: null,
+      currentConversationId: null,
+      currentModel: DEFAULT_CHAT_MODEL,
       isAwaitingFirstToken: false,
       messages: [],
     });
+  },
+
+  setCurrentConversationId: (conversationId) => {
+    set({ currentConversationId: conversationId });
   },
 
   startAssistantTurn: (content) => {

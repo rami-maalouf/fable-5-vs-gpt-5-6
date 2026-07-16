@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { KeyboardGestureArea, KeyboardStickyView } from 'react-native-keyboard-controller';
@@ -5,34 +7,97 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
+import { createExpoSqlDatabaseAdapter } from '@/data';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
+import {
+  persistAssistantMessageContentAsync,
+  persistAssistantMessageStatusAsync,
+  persistAssistantTurnStartAsync,
+} from '@/state/chat-persistence';
 import { spacing, useNovaTheme } from '@/theme';
 
 export default function HomeScreen() {
   const theme = useNovaTheme();
   const { bottom } = useSafeAreaInsets();
+  const sqliteDb = useSQLiteContext();
+  const db = useMemo(() => createExpoSqlDatabaseAdapter(sqliteDb), [sqliteDb]);
   const chatStream = useChatStream();
   const activeAssistantMessageId = useChatStore((state) => state.activeAssistantMessageId);
   const appendAssistantChunk = useChatStore((state) => state.appendAssistantChunk);
+  const currentConversationId = useChatStore((state) => state.currentConversationId);
   const currentModel = useChatStore((state) => state.currentModel);
   const finishAssistantMessage = useChatStore((state) => state.finishAssistantMessage);
   const isAwaitingFirstToken = useChatStore((state) => state.isAwaitingFirstToken);
   const messages = useChatStore((state) => state.messages);
+  const setCurrentConversationId = useChatStore((state) => state.setCurrentConversationId);
   const startAssistantTurn = useChatStore((state) => state.startAssistantTurn);
 
   const sendMessage = (content: string) => {
     const turn = startAssistantTurn(content);
+    const userMessage = useChatStore
+      .getState()
+      .messages.find((message) => message.id === turn.userMessageId);
+    const assistantMessage = useChatStore
+      .getState()
+      .messages.find((message) => message.id === turn.assistantMessageId);
 
-    void chatStream.send({
-      messages: turn.requestMessages,
+    if (userMessage == null || assistantMessage == null) {
+      finishAssistantMessage(turn.assistantMessageId, 'error');
+      return;
+    }
+
+    let assistantWriteQueue = Promise.resolve();
+    const enqueueAssistantWrite = (contentToPersist: string) => {
+      assistantWriteQueue = assistantWriteQueue.then(() => (
+        persistAssistantMessageContentAsync(db, {
+          assistantMessageId: turn.assistantMessageId,
+          content: contentToPersist,
+          updatedAt: Date.now(),
+        })
+      ));
+      void assistantWriteQueue.catch(() => undefined);
+    };
+
+    void persistAssistantTurnStartAsync(db, {
+      assistantMessage,
+      conversationId: currentConversationId,
       model: currentModel,
-      onText: (chunk) => {
-        appendAssistantChunk(turn.assistantMessageId, chunk);
-      },
-    }).then((result) => {
-      finishAssistantMessage(turn.assistantMessageId, result.status);
-    });
+      userMessage,
+    })
+      .then(async ({ conversationId }) => {
+        setCurrentConversationId(conversationId);
+
+        const result = await chatStream.send({
+          messages: turn.requestMessages,
+          model: currentModel,
+          onText: (chunk) => {
+            appendAssistantChunk(turn.assistantMessageId, chunk);
+
+            const latestAssistantMessage = useChatStore
+              .getState()
+              .messages.find((message) => message.id === turn.assistantMessageId);
+
+            enqueueAssistantWrite(latestAssistantMessage?.content ?? '');
+          },
+        });
+        const latestAssistantMessage = useChatStore
+          .getState()
+          .messages.find((message) => message.id === turn.assistantMessageId);
+
+        finishAssistantMessage(turn.assistantMessageId, result.status);
+
+        await assistantWriteQueue.catch(() => undefined);
+        await persistAssistantMessageStatusAsync(db, {
+          assistantMessageId: turn.assistantMessageId,
+          content: latestAssistantMessage?.content ?? '',
+          status: result.status,
+          updatedAt: Date.now(),
+        });
+      })
+      .catch(() => {
+        finishAssistantMessage(turn.assistantMessageId, 'error');
+      });
   };
 
   const stopMessage = () => {

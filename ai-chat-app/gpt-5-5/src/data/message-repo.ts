@@ -44,12 +44,28 @@ export async function updateAssistantMessageAsync(
   db: SqlDatabase,
   id: string,
   content: string,
-  status: 'complete' | 'stopped' | 'error'
+  status: 'complete' | 'stopped' | 'error',
+  updatedAt?: number
 ) {
   await db.runAsync(
     `UPDATE messages
      SET content = ?, status = ?
      WHERE id = ? AND role = 'assistant'`,
     [content, status, id]
+  );
+
+  if (updatedAt == null) {
+    return;
+  }
+
+  await db.runAsync(
+    `UPDATE conversations
+     SET updated_at = ?
+     WHERE id = (
+       SELECT conversation_id
+       FROM messages
+       WHERE id = ?
+     )`,
+    [updatedAt, id]
   );
 }

@@ -57,4 +57,50 @@ describe('chat store', () => {
       }),
     );
   });
+
+  it('loads and resets a persisted conversation transcript', () => {
+    useChatStore.getState().loadConversationTranscript({
+      conversationId: 'conversation-1',
+      messages: [
+        {
+          content: 'saved prompt',
+          createdAt: 100,
+          id: 'user-1',
+          role: 'user',
+          status: 'complete',
+        },
+        {
+          content: 'saved reply',
+          createdAt: 110,
+          id: 'assistant-1',
+          role: 'assistant',
+          status: 'complete',
+        },
+      ],
+      model: 'gpt-5.6-sol',
+    });
+
+    expect(useChatStore.getState()).toEqual(
+      expect.objectContaining({
+        activeAssistantMessageId: null,
+        currentConversationId: 'conversation-1',
+        currentModel: 'gpt-5.6-sol',
+        isAwaitingFirstToken: false,
+      }),
+    );
+    expect(useChatStore.getState().messages.map((message) => message.content)).toEqual([
+      'saved prompt',
+      'saved reply',
+    ]);
+
+    useChatStore.getState().resetTranscript();
+
+    expect(useChatStore.getState()).toEqual(
+      expect.objectContaining({
+        currentConversationId: null,
+        currentModel: 'gpt-5.6-luna',
+        messages: [],
+      }),
+    );
+  });
 });
