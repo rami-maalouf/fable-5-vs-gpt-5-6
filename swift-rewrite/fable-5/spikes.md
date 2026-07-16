@@ -38,6 +38,29 @@ constraints learned (bind task 27/28):
 decision: build task 27 (parity) + task 28 (interactive wake-up + wind-down
 state) as specced. no fallback needed.
 
-## spike 2 (task 7): chart approach - pending
+## spike 2 (task 7): chart approach - DECIDED: hand-rolled skia chart kit
+
+the hardest chart (dashboard week chart) was built directly with skia primitives
+plus small pure helpers (`src/domain/metrics/chart-data.ts`,
+`src/components/charts/path-utils.ts`) and compared against IMG_4796
+(evidence/task-07/week-chart-skia.png, week-chart-selection-popover.png):
+negative-offset range bars (r4, width 25, accent 0.7), gray catmullRom duration
+line + points behind bars, three dashed rulemarks with leading/trailing
+annotations, dual y-axis with the 31-minute collision hiding, two-line
+day+duration x labels, and x-selection rule + centered popover with deviation
+colors - all match mark-for-mark.
+
+victory-native was evaluated against its installed API (v41.26): its `Bar`
+draws only from the domain baseline - no yStart/yEnd range bars (checked
+dist/cartesian/components/Bar.d.ts) - and dual axes with data-dependent label
+hiding, leading/trailing rule annotations, split-color area segments (7-night
+avg card), and two-line axis labels would all need custom skia escape hatches
+anyway. rather than mixing two paradigms, ALL charts use the same hand-rolled
+approach: pure scale math in the domain layer, skia marks, RN text overlays for
+labels (native sf pro), band-based tap/pan selection. victory-native will be
+removed from deps if still unused at checkpoint 6.
+
+note: skia 2.6 deprecates SkPath.moveTo/cubicTo mutation - use
+Skia.PathBuilder (already applied in path-utils.ts).
 
 ## spike 3 (task 8): grayscale-while-asleep - pending

@@ -30,7 +30,7 @@ conventional commit, deviations logged in DEVIATIONS.md.
   - depends: 1. files: src/domain/models.ts, src/domain/session-rules.ts, tests.
     size: M
 
-- [ ] **task 3: data layer**
+- [x] **task 3: data layer**
   - description: `src/data/`: expo-sqlite `sleep_sessions` table per the spec schema,
     repository (create/end/update/delete/list-valid/active-session), kv settings
     store with spec defaults (dark mode, twilight palette, wind-down on, live

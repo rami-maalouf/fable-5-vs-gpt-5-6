@@ -21,6 +21,7 @@ describe('app shell', () => {
         <DashboardScreen />
       </ThemeProvider>
     );
-    getByText('Dashboard');
+    // week chart x labels render (spike harness data)
+    getByText('Sat');
   });
 });
