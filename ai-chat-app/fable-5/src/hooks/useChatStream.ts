@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react';
 export type ChatTurnMessage = { role: 'user' | 'assistant'; content: string };
 
 export type StreamCallbacks = {
-  // called with the full assembled text every time a chunk batch lands
+  // called with the full assembled text as chunk batches land
   onText: (assembled: string) => void;
 };
 
@@ -15,6 +15,8 @@ export type StreamResult = {
   text: string;
   error?: Error;
 };
+
+const BATCH_MS = 40;
 
 // expo-router points window.location at the dev server (or the configured
 // production origin). expo/fetch's own relative resolution has proven
@@ -27,8 +29,78 @@ function chatUrl(): string {
   return '/chat';
 }
 
-// stream consumption is isolated in this hook; ui components never touch fetch.
-// stop() aborts the request; the caller persists the partial reply as 'stopped'.
+// core stream consumption, isolated from react so it is directly testable.
+// aborting the controller cancels the request; the caller persists the
+// partial reply as 'stopped'.
+export async function streamChat(
+  messages: ChatTurnMessage[],
+  model: string,
+  callbacks: StreamCallbacks,
+  controller: AbortController,
+): Promise<StreamResult> {
+  let assembled = '';
+
+  // batch ui updates to ~40ms so long replies stream smoothly instead of
+  // re-rendering per token; the first chunk and the final state always emit
+  let lastEmit = 0;
+  let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+  const flush = () => {
+    pendingTimer = null;
+    lastEmit = Date.now();
+    callbacks.onText(assembled);
+  };
+  const emit = () => {
+    if (pendingTimer !== null) return;
+    const elapsed = Date.now() - lastEmit;
+    if (elapsed >= BATCH_MS) flush();
+    else pendingTimer = setTimeout(flush, BATCH_MS - elapsed);
+  };
+  const finalFlush = () => {
+    if (pendingTimer !== null) clearTimeout(pendingTimer);
+    flush();
+  };
+
+  try {
+    const response = await fetch(chatUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages, model }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok || !response.body) {
+      return {
+        outcome: 'error',
+        text: assembled,
+        error: new Error(`request failed (${response.status})`),
+      };
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      assembled += decoder.decode(value, { stream: true });
+      emit();
+    }
+    assembled += decoder.decode();
+    finalFlush();
+    return { outcome: 'complete', text: assembled };
+  } catch (e) {
+    finalFlush();
+    if (controller.signal.aborted) {
+      return { outcome: 'stopped', text: assembled };
+    }
+    return {
+      outcome: 'error',
+      text: assembled,
+      error: e instanceof Error ? e : new Error(String(e)),
+    };
+  }
+}
+
+// react binding: one in-flight request at a time, stop() aborts it
 export function useChatStream() {
   const abortRef = useRef<AbortController | null>(null);
 
@@ -44,44 +116,8 @@ export function useChatStream() {
     ): Promise<StreamResult> => {
       const controller = new AbortController();
       abortRef.current = controller;
-      let assembled = '';
-
       try {
-        const response = await fetch(chatUrl(), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages, model }),
-          signal: controller.signal,
-        });
-
-        if (!response.ok || !response.body) {
-          return {
-            outcome: 'error',
-            text: assembled,
-            error: new Error(`request failed (${response.status})`),
-          };
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          assembled += decoder.decode(value, { stream: true });
-          callbacks.onText(assembled);
-        }
-        assembled += decoder.decode();
-        callbacks.onText(assembled);
-        return { outcome: 'complete', text: assembled };
-      } catch (e) {
-        if (controller.signal.aborted) {
-          return { outcome: 'stopped', text: assembled };
-        }
-        return {
-          outcome: 'error',
-          text: assembled,
-          error: e instanceof Error ? e : new Error(String(e)),
-        };
+        return await streamChat(messages, model, callbacks, controller);
       } finally {
         if (abortRef.current === controller) {
           abortRef.current = null;
