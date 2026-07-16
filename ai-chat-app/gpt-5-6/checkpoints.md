@@ -264,3 +264,33 @@ Code-quality review:
 - Accessibility: the recovery action has an explicit label and 44-point target; all audited controls retain at least 44 points in both modes.
 - Maintainability: scroll policy is isolated as pure tested functions, launch artwork retains editable SVG sources, and appearance configuration remains at the root boundary.
 - Performance: scroll events are handled only during active user interaction, entrance animation runs once per row, and drawer motion remains on the UI thread.
+
+## Final Definition Of Done - Task 14
+
+Status: passed on 2026-07-16.
+
+- Prompt checklist: all 13 definition-of-done items are mapped to simulator screenshots, route results, SQLite inspection, or build/runtime logs in `verification/DOD.md`.
+- Judging step 1: a fresh `hey nova, introduce yourself` turn exposed partial assistant text before rendering the completed real-backend response.
+- Judging step 2: a final long response reached 55 pages; manual scrolling held at 71% while content continued growing, exposed `Scroll to latest message`, and stop returned `Send message` while retaining the partial.
+- Judging steps 3-5: the exact offline/retry, multi-conversation management, and per-conversation model-relaunch runs remain captured at Tasks 6, 11, and 12.
+- Performance recovery: the final stress run exposed one React Native slow-list diagnostic. The issue was reproduced end to end, then fixed with 40 ms text batching, terminal-path flushing, memoized rows, and a stable render callback. A cold restored 18-page transcript was scrolled repeatedly afterward with zero log entries.
+- Security: the exported iOS Hermes bundle contains no key variable or key-like token; `.env` is ignored and untracked; `.env.example` is the only tracked environment file; `/chat` is the only API route.
+- Route boundary: a final off-list model POST returned HTTP 400 with `Invalid request.`.
+- Runtime: a post-fix real request returned `ready`; cold launch and long-history scroll checks both reported zero Argent runtime entries.
+- Build: the final native iOS build remained at 0 errors and 0 warnings, and the production iOS Hermes export completed.
+- Automated gates: 24 Bun tests passed; `bunx tsc --noEmit`, `bun run lint`, and `git diff --check` passed.
+
+Evidence:
+
+- `verification/DOD.md`
+- `verification/14-intro-stream-complete-light.png`
+- `verification/14-scrollup-midstream-light.png`
+- `verification/14-stop-partial-light.png`
+- all prior task evidence listed in `verification/DOD.md`
+
+Code-quality review:
+
+- Correctness: buffered stream text flushes before every completion, stop, and failure state transition; raw response accumulation remains immediate for persistence.
+- Security: secrets remain server-only, request validation occurs before provider execution, and errors returned to the client remain generic.
+- Maintainability: the final performance policy is a pure scheduler-tested helper, while the hook retains transport orchestration and rows retain presentation ownership.
+- Performance: only the growing assistant row rerenders during streaming, visible text commits are capped at a 40 ms cadence, and restored long-history scrolling emits no diagnostic.
