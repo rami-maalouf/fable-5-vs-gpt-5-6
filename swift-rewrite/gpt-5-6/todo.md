@@ -135,7 +135,7 @@ original look.
   - verify: manual toggle sweep through every screen.
   - depends: 8, 10. files: app/_layout.tsx, src/theme/. size: S
 
-- [ ] **task 12: logs list**
+- [x] **task 12: logs list**
   - description: logs tab: valid sessions listed (day, start-end, duration badge),
     swipe to delete, tap to edit (opens editor from task 13), toolbar + for new,
     empty state.
