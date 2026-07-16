@@ -31,14 +31,3 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 *.log
-
-# contestant dirs are standalone git repos - never tracked here
-ai-chat-app/fable-5/
-ai-chat-app/gpt-5-6/
-ai-chat-app/gpt-5-5/
-ai-calorie-tracker/fable-5/
-ai-calorie-tracker/gpt-5-6/
-ai-calorie-tracker/gpt-5-5/
-swift-rewrite/fable-5/
-swift-rewrite/gpt-5-6/
-swift-rewrite/gpt-5-5/
