@@ -2,7 +2,7 @@ import { Canvas, Circle, DashPathEffect, Group, Line as SkiaLine, RoundedRect, v
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { runOnJS, useAnimatedReaction } from 'react-native-reanimated';
-import { CartesianChart, Line, type ChartBounds, useChartPressState } from 'victory-native';
+import { Area, CartesianChart, Line, type ChartBounds, useChartPressState } from 'victory-native';
 
 import { CardBackground } from '@/components/common';
 import { rgba } from '@/components/common/color';
@@ -13,12 +13,18 @@ import type { AppTheme } from '@/theme';
 
 import {
   buildDurationMomentumModel,
+  buildDurationHistogramModel,
   buildRollingComponentsModel,
   buildRollingConsistencyModel,
+  buildSleepDebtModel,
+  buildWeekdayAveragesModel,
   type ComponentFilter,
   type ComponentSeriesKey,
+  type DurationHistogramChartPoint,
   type DurationMomentumPoint,
   type RollingConsistencyPoint,
+  type SleepDebtChartPoint,
+  type WeekdayAverageChartPoint,
 } from './metrics-chart-models';
 
 const chartHeight = 220;
@@ -291,6 +297,154 @@ export function RollingComponentsCard({
         </CartesianChart>
       </View>
       <ChartFooter items={model.series.map(labelForSeries)} theme={theme} title={model.latest?.dateKey ?? 'latest'} />
+    </CardBackground>
+  );
+}
+
+export function SleepDebtCard({
+  records,
+  settings,
+  theme,
+}: {
+  records: readonly SleepNightRecord[];
+  settings: SleepSettings;
+  theme: AppTheme;
+}) {
+  const model = useMemo(() => buildSleepDebtModel(records, settings), [records, settings]);
+
+  if (model.points.length === 0) {
+    return <EmptyChartCard body="Track a valid night to compare cumulative sleep debt against your goal." theme={theme} title="Sleep debt" />;
+  }
+
+  return (
+    <CardBackground theme={theme} style={styles.card}>
+      <ChartHeader eyebrow="recovery" metric={`${model.latest?.cumulativeHours ?? 0}h`} theme={theme} title="Sleep debt" />
+      <View style={styles.chartFrame}>
+        <CartesianChart<SleepDebtChartPoint, 'index', 'cumulativeHours'>
+          data={model.points}
+          domain={{ x: [0, Math.max(0, model.points.length - 1)], y: model.domain }}
+          frame={{ lineColor: 'rgba(255,255,255,0.10)', lineWidth: 0 }}
+          padding={{ left: 28, right: 18, top: 16, bottom: 26 }}
+          xAxis={{ labelColor: 'transparent', lineWidth: 0 }}
+          xKey="index"
+          yAxis={[{ labelColor: 'transparent', lineWidth: 0, yKeys: ['cumulativeHours'] }]}
+          yKeys={['cumulativeHours']}>
+          {({ chartBounds, points, yScale }) => (
+            <Group>
+              <Area color={rgba(theme.actionPrimary, 0.18)} curveType="catmullRom" points={points.cumulativeHours} y0={yScale(0)} />
+              <Line color={theme.actionPrimary} curveType="catmullRom" points={points.cumulativeHours} strokeWidth={3} />
+              <SkiaLine color="rgba(255,255,255,0.55)" p1={vec(chartBounds.left, yScale(0))} p2={vec(chartBounds.right, yScale(0))} strokeWidth={1.2}>
+                <DashPathEffect intervals={[4, 4]} />
+              </SkiaLine>
+            </Group>
+          )}
+        </CartesianChart>
+      </View>
+      <ChartFooter items={['positive means extra sleep', 'negative means debt']} theme={theme} title={model.latest?.dateKey ?? 'latest'} />
+    </CardBackground>
+  );
+}
+
+export function WeekdayAveragesCard({
+  records,
+  theme,
+}: {
+  records: readonly SleepNightRecord[];
+  theme: AppTheme;
+}) {
+  const model = useMemo(() => buildWeekdayAveragesModel(records), [records]);
+  const maxHours = Math.max(1, ...model.points.map((point) => point.averageHours));
+
+  if (records.length === 0) {
+    return <EmptyChartCard body="Weekday averages unlock after your first valid sleep log." theme={theme} title="Weekday averages" />;
+  }
+
+  return (
+    <CardBackground theme={theme} style={styles.card}>
+      <ChartHeader eyebrow="behavior" metric={`${records.length} nights`} theme={theme} title="Weekday averages" />
+      <View style={styles.chartFrame}>
+        <CartesianChart<WeekdayAverageChartPoint, 'index', 'averageHours'>
+          data={model.points}
+          domain={{ x: [0, Math.max(0, model.points.length - 1)], y: [0, maxHours + 1] }}
+          frame={{ lineColor: 'rgba(255,255,255,0.10)', lineWidth: 0 }}
+          padding={{ left: 28, right: 18, top: 16, bottom: 26 }}
+          xAxis={{ labelColor: 'transparent', lineWidth: 0 }}
+          xKey="index"
+          yAxis={[{ labelColor: 'transparent', lineWidth: 0, yKeys: ['averageHours'] }]}
+          yKeys={['averageHours']}>
+          {({ chartBounds, xScale, yScale }) => (
+            <Group>
+              {model.points.map((point) => {
+                const barTop = yScale(point.averageHours);
+                return (
+                  <RoundedRect
+                    color={point.isWeekend ? 'rgba(123, 104, 238, 0.78)' : rgba(theme.actionPrimary, 0.72)}
+                    height={Math.max(2, chartBounds.bottom - barTop)}
+                    key={point.dayName}
+                    r={4}
+                    width={18}
+                    x={xScale(point.index) - 9}
+                    y={barTop}
+                  />
+                );
+              })}
+            </Group>
+          )}
+        </CartesianChart>
+      </View>
+      <ChartFooter items={model.points.map((point) => `${point.dayName} ${point.averageHours.toFixed(1)}h`)} theme={theme} title="daily pattern" />
+    </CardBackground>
+  );
+}
+
+export function DurationHistogramCard({
+  records,
+  theme,
+}: {
+  records: readonly SleepNightRecord[];
+  theme: AppTheme;
+}) {
+  const model = useMemo(() => buildDurationHistogramModel(records), [records]);
+  const maxCount = Math.max(1, ...model.points.map((point) => point.count));
+
+  if (records.length === 0) {
+    return <EmptyChartCard body="The duration histogram fills in when valid nights exist." theme={theme} title="Duration histogram" />;
+  }
+
+  return (
+    <CardBackground theme={theme} style={styles.card}>
+      <ChartHeader eyebrow="distribution" metric={`${records.length} nights`} theme={theme} title="Duration histogram" />
+      <View style={styles.chartFrame}>
+        <CartesianChart<DurationHistogramChartPoint, 'index', 'count'>
+          data={model.points}
+          domain={{ x: [0, Math.max(0, model.points.length - 1)], y: [0, maxCount + 1] }}
+          frame={{ lineColor: 'rgba(255,255,255,0.10)', lineWidth: 0 }}
+          padding={{ left: 28, right: 18, top: 16, bottom: 26 }}
+          xAxis={{ labelColor: 'transparent', lineWidth: 0 }}
+          xKey="index"
+          yAxis={[{ labelColor: 'transparent', lineWidth: 0, yKeys: ['count'] }]}
+          yKeys={['count']}>
+          {({ chartBounds, xScale, yScale }) => (
+            <Group>
+              {model.points.map((point) => {
+                const barTop = yScale(point.count);
+                return (
+                  <RoundedRect
+                    color={rgba(theme.actionPrimary, 0.72)}
+                    height={Math.max(2, chartBounds.bottom - barTop)}
+                    key={point.label}
+                    r={4}
+                    width={16}
+                    x={xScale(point.index) - 8}
+                    y={barTop}
+                  />
+                );
+              })}
+            </Group>
+          )}
+        </CartesianChart>
+      </View>
+      <ChartFooter items={model.points.filter((point) => point.count > 0).map((point) => `${point.label} ${Math.round(point.share * 100)}%`)} theme={theme} title="duration spread" />
     </CardBackground>
   );
 }

@@ -18,8 +18,11 @@ import {
 } from './metrics-screen-model';
 import {
   DurationMomentumCard,
+  DurationHistogramCard,
   RollingComponentsCard,
   RollingConsistencyCard,
+  SleepDebtCard,
+  WeekdayAveragesCard,
 } from './MetricsCharts';
 
 type LoadState = 'loading' | 'ready' | 'error';
@@ -208,8 +211,22 @@ function TimelineSheet({ model, theme }: { model: MetricsScreenModel; theme: App
         <View
           key={record.sessionId}
           style={[styles.timelineRow, { borderColor: rgba(theme.textPrimary, 0.12), backgroundColor: rgba(theme.textPrimary, 0.06) }]}>
-          <Text style={[styles.timelineDate, { color: theme.textPrimary }]}>{record.dateKey}</Text>
-          <Text style={[styles.timelineValue, { color: theme.textSecondary }]}>{record.durationHours.toFixed(1)}h tracked</Text>
+          <View style={styles.timelineHeaderRow}>
+            <Text style={[styles.timelineDate, { color: theme.textPrimary }]}>{record.dateKey}</Text>
+            <Text style={[styles.timelineValue, { color: theme.textSecondary }]}>{record.durationHours.toFixed(1)}h tracked</Text>
+          </View>
+          <View style={[styles.timelineTrack, { backgroundColor: rgba(theme.textPrimary, 0.08) }]}>
+            <View
+              style={[
+                styles.timelineBar,
+                {
+                  backgroundColor: rgba(theme.actionPrimary, 0.72),
+                  left: `${Math.min(94, Math.max(0, (record.bedtimeOffsetHours / 24) * 100))}%`,
+                  width: `${Math.max(4, Math.min(100, (record.durationHours / 24) * 100))}%`,
+                },
+              ]}
+            />
+          </View>
         </View>
       ))}
     </View>
@@ -304,6 +321,9 @@ export function MetricsScreen() {
         <DurationMomentumCard records={model.rangeRecords} settings={settings} theme={theme} />
         <RollingConsistencyCard records={model.rangeRecords} settings={settings} theme={theme} />
         <RollingComponentsCard records={model.rangeRecords} settings={settings} theme={theme} />
+        <SleepDebtCard records={model.rangeRecords} settings={settings} theme={theme} />
+        <WeekdayAveragesCard records={model.rangeRecords} theme={theme} />
+        <DurationHistogramCard records={model.rangeRecords} theme={theme} />
 
         <FooterTiles model={model} theme={theme} />
       </ScrollView>
@@ -478,6 +498,19 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textTransform: 'capitalize',
   },
+  timelineBar: {
+    borderCurve: 'continuous',
+    borderRadius: 999,
+    height: 10,
+    position: 'absolute',
+    top: 0,
+  },
+  timelineHeaderRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: Spacing.two,
+    justifyContent: 'space-between',
+  },
   timelineList: {
     gap: Spacing.two,
   },
@@ -486,6 +519,13 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     padding: Spacing.three,
+  },
+  timelineTrack: {
+    borderCurve: 'continuous',
+    borderRadius: 999,
+    height: 10,
+    marginTop: Spacing.three,
+    overflow: 'hidden',
   },
   timelineValue: {
     fontSize: 14,

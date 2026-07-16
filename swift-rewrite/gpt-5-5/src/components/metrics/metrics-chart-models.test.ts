@@ -3,8 +3,11 @@ import type { SleepNightRecord } from '@/domain/metrics/core';
 
 import {
   buildDurationMomentumModel,
+  buildDurationHistogramModel,
   buildRollingComponentsModel,
   buildRollingConsistencyModel,
+  buildSleepDebtModel,
+  buildWeekdayAveragesModel,
 } from './metrics-chart-models';
 
 const settings: SleepSettings = {
@@ -58,5 +61,13 @@ describe('metrics chart models', () => {
     expect(buildRollingComponentsModel(records, settings, 'bedtime').series).toEqual(['sleepConsistency']);
     expect(buildRollingComponentsModel(records, settings, 'wake').series).toEqual(['wakeConsistency']);
     expect(buildRollingComponentsModel(records, settings, 'accuracy').series).toEqual(['scheduleAccuracy']);
+  });
+
+  it('builds recovery and behavior chart models', () => {
+    const records = [record(0, 7), record(1, 9), record(2, 10)];
+
+    expect(buildSleepDebtModel(records, settings).latest?.cumulativeHours).toBe(-1);
+    expect(buildWeekdayAveragesModel(records).points.filter((point) => point.nights > 0)).toHaveLength(3);
+    expect(buildDurationHistogramModel(records).points.reduce((sum, point) => sum + point.count, 0)).toBe(3);
   });
 });
