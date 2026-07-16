@@ -1,0 +1,182 @@
+{
+  "sessions": [
+    {
+      "id": "fx-57",
+      "tag": "Sleep Mode",
+      "startTime": 1735969320000,
+      "endTime": 1736001060000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-58",
+      "tag": "Sleep Mode",
+      "startTime": 1736055240000,
+      "endTime": 1736088360000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-59",
+      "tag": "Sleep Mode",
+      "startTime": 1736141880000,
+      "endTime": 1736169660000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-60",
+      "tag": "Sleep Mode",
+      "startTime": 1736232780000,
+      "endTime": 1736256480000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-61",
+      "tag": "Sleep Mode",
+      "startTime": 1736317020000,
+      "endTime": 1736348280000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-62",
+      "tag": "Sleep Mode",
+      "startTime": 1736400780000,
+      "endTime": 1736429280000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-63",
+      "tag": "Sleep Mode",
+      "startTime": 1736489520000,
+      "endTime": 1736516040000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-64",
+      "tag": "Sleep Mode",
+      "startTime": 1736601720000,
+      "endTime": 1736634480000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-65",
+      "tag": "Sleep Mode",
+      "startTime": 1736687580000,
+      "endTime": 1736722200000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-66",
+      "tag": "Sleep Mode",
+      "startTime": 1736779320000,
+      "endTime": 1736804400000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-67",
+      "tag": "Sleep Mode",
+      "startTime": 1736866200000,
+      "endTime": 1736888940000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-68",
+      "tag": "Sleep Mode",
+      "startTime": 1736949420000,
+      "endTime": 1736981820000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-69",
+      "tag": "Sleep Mode",
+      "startTime": 1737036600000,
+      "endTime": 1737062160000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-70",
+      "tag": "Sleep Mode",
+      "startTime": 1737122940000,
+      "endTime": 1737147840000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-71",
+      "tag": "Sleep Mode",
+      "startTime": 1737330000000,
+      "endTime": 1737354060000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-72",
+      "tag": "Sleep Mode",
+      "startTime": 1737413160000,
+      "endTime": 1737439320000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-73",
+      "tag": "Sleep Mode",
+      "startTime": 1737498600000,
+      "endTime": 1737526380000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-74",
+      "tag": "Sleep Mode",
+      "startTime": 1737586020000,
+      "endTime": 1737613560000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-75",
+      "tag": "Sleep Mode",
+      "startTime": 1737670680000,
+      "endTime": 1737700080000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-76",
+      "tag": "Sleep Mode",
+      "startTime": 1737757440000,
+      "endTime": 1737791700000,
+      "startTz": "Europe/London",
+      "endTz": "Europe/London"
+    },
+    {
+      "id": "fx-77",
+      "tag": "Sleep Mode",
+      "startTime": 1736487000000,
+      "endTime": 1736547000000,
+      "startTz": "America/Denver",
+      "endTz": "Asia/Tokyo"
+    },
+    {
+      "id": "fx-78",
+      "tag": "Sleep Mode",
+      "startTime": 1737123300000,
+      "endTime": 1737182700000,
+      "startTz": "Asia/Tokyo",
+      "endTz": "Europe/London"
+    }
+  ],
+  "optimalSleepMinutes": 1350,
+  "optimalWakeMinutes": 405
+}

@@ -1,6 +1,7 @@
 // ports: Utils/SleepMetricsAnalyzer.swift, function for function
 // pure ts - no react or expo imports. all Int() casts are Math.trunc to keep
 // integer semantics identical to swift.
+import { epochFromDayMinutes } from '../editor';
 import type { CalendarDay, SleepSession } from '../models';
 import {
   addDays,
@@ -95,23 +96,28 @@ const BUCKET_LABELS = ['<5h', '5-5.5h', '5.5-6h', '6-6.5h', '6.5-7h', '7-7.5h', 
 const MINIMUM_INCLUDED_COMPONENT_SCORE = 0.01;
 
 // canonical sessions: valid + completed, one per wake day (longest wins),
-// sorted by wake day ascending
+// sorted ascending. faithfully to swift, the grouping key is the sleepDate
+// INSTANT (startOfDay of the end time in the session's own end timezone), so
+// two same-calendar-day nights in different timezones both survive - exactly
+// like the original's dictionary keyed by Date.
+function sleepDateInstant(session: SleepSession): number {
+  return epochFromDayMinutes(wakeDay(session), 0, resolveEndTimeZone(session));
+}
+
 function canonicalSessions(sessions: readonly SleepSession[]): SleepSession[] {
   const valid = sessions
     .filter((s) => s.endTime != null && isValidSession(s))
     .sort((a, b) => a.startTime - b.startTime);
 
-  const best = new Map<string, SleepSession>();
+  const best = new Map<number, SleepSession>();
   for (const session of valid) {
-    const key = dayKey(wakeDay(session));
+    const key = sleepDateInstant(session);
     const existing = best.get(key);
     if (!existing || sessionDurationSeconds(session) > sessionDurationSeconds(existing)) {
       best.set(key, session);
     }
   }
-  return [...best.values()].sort((a, b) =>
-    dayKey(wakeDay(a)) < dayKey(wakeDay(b)) ? -1 : 1
-  );
+  return [...best.values()].sort((a, b) => sleepDateInstant(a) - sleepDateInstant(b));
 }
 
 export function buildNightRecords(sessions: readonly SleepSession[]): SleepNightRecord[] {

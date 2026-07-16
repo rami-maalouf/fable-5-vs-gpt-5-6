@@ -1,0 +1,544 @@
+{
+  "averageDuration" : 8.0955555555555581,
+  "cumulativeDebtHours" : 1.4333333333333327,
+  "cumulativeDebtSeries" : [
+    {
+      "cumulativeHours" : 0.40000000000000036,
+      "date" : "2025-01-06"
+    },
+    {
+      "cumulativeHours" : 0.40000000000000036,
+      "date" : "2025-01-07"
+    },
+    {
+      "cumulativeHours" : 0.23333333333333339,
+      "date" : "2025-01-08"
+    },
+    {
+      "cumulativeHours" : 0.79999999999999982,
+      "date" : "2025-01-09"
+    },
+    {
+      "cumulativeHours" : 1.0333333333333323,
+      "date" : "2025-01-10"
+    },
+    {
+      "cumulativeHours" : 0.91666666666666607,
+      "date" : "2025-01-11"
+    },
+    {
+      "cumulativeHours" : 0.74999999999999911,
+      "date" : "2025-01-12"
+    },
+    {
+      "cumulativeHours" : 1.4166666666666652,
+      "date" : "2025-01-13"
+    },
+    {
+      "cumulativeHours" : 1.5666666666666655,
+      "date" : "2025-01-14"
+    },
+    {
+      "cumulativeHours" : 1.7333333333333316,
+      "date" : "2025-01-15"
+    },
+    {
+      "cumulativeHours" : 1.2499999999999982,
+      "date" : "2025-01-16"
+    },
+    {
+      "cumulativeHours" : 1.1666666666666652,
+      "date" : "2025-01-17"
+    },
+    {
+      "cumulativeHours" : 1.133333333333332,
+      "date" : "2025-01-18"
+    },
+    {
+      "cumulativeHours" : 1.2499999999999991,
+      "date" : "2025-01-19"
+    },
+    {
+      "cumulativeHours" : 1.4333333333333327,
+      "date" : "2025-01-20"
+    }
+  ],
+  "durationBuckets" : [
+    {
+      "count" : 0,
+      "label" : "<5h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "5-5.5h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "5.5-6h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "6-6.5h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "6.5-7h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "7-7.5h",
+      "share" : 0
+    },
+    {
+      "count" : 6,
+      "label" : "7.5-8h",
+      "share" : 0.40000000000000002
+    },
+    {
+      "count" : 9,
+      "label" : "8h+",
+      "share" : 0.59999999999999998
+    }
+  ],
+  "durationTrendPercent" : -1.7538731365098079,
+  "durationTrendsAnalysis" : [
+    {
+      "averageDuration" : 8.0888888888888903,
+      "changePercent" : 2.8248587570621595,
+      "days" : 3,
+      "previousAverageDuration" : 7.8666666666666671,
+      "sparkline" : [
+        7.9666666666666668,
+        8.1166666666666671,
+        8.1833333333333336
+      ]
+    },
+    {
+      "averageDuration" : 8.0023809523809515,
+      "changePercent" : -1.7538731365098079,
+      "days" : 7,
+      "previousAverageDuration" : 8.1452380952380956,
+      "sparkline" : [
+        8.1500000000000004,
+        8.1666666666666661,
+        7.5166666666666666,
+        7.916666666666667,
+        7.9666666666666668,
+        8.1166666666666671,
+        8.1833333333333336
+      ]
+    },
+    {
+      "averageDuration" : 8.0738095238095262,
+      "changePercent" : -3.8832199546485016,
+      "days" : 14,
+      "previousAverageDuration" : 8.4000000000000004,
+      "sparkline" : [
+        8,
+        7.833333333333333,
+        8.5666666666666664,
+        8.2333333333333325,
+        7.8833333333333337,
+        7.833333333333333,
+        8.6666666666666661,
+        8.1500000000000004,
+        8.1666666666666661,
+        7.5166666666666666,
+        7.916666666666667,
+        7.9666666666666668,
+        8.1166666666666671,
+        8.1833333333333336
+      ]
+    },
+    {
+      "averageDuration" : 8.0955555555555581,
+      "changePercent" : null,
+      "days" : 30,
+      "previousAverageDuration" : null,
+      "sparkline" : [
+        8.1071428571428577,
+        8.1452380952380956,
+        8.1666666666666679,
+        8.2142857142857153,
+        8.0642857142857167,
+        8.0190476190476225,
+        8.0309523809523835,
+        8.0714285714285747,
+        8.002380952380955
+      ]
+    },
+    {
+      "averageDuration" : 8.0955555555555581,
+      "changePercent" : null,
+      "days" : 90,
+      "previousAverageDuration" : null,
+      "sparkline" : [
+        8.1071428571428577,
+        8.1452380952380956,
+        8.1666666666666679,
+        8.2142857142857153,
+        8.0642857142857167,
+        8.0190476190476225,
+        8.0309523809523835,
+        8.0714285714285747,
+        8.002380952380955
+      ]
+    }
+  ],
+  "goalHitRate" : 100,
+  "longestNight" : 8.6666666666666661,
+  "medianDuration" : 8.1166666666666671,
+  "movingAverageSeries" : [
+    {
+      "date" : "2025-01-06",
+      "durationHours" : 8.4000000000000004,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-07",
+      "durationHours" : 8,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-08",
+      "durationHours" : 7.833333333333333,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-09",
+      "durationHours" : 8.5666666666666664,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-10",
+      "durationHours" : 8.2333333333333325,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-11",
+      "durationHours" : 7.8833333333333337,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-01-12",
+      "durationHours" : 7.833333333333333,
+      "movingAverageHours" : 8.1071428571428577
+    },
+    {
+      "date" : "2025-01-13",
+      "durationHours" : 8.6666666666666661,
+      "movingAverageHours" : 8.1452380952380956
+    },
+    {
+      "date" : "2025-01-14",
+      "durationHours" : 8.1500000000000004,
+      "movingAverageHours" : 8.1666666666666679
+    },
+    {
+      "date" : "2025-01-15",
+      "durationHours" : 8.1666666666666661,
+      "movingAverageHours" : 8.2142857142857153
+    },
+    {
+      "date" : "2025-01-16",
+      "durationHours" : 7.5166666666666666,
+      "movingAverageHours" : 8.0642857142857167
+    },
+    {
+      "date" : "2025-01-17",
+      "durationHours" : 7.916666666666667,
+      "movingAverageHours" : 8.0190476190476225
+    },
+    {
+      "date" : "2025-01-18",
+      "durationHours" : 7.9666666666666668,
+      "movingAverageHours" : 8.0309523809523835
+    },
+    {
+      "date" : "2025-01-19",
+      "durationHours" : 8.1166666666666671,
+      "movingAverageHours" : 8.0714285714285747
+    },
+    {
+      "date" : "2025-01-20",
+      "durationHours" : 8.1833333333333336,
+      "movingAverageHours" : 8.002380952380955
+    }
+  ],
+  "records" : [
+    {
+      "bedtimeOffset" : 5.283333333333335,
+      "date" : "2025-01-06",
+      "durationHours" : 8.4000000000000004,
+      "midpointOffset" : 9.4833333333333343,
+      "wakeOffset" : 13.683333333333334,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 5.466666666666665,
+      "date" : "2025-01-07",
+      "durationHours" : 8,
+      "midpointOffset" : 9.466666666666665,
+      "wakeOffset" : 13.466666666666669,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 5.5166666666666657,
+      "date" : "2025-01-08",
+      "durationHours" : 7.833333333333333,
+      "midpointOffset" : 9.4333333333333318,
+      "wakeOffset" : 13.350000000000001,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 5.0166666666666657,
+      "date" : "2025-01-09",
+      "durationHours" : 8.5666666666666664,
+      "midpointOffset" : 9.2999999999999989,
+      "wakeOffset" : 13.583333333333332,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 5.0666666666666664,
+      "date" : "2025-01-10",
+      "durationHours" : 8.2333333333333325,
+      "midpointOffset" : 9.1833333333333336,
+      "wakeOffset" : 13.300000000000001,
+      "weekday" : 6
+    },
+    {
+      "bedtimeOffset" : 5.3000000000000007,
+      "date" : "2025-01-11",
+      "durationHours" : 7.8833333333333337,
+      "midpointOffset" : 9.2416666666666671,
+      "wakeOffset" : 13.183333333333334,
+      "weekday" : 7
+    },
+    {
+      "bedtimeOffset" : 5.6000000000000014,
+      "date" : "2025-01-12",
+      "durationHours" : 7.833333333333333,
+      "midpointOffset" : 9.5166666666666675,
+      "wakeOffset" : 13.433333333333334,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 5,
+      "date" : "2025-01-13",
+      "durationHours" : 8.6666666666666661,
+      "midpointOffset" : 9.3333333333333321,
+      "wakeOffset" : 13.666666666666668,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 5.533333333333335,
+      "date" : "2025-01-14",
+      "durationHours" : 8.1500000000000004,
+      "midpointOffset" : 9.6083333333333343,
+      "wakeOffset" : 13.683333333333334,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 5.1499999999999986,
+      "date" : "2025-01-15",
+      "durationHours" : 8.1666666666666661,
+      "midpointOffset" : 9.2333333333333307,
+      "wakeOffset" : 13.316666666666666,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 5.5666666666666664,
+      "date" : "2025-01-16",
+      "durationHours" : 7.5166666666666666,
+      "midpointOffset" : 9.3249999999999993,
+      "wakeOffset" : 13.083333333333332,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 5.466666666666665,
+      "date" : "2025-01-17",
+      "durationHours" : 7.916666666666667,
+      "midpointOffset" : 9.4249999999999989,
+      "wakeOffset" : 13.383333333333333,
+      "weekday" : 6
+    },
+    {
+      "bedtimeOffset" : 5.5500000000000007,
+      "date" : "2025-01-18",
+      "durationHours" : 7.9666666666666668,
+      "midpointOffset" : 9.533333333333335,
+      "wakeOffset" : 13.516666666666666,
+      "weekday" : 7
+    },
+    {
+      "bedtimeOffset" : 5.2666666666666657,
+      "date" : "2025-01-19",
+      "durationHours" : 8.1166666666666671,
+      "midpointOffset" : 9.3249999999999993,
+      "wakeOffset" : 13.383333333333333,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 5.3000000000000007,
+      "date" : "2025-01-20",
+      "durationHours" : 8.1833333333333336,
+      "midpointOffset" : 9.3916666666666675,
+      "wakeOffset" : 13.483333333333334,
+      "weekday" : 2
+    }
+  ],
+  "regularityScore" : 93,
+  "rollingConsistencySeries" : [
+    {
+      "date" : "2025-01-06",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-07",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-08",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-09",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-10",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-11",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-12",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-13",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-14",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-15",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-16",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-17",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-18",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-01-19",
+      "scheduleAccuracy" : 0,
+      "sleepConsistency" : 92,
+      "wakeConsistency" : 93
+    },
+    {
+      "date" : "2025-01-20",
+      "scheduleAccuracy" : 0,
+      "sleepConsistency" : 92,
+      "wakeConsistency" : 94
+    }
+  ],
+  "scheduleAccuracyScore" : 0,
+  "shortestNight" : 7.5166666666666666,
+  "sleepAlignmentSeries" : [
+
+  ],
+  "sleepConsistencyScore" : 92,
+  "socialJetlagHours" : 0.023863636363637752,
+  "targetDurationHours" : 8,
+  "targetSleepOffset" : null,
+  "targetWakeOffset" : null,
+  "totalSleepHours" : 121.43333333333337,
+  "wakeConsistencyScore" : 94,
+  "weekdayAverages" : [
+    {
+      "averageHours" : 7.9749999999999996,
+      "dayName" : "Sun",
+      "nights" : 2,
+      "weekday" : 1
+    },
+    {
+      "averageHours" : 8.4166666666666661,
+      "dayName" : "Mon",
+      "nights" : 3,
+      "weekday" : 2
+    },
+    {
+      "averageHours" : 8.0749999999999993,
+      "dayName" : "Tue",
+      "nights" : 2,
+      "weekday" : 3
+    },
+    {
+      "averageHours" : 8,
+      "dayName" : "Wed",
+      "nights" : 2,
+      "weekday" : 4
+    },
+    {
+      "averageHours" : 8.0416666666666661,
+      "dayName" : "Thu",
+      "nights" : 2,
+      "weekday" : 5
+    },
+    {
+      "averageHours" : 8.0749999999999993,
+      "dayName" : "Fri",
+      "nights" : 2,
+      "weekday" : 6
+    },
+    {
+      "averageHours" : 7.9250000000000007,
+      "dayName" : "Sat",
+      "nights" : 2,
+      "weekday" : 7
+    }
+  ]
+}

@@ -1,0 +1,1086 @@
+{
+  "averageDuration" : 8.2456790123456791,
+  "cumulativeDebtHours" : 6.6333333333333346,
+  "cumulativeDebtSeries" : [
+    {
+      "cumulativeHours" : 0.71666666666666679,
+      "date" : "2025-02-02"
+    },
+    {
+      "cumulativeHours" : 0.75,
+      "date" : "2025-02-03"
+    },
+    {
+      "cumulativeHours" : 2.3666666666666671,
+      "date" : "2025-02-04"
+    },
+    {
+      "cumulativeHours" : 3.0999999999999996,
+      "date" : "2025-02-05"
+    },
+    {
+      "cumulativeHours" : 2.8833333333333329,
+      "date" : "2025-02-06"
+    },
+    {
+      "cumulativeHours" : 1.9333333333333327,
+      "date" : "2025-02-07"
+    },
+    {
+      "cumulativeHours" : -0.033333333333334103,
+      "date" : "2025-02-08"
+    },
+    {
+      "cumulativeHours" : 1.2999999999999998,
+      "date" : "2025-02-09"
+    },
+    {
+      "cumulativeHours" : 0.64999999999999947,
+      "date" : "2025-02-10"
+    },
+    {
+      "cumulativeHours" : 0.84999999999999876,
+      "date" : "2025-02-11"
+    },
+    {
+      "cumulativeHours" : 1.1166666666666663,
+      "date" : "2025-02-12"
+    },
+    {
+      "cumulativeHours" : 0.9666666666666659,
+      "date" : "2025-02-13"
+    },
+    {
+      "cumulativeHours" : 0.41666666666666607,
+      "date" : "2025-02-14"
+    },
+    {
+      "cumulativeHours" : 1.6999999999999993,
+      "date" : "2025-02-15"
+    },
+    {
+      "cumulativeHours" : 3.6666666666666661,
+      "date" : "2025-02-16"
+    },
+    {
+      "cumulativeHours" : 4.4666666666666668,
+      "date" : "2025-02-17"
+    },
+    {
+      "cumulativeHours" : 4.25,
+      "date" : "2025-02-18"
+    },
+    {
+      "cumulativeHours" : 3.6500000000000004,
+      "date" : "2025-02-19"
+    },
+    {
+      "cumulativeHours" : 2.6000000000000005,
+      "date" : "2025-02-20"
+    },
+    {
+      "cumulativeHours" : 1.8500000000000005,
+      "date" : "2025-02-21"
+    },
+    {
+      "cumulativeHours" : 3.3500000000000005,
+      "date" : "2025-02-22"
+    },
+    {
+      "cumulativeHours" : 2.3833333333333337,
+      "date" : "2025-02-23"
+    },
+    {
+      "cumulativeHours" : 4.6500000000000012,
+      "date" : "2025-02-24"
+    },
+    {
+      "cumulativeHours" : 4.6833333333333345,
+      "date" : "2025-02-25"
+    },
+    {
+      "cumulativeHours" : 3.6333333333333346,
+      "date" : "2025-02-26"
+    },
+    {
+      "cumulativeHours" : 4.0500000000000007,
+      "date" : "2025-02-27"
+    },
+    {
+      "cumulativeHours" : 6.6333333333333346,
+      "date" : "2025-02-28"
+    }
+  ],
+  "durationBuckets" : [
+    {
+      "count" : 0,
+      "label" : "<5h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "5-5.5h",
+      "share" : 0
+    },
+    {
+      "count" : 0,
+      "label" : "5.5-6h",
+      "share" : 0
+    },
+    {
+      "count" : 1,
+      "label" : "6-6.5h",
+      "share" : 0.037037037037037035
+    },
+    {
+      "count" : 2,
+      "label" : "6.5-7h",
+      "share" : 0.07407407407407407
+    },
+    {
+      "count" : 6,
+      "label" : "7-7.5h",
+      "share" : 0.22222222222222221
+    },
+    {
+      "count" : 3,
+      "label" : "7.5-8h",
+      "share" : 0.1111111111111111
+    },
+    {
+      "count" : 15,
+      "label" : "8h+",
+      "share" : 0.55555555555555558
+    }
+  ],
+  "durationTrendPercent" : 5.8328496807893098,
+  "durationTrendsAnalysis" : [
+    {
+      "averageDuration" : 8.6500000000000004,
+      "changePercent" : 2.4342105263157912,
+      "days" : 3,
+      "previousAverageDuration" : 8.4444444444444446,
+      "sparkline" : [
+        6.9500000000000002,
+        8.4166666666666661,
+        10.583333333333334
+      ]
+    },
+    {
+      "averageDuration" : 8.6833333333333336,
+      "changePercent" : 5.8328496807893098,
+      "days" : 7,
+      "previousAverageDuration" : 8.2047619047619058,
+      "sparkline" : [
+        9.5,
+        7.0333333333333332,
+        10.266666666666667,
+        8.0333333333333332,
+        6.9500000000000002,
+        8.4166666666666661,
+        10.583333333333334
+      ]
+    },
+    {
+      "averageDuration" : 8.4440476190476197,
+      "changePercent" : 5.129403716794001,
+      "days" : 14,
+      "previousAverageDuration" : 8.032051282051281,
+      "sparkline" : [
+        9.2833333333333332,
+        9.9666666666666668,
+        8.8000000000000007,
+        7.7833333333333332,
+        7.4000000000000004,
+        6.9500000000000002,
+        7.25,
+        9.5,
+        7.0333333333333332,
+        10.266666666666667,
+        8.0333333333333332,
+        6.9500000000000002,
+        8.4166666666666661,
+        10.583333333333334
+      ]
+    },
+    {
+      "averageDuration" : 8.2456790123456791,
+      "changePercent" : null,
+      "days" : 30,
+      "previousAverageDuration" : null,
+      "sparkline" : [
+        7.9952380952380944,
+        8.0833333333333321,
+        7.9857142857142858,
+        7.7833333333333323,
+        7.7166666666666659,
+        7.7261904761904754,
+        7.7833333333333332,
+        8.2476190476190485,
+        8.3380952380952387,
+        8.545238095238096,
+        8.4857142857142858,
+        8.3619047619047642,
+        8.2333333333333361,
+        8.2047619047619076,
+        8.2357142857142893,
+        7.8166666666666691,
+        8.0261904761904788,
+        8.0619047619047652,
+        7.9976190476190512,
+        8.2071428571428591,
+        8.6833333333333353
+      ]
+    },
+    {
+      "averageDuration" : 8.2456790123456791,
+      "changePercent" : null,
+      "days" : 90,
+      "previousAverageDuration" : null,
+      "sparkline" : [
+        7.9952380952380944,
+        8.0833333333333321,
+        7.9857142857142858,
+        7.7833333333333323,
+        7.7166666666666659,
+        7.7261904761904754,
+        7.7833333333333332,
+        8.2476190476190485,
+        8.3380952380952387,
+        8.545238095238096,
+        8.4857142857142858,
+        8.3619047619047642,
+        8.2333333333333361,
+        8.2047619047619076,
+        8.2357142857142893,
+        7.8166666666666691,
+        8.0261904761904788,
+        8.0619047619047652,
+        7.9976190476190512,
+        8.2071428571428591,
+        8.6833333333333353
+      ]
+    }
+  ],
+  "goalHitRate" : 52,
+  "longestNight" : 10.583333333333334,
+  "medianDuration" : 8.0333333333333332,
+  "movingAverageSeries" : [
+    {
+      "date" : "2025-02-02",
+      "durationHours" : 8.7166666666666668,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-03",
+      "durationHours" : 8.0333333333333332,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-04",
+      "durationHours" : 9.6166666666666671,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-05",
+      "durationHours" : 8.7333333333333325,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-06",
+      "durationHours" : 7.7833333333333332,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-07",
+      "durationHours" : 7.0499999999999998,
+      "movingAverageHours" : null
+    },
+    {
+      "date" : "2025-02-08",
+      "durationHours" : 6.0333333333333332,
+      "movingAverageHours" : 7.9952380952380944
+    },
+    {
+      "date" : "2025-02-09",
+      "durationHours" : 9.3333333333333339,
+      "movingAverageHours" : 8.0833333333333321
+    },
+    {
+      "date" : "2025-02-10",
+      "durationHours" : 7.3499999999999996,
+      "movingAverageHours" : 7.9857142857142858
+    },
+    {
+      "date" : "2025-02-11",
+      "durationHours" : 8.1999999999999993,
+      "movingAverageHours" : 7.7833333333333323
+    },
+    {
+      "date" : "2025-02-12",
+      "durationHours" : 8.2666666666666675,
+      "movingAverageHours" : 7.7166666666666659
+    },
+    {
+      "date" : "2025-02-13",
+      "durationHours" : 7.8499999999999996,
+      "movingAverageHours" : 7.7261904761904754
+    },
+    {
+      "date" : "2025-02-14",
+      "durationHours" : 7.4500000000000002,
+      "movingAverageHours" : 7.7833333333333332
+    },
+    {
+      "date" : "2025-02-15",
+      "durationHours" : 9.2833333333333332,
+      "movingAverageHours" : 8.2476190476190485
+    },
+    {
+      "date" : "2025-02-16",
+      "durationHours" : 9.9666666666666668,
+      "movingAverageHours" : 8.3380952380952387
+    },
+    {
+      "date" : "2025-02-17",
+      "durationHours" : 8.8000000000000007,
+      "movingAverageHours" : 8.545238095238096
+    },
+    {
+      "date" : "2025-02-18",
+      "durationHours" : 7.7833333333333332,
+      "movingAverageHours" : 8.4857142857142858
+    },
+    {
+      "date" : "2025-02-19",
+      "durationHours" : 7.4000000000000004,
+      "movingAverageHours" : 8.3619047619047642
+    },
+    {
+      "date" : "2025-02-20",
+      "durationHours" : 6.9500000000000002,
+      "movingAverageHours" : 8.2333333333333361
+    },
+    {
+      "date" : "2025-02-21",
+      "durationHours" : 7.25,
+      "movingAverageHours" : 8.2047619047619076
+    },
+    {
+      "date" : "2025-02-22",
+      "durationHours" : 9.5,
+      "movingAverageHours" : 8.2357142857142893
+    },
+    {
+      "date" : "2025-02-23",
+      "durationHours" : 7.0333333333333332,
+      "movingAverageHours" : 7.8166666666666691
+    },
+    {
+      "date" : "2025-02-24",
+      "durationHours" : 10.266666666666667,
+      "movingAverageHours" : 8.0261904761904788
+    },
+    {
+      "date" : "2025-02-25",
+      "durationHours" : 8.0333333333333332,
+      "movingAverageHours" : 8.0619047619047652
+    },
+    {
+      "date" : "2025-02-26",
+      "durationHours" : 6.9500000000000002,
+      "movingAverageHours" : 7.9976190476190512
+    },
+    {
+      "date" : "2025-02-27",
+      "durationHours" : 8.4166666666666661,
+      "movingAverageHours" : 8.2071428571428591
+    },
+    {
+      "date" : "2025-02-28",
+      "durationHours" : 10.583333333333334,
+      "movingAverageHours" : 8.6833333333333353
+    }
+  ],
+  "records" : [
+    {
+      "bedtimeOffset" : 7.7833333333333314,
+      "date" : "2025-02-02",
+      "durationHours" : 8.7166666666666668,
+      "midpointOffset" : 12.141666666666666,
+      "wakeOffset" : 16.5,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 7.3166666666666664,
+      "date" : "2025-02-03",
+      "durationHours" : 8.0333333333333332,
+      "midpointOffset" : 11.333333333333332,
+      "wakeOffset" : 15.350000000000001,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 7.0166666666666657,
+      "date" : "2025-02-04",
+      "durationHours" : 9.6166666666666671,
+      "midpointOffset" : 11.824999999999999,
+      "wakeOffset" : 16.633333333333333,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 8.0166666666666657,
+      "date" : "2025-02-05",
+      "durationHours" : 8.7333333333333325,
+      "midpointOffset" : 12.383333333333333,
+      "wakeOffset" : 16.75,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 7.6666666666666679,
+      "date" : "2025-02-06",
+      "durationHours" : 7.7833333333333332,
+      "midpointOffset" : 11.558333333333334,
+      "wakeOffset" : 15.450000000000003,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 8.1166666666666671,
+      "date" : "2025-02-07",
+      "durationHours" : 7.0499999999999998,
+      "midpointOffset" : 11.641666666666667,
+      "wakeOffset" : 15.166666666666664,
+      "weekday" : 6
+    },
+    {
+      "bedtimeOffset" : 9.3333333333333321,
+      "date" : "2025-02-08",
+      "durationHours" : 6.0333333333333332,
+      "midpointOffset" : 12.349999999999998,
+      "wakeOffset" : 15.366666666666667,
+      "weekday" : 7
+    },
+    {
+      "bedtimeOffset" : 7.3166666666666664,
+      "date" : "2025-02-09",
+      "durationHours" : 9.3333333333333339,
+      "midpointOffset" : 11.983333333333334,
+      "wakeOffset" : 16.649999999999999,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 8.6000000000000014,
+      "date" : "2025-02-10",
+      "durationHours" : 7.3499999999999996,
+      "midpointOffset" : 12.275000000000002,
+      "wakeOffset" : 15.950000000000003,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 8.7333333333333343,
+      "date" : "2025-02-11",
+      "durationHours" : 8.1999999999999993,
+      "midpointOffset" : 12.833333333333334,
+      "wakeOffset" : 16.933333333333337,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 7.3000000000000007,
+      "date" : "2025-02-12",
+      "durationHours" : 8.2666666666666675,
+      "midpointOffset" : 11.433333333333334,
+      "wakeOffset" : 15.566666666666663,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 8.9666666666666686,
+      "date" : "2025-02-13",
+      "durationHours" : 7.8499999999999996,
+      "midpointOffset" : 12.891666666666669,
+      "wakeOffset" : 16.816666666666663,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 8.8166666666666664,
+      "date" : "2025-02-14",
+      "durationHours" : 7.4500000000000002,
+      "midpointOffset" : 12.541666666666666,
+      "wakeOffset" : 16.266666666666666,
+      "weekday" : 6
+    },
+    {
+      "bedtimeOffset" : 7.1166666666666671,
+      "date" : "2025-02-15",
+      "durationHours" : 9.2833333333333332,
+      "midpointOffset" : 11.758333333333333,
+      "wakeOffset" : 16.399999999999999,
+      "weekday" : 7
+    },
+    {
+      "bedtimeOffset" : 7.1000000000000014,
+      "date" : "2025-02-16",
+      "durationHours" : 9.9666666666666668,
+      "midpointOffset" : 12.083333333333336,
+      "wakeOffset" : 17.066666666666663,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 7.0833333333333321,
+      "date" : "2025-02-17",
+      "durationHours" : 8.8000000000000007,
+      "midpointOffset" : 11.483333333333333,
+      "wakeOffset" : 15.883333333333333,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 9.3833333333333329,
+      "date" : "2025-02-18",
+      "durationHours" : 7.7833333333333332,
+      "midpointOffset" : 13.274999999999999,
+      "wakeOffset" : 17.166666666666664,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 7.6499999999999986,
+      "date" : "2025-02-19",
+      "durationHours" : 7.4000000000000004,
+      "midpointOffset" : 11.349999999999998,
+      "wakeOffset" : 15.049999999999997,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 8.5833333333333321,
+      "date" : "2025-02-20",
+      "durationHours" : 6.9500000000000002,
+      "midpointOffset" : 12.058333333333332,
+      "wakeOffset" : 15.533333333333331,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 8.1499999999999986,
+      "date" : "2025-02-21",
+      "durationHours" : 7.25,
+      "midpointOffset" : 11.774999999999999,
+      "wakeOffset" : 15.399999999999999,
+      "weekday" : 6
+    },
+    {
+      "bedtimeOffset" : 7.4666666666666686,
+      "date" : "2025-02-22",
+      "durationHours" : 9.5,
+      "midpointOffset" : 12.216666666666669,
+      "wakeOffset" : 16.966666666666669,
+      "weekday" : 7
+    },
+    {
+      "bedtimeOffset" : 8.5666666666666664,
+      "date" : "2025-02-23",
+      "durationHours" : 7.0333333333333332,
+      "midpointOffset" : 12.083333333333332,
+      "wakeOffset" : 15.600000000000001,
+      "weekday" : 1
+    },
+    {
+      "bedtimeOffset" : 7.1833333333333336,
+      "date" : "2025-02-24",
+      "durationHours" : 10.266666666666667,
+      "midpointOffset" : 12.316666666666666,
+      "wakeOffset" : 17.450000000000003,
+      "weekday" : 2
+    },
+    {
+      "bedtimeOffset" : 7.7166666666666686,
+      "date" : "2025-02-25",
+      "durationHours" : 8.0333333333333332,
+      "midpointOffset" : 11.733333333333334,
+      "wakeOffset" : 15.75,
+      "weekday" : 3
+    },
+    {
+      "bedtimeOffset" : 8.1499999999999986,
+      "date" : "2025-02-26",
+      "durationHours" : 6.9500000000000002,
+      "midpointOffset" : 11.624999999999998,
+      "wakeOffset" : 15.100000000000001,
+      "weekday" : 4
+    },
+    {
+      "bedtimeOffset" : 5.6666666666666679,
+      "date" : "2025-02-27",
+      "durationHours" : 8.4166666666666661,
+      "midpointOffset" : 9.875,
+      "wakeOffset" : 14.083333333333336,
+      "weekday" : 5
+    },
+    {
+      "bedtimeOffset" : 4.9166666666666679,
+      "date" : "2025-02-28",
+      "durationHours" : 10.583333333333334,
+      "midpointOffset" : 10.208333333333336,
+      "wakeOffset" : 15.5,
+      "weekday" : 6
+    }
+  ],
+  "regularityScore" : 64,
+  "rollingConsistencySeries" : [
+    {
+      "date" : "2025-02-02",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-03",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-04",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-05",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-06",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-07",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-08",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-09",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-10",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-11",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-12",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-13",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-14",
+      "scheduleAccuracy" : null,
+      "sleepConsistency" : null,
+      "wakeConsistency" : null
+    },
+    {
+      "date" : "2025-02-15",
+      "scheduleAccuracy" : 79,
+      "sleepConsistency" : 71,
+      "wakeConsistency" : 76
+    },
+    {
+      "date" : "2025-02-16",
+      "scheduleAccuracy" : 78,
+      "sleepConsistency" : 70,
+      "wakeConsistency" : 75
+    },
+    {
+      "date" : "2025-02-17",
+      "scheduleAccuracy" : 78,
+      "sleepConsistency" : 69,
+      "wakeConsistency" : 76
+    },
+    {
+      "date" : "2025-02-18",
+      "scheduleAccuracy" : 76,
+      "sleepConsistency" : 67,
+      "wakeConsistency" : 74
+    },
+    {
+      "date" : "2025-02-19",
+      "scheduleAccuracy" : 77,
+      "sleepConsistency" : 67,
+      "wakeConsistency" : 72
+    },
+    {
+      "date" : "2025-02-20",
+      "scheduleAccuracy" : 76,
+      "sleepConsistency" : 67,
+      "wakeConsistency" : 72
+    },
+    {
+      "date" : "2025-02-21",
+      "scheduleAccuracy" : 76,
+      "sleepConsistency" : 67,
+      "wakeConsistency" : 73
+    },
+    {
+      "date" : "2025-02-22",
+      "scheduleAccuracy" : 77,
+      "sleepConsistency" : 69,
+      "wakeConsistency" : 74
+    },
+    {
+      "date" : "2025-02-23",
+      "scheduleAccuracy" : 77,
+      "sleepConsistency" : 70,
+      "wakeConsistency" : 73
+    },
+    {
+      "date" : "2025-02-24",
+      "scheduleAccuracy" : 76,
+      "sleepConsistency" : 69,
+      "wakeConsistency" : 70
+    },
+    {
+      "date" : "2025-02-25",
+      "scheduleAccuracy" : 78,
+      "sleepConsistency" : 70,
+      "wakeConsistency" : 71
+    },
+    {
+      "date" : "2025-02-26",
+      "scheduleAccuracy" : 78,
+      "sleepConsistency" : 71,
+      "wakeConsistency" : 69
+    },
+    {
+      "date" : "2025-02-27",
+      "scheduleAccuracy" : 77,
+      "sleepConsistency" : 64,
+      "wakeConsistency" : 64
+    },
+    {
+      "date" : "2025-02-28",
+      "scheduleAccuracy" : 77,
+      "sleepConsistency" : 56,
+      "wakeConsistency" : 63
+    }
+  ],
+  "scheduleAccuracyScore" : 78,
+  "shortestNight" : 6.0333333333333332,
+  "sleepAlignmentSeries" : [
+    {
+      "consistencyScore" : 1,
+      "dailyScore" : 88.270526871318168,
+      "date" : "2025-02-02",
+      "durationScore" : 0.87949906511552034,
+      "phaseScore" : 0.91256413270363002,
+      "timingScore" : 0.81458333333333388,
+      "trendScore" : 88.270526871318168
+    },
+    {
+      "consistencyScore" : 0.92476689350825991,
+      "dailyScore" : 97.309853166975074,
+      "date" : "2025-02-03",
+      "durationScore" : 0.99972226079889714,
+      "phaseScore" : 0.9938461733264411,
+      "timingScore" : 0.95374999999999988,
+      "trendScore" : 90.078392130449544
+    },
+    {
+      "consistencyScore" : 0.87913048266271243,
+      "dailyScore" : 71.46029313420236,
+      "date" : "2025-02-04",
+      "durationScore" : 0.52027238992468472,
+      "phaseScore" : 0.97680110765609673,
+      "timingScore" : 0.75749999999999995,
+      "trendScore" : 86.35477233120011
+    },
+    {
+      "consistencyScore" : 0.88730923395358097,
+      "dailyScore" : 82.960305316775489,
+      "date" : "2025-02-05",
+      "durationScore" : 0.87420144427442514,
+      "phaseScore" : 0.84080537919580067,
+      "timingScore" : 0.74791666666666701,
+      "trendScore" : 85.6758789283152
+    },
+    {
+      "consistencyScore" : 0.87167135305250065,
+      "dailyScore" : 96.126489174910887,
+      "date" : "2025-02-06",
+      "durationScore" : 0.97040240359435648,
+      "phaseScore" : 0.99924411298712612,
+      "timingScore" : 0.97291666666666665,
+      "trendScore" : 87.766000977634349
+    },
+    {
+      "consistencyScore" : 0.82837763686188526,
+      "dailyScore" : 76.397586962411509,
+      "date" : "2025-02-07",
+      "durationScore" : 0.56124373644323478,
+      "phaseScore" : 0.99555005393778884,
+      "timingScore" : 0.88125000000000009,
+      "trendScore" : 85.492318174589784
+    },
+    {
+      "consistencyScore" : 0.72963690131091452,
+      "dailyScore" : 35.685806954097437,
+      "date" : "2025-02-08",
+      "durationScore" : 0.084131201354828336,
+      "phaseScore" : 0.85167050722944171,
+      "timingScore" : 0.75416666666666665,
+      "trendScore" : 75.531015930491321
+    },
+    {
+      "consistencyScore" : 0.72641915198845086,
+      "dailyScore" : 75.516006169138663,
+      "date" : "2025-02-09",
+      "durationScore" : 0.64118038842995428,
+      "phaseScore" : 0.94941091115423326,
+      "timingScore" : 0.79999999999999993,
+      "trendScore" : 75.528013978220798
+    },
+    {
+      "consistencyScore" : 0.73860051480632316,
+      "dailyScore" : 79.009024515101672,
+      "date" : "2025-02-10",
+      "durationScore" : 0.76307420360133593,
+      "phaseScore" : 0.87505177563378966,
+      "timingScore" : 0.79499999999999971,
+      "trendScore" : 76.224216085596979
+    },
+    {
+      "consistencyScore" : 0.74391551740679396,
+      "dailyScore" : 76.71287800345506,
+      "date" : "2025-02-11",
+      "durationScore" : 0.99004983374916811,
+      "phaseScore" : 0.67363845534472644,
+      "timingScore" : 0.63083333333333313,
+      "trendScore" : 76.321948469168603
+    },
+    {
+      "consistencyScore" : 0.75651364360803897,
+      "dailyScore" : 94.127347677517193,
+      "date" : "2025-02-12",
+      "durationScore" : 0.98237931461817751,
+      "phaseScore" : 0.99901283324901113,
+      "timingScore" : 0.95999999999999985,
+      "trendScore" : 79.883028310838327
+    },
+    {
+      "consistencyScore" : 0.75785726222770722,
+      "dailyScore" : 75.841812393508448,
+      "date" : "2025-02-13",
+      "durationScore" : 0.98570318412244295,
+      "phaseScore" : 0.65025817511419071,
+      "timingScore" : 0.6191666666666662,
+      "trendScore" : 79.074785127372351
+    },
+    {
+      "consistencyScore" : 0.76520899803932141,
+      "dailyScore" : 77.530102150257136,
+      "date" : "2025-02-14",
+      "durationScore" : 0.82398743333170332,
+      "phaseScore" : 0.78574218975813581,
+      "timingScore" : 0.72041666666666671,
+      "trendScore" : 78.765848531949302
+    },
+    {
+      "consistencyScore" : 0.76038747864898937,
+      "dailyScore" : 77.70066067677925,
+      "date" : "2025-02-15",
+      "durationScore" : 0.66249907913269479,
+      "phaseScore" : 0.98527917958962963,
+      "timingScore" : 0.8075,
+      "trendScore" : 78.552810960915295
+    },
+    {
+      "consistencyScore" : 0.72582006675515309,
+      "dailyScore" : 60.260748829625562,
+      "date" : "2025-02-16",
+      "durationScore" : 0.38024311882946293,
+      "phaseScore" : 0.92717098188123437,
+      "timingScore" : 0.70500000000000007,
+      "trendScore" : 74.894398534657356
+    },
+    {
+      "consistencyScore" : 0.72595394160664073,
+      "dailyScore" : 86.727196761478368,
+      "date" : "2025-02-17",
+      "durationScore" : 0.85214378896621112,
+      "phaseScore" : 0.99993827351009645,
+      "timingScore" : 0.87999999999999989,
+      "trendScore" : 77.260958180021561
+    },
+    {
+      "consistencyScore" : 0.72668608089990638,
+      "dailyScore" : 67.182877648408791,
+      "date" : "2025-02-18",
+      "durationScore" : 0.97040240359435648,
+      "phaseScore" : 0.49651633839970205,
+      "timingScore" : 0.5145833333333335,
+      "trendScore" : 75.245342073699007
+    },
+    {
+      "consistencyScore" : 0.71671307513858651,
+      "dailyScore" : 85.642338512031984,
+      "date" : "2025-02-19",
+      "durationScore" : 0.79421585261654692,
+      "phaseScore" : 0.99501247919268221,
+      "timingScore" : 0.92500000000000004,
+      "trendScore" : 77.324741361365597
+    },
+    {
+      "consistencyScore" : 0.7096975204115592,
+      "dailyScore" : 69.932153242502082,
+      "date" : "2025-02-20",
+      "durationScore" : 0.49381219803334625,
+      "phaseScore" : 0.93307033851398902,
+      "timingScore" : 0.85958333333333359,
+      "trendScore" : 75.846223737592894
+    },
+    {
+      "consistencyScore" : 0.71537862152357468,
+      "dailyScore" : 81.128600215184306,
+      "date" : "2025-02-21",
+      "durationScore" : 0.69767632607103103,
+      "phaseScore" : 0.98333487004934617,
+      "timingScore" : 0.90625,
+      "trendScore" : 76.902699033111176
+    },
+    {
+      "consistencyScore" : 0.74419777676409704,
+      "dailyScore" : 71.142370176119556,
+      "date" : "2025-02-22",
+      "durationScore" : 0.56978282473092301,
+      "phaseScore" : 0.89213679327616968,
+      "timingScore" : 0.77500000000000002,
+      "trendScore" : 75.750633261712863
+    },
+    {
+      "consistencyScore" : 0.7458680463711912,
+      "dailyScore" : 72.863087592707203,
+      "date" : "2025-02-23",
+      "durationScore" : 0.54988591780437157,
+      "phaseScore" : 0.92717098188123526,
+      "timingScore" : 0.85166666666666679,
+      "trendScore" : 75.173124127911734
+    },
+    {
+      "consistencyScore" : 0.70361573522207743,
+      "dailyScore" : 51.862168127855178,
+      "date" : "2025-02-24",
+      "durationScore" : 0.27680432110155606,
+      "phaseScore" : 0.86225012987380945,
+      "timingScore" : 0.65999999999999992,
+      "trendScore" : 70.510932927900427
+    },
+    {
+      "consistencyScore" : 0.70913769003463556,
+      "dailyScore" : 92.857718273672575,
+      "date" : "2025-02-25",
+      "durationScore" : 0.99972226079889714,
+      "phaseScore" : 0.98797413035123383,
+      "timingScore" : 0.93541666666666612,
+      "trendScore" : 74.980289997054854
+    },
+    {
+      "consistencyScore" : 0.69437369447068609,
+      "dailyScore" : 70.852058999287038,
+      "date" : "2025-02-26",
+      "durationScore" : 0.49381219803334625,
+      "phaseScore" : 0.9965337989703692,
+      "timingScore" : 0.8687499999999998,
+      "trendScore" : 74.154643797501294
+    },
+    {
+      "consistencyScore" : 0.6405246328052947,
+      "dailyScore" : 68.39558844884688,
+      "date" : "2025-02-27",
+      "durationScore" : 0.95752564233655335,
+      "phaseScore" : 0.55610088377320877,
+      "timingScore" : 0.54791666666666694,
+      "trendScore" : 73.002832727770425
+    },
+    {
+      "consistencyScore" : 0.5726784353842278,
+      "dailyScore" : 41.116168612543369,
+      "date" : "2025-02-28",
+      "durationScore" : 0.18854797828346251,
+      "phaseScore" : 0.69021221352748074,
+      "timingScore" : 0.61249999999999993,
+      "trendScore" : 66.625499904725018
+    }
+  ],
+  "sleepConsistencyScore" : 61,
+  "socialJetlagHours" : 0.26726190476190403,
+  "targetDurationHours" : 8,
+  "targetSleepOffset" : 7.5,
+  "targetWakeOffset" : 15.5,
+  "totalSleepHours" : 222.63333333333333,
+  "wakeConsistencyScore" : 68,
+  "weekdayAverages" : [
+    {
+      "averageHours" : 8.7624999999999993,
+      "dayName" : "Sun",
+      "nights" : 4,
+      "weekday" : 1
+    },
+    {
+      "averageHours" : 8.6125000000000007,
+      "dayName" : "Mon",
+      "nights" : 4,
+      "weekday" : 2
+    },
+    {
+      "averageHours" : 8.4083333333333332,
+      "dayName" : "Tue",
+      "nights" : 4,
+      "weekday" : 3
+    },
+    {
+      "averageHours" : 7.8374999999999995,
+      "dayName" : "Wed",
+      "nights" : 4,
+      "weekday" : 4
+    },
+    {
+      "averageHours" : 7.75,
+      "dayName" : "Thu",
+      "nights" : 4,
+      "weekday" : 5
+    },
+    {
+      "averageHours" : 8.0833333333333339,
+      "dayName" : "Fri",
+      "nights" : 4,
+      "weekday" : 6
+    },
+    {
+      "averageHours" : 8.2722222222222221,
+      "dayName" : "Sat",
+      "nights" : 3,
+      "weekday" : 7
+    }
+  ]
+}

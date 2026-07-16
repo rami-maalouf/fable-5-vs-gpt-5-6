@@ -1,0 +1,222 @@
+{
+  "sessions": [
+    {
+      "id": "fx-30",
+      "tag": "Sleep Mode",
+      "startTime": 1738486020000,
+      "endTime": 1738517400000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-31",
+      "tag": "Sleep Mode",
+      "startTime": 1738570740000,
+      "endTime": 1738599660000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-32",
+      "tag": "Sleep Mode",
+      "startTime": 1738656060000,
+      "endTime": 1738690680000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-33",
+      "tag": "Sleep Mode",
+      "startTime": 1738746060000,
+      "endTime": 1738777500000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-34",
+      "tag": "Sleep Mode",
+      "startTime": 1738831200000,
+      "endTime": 1738859220000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-35",
+      "tag": "Sleep Mode",
+      "startTime": 1738919220000,
+      "endTime": 1738944600000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-36",
+      "tag": "Sleep Mode",
+      "startTime": 1739010000000,
+      "endTime": 1739031720000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-37",
+      "tag": "Sleep Mode",
+      "startTime": 1739089140000,
+      "endTime": 1739122740000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-38",
+      "tag": "Sleep Mode",
+      "startTime": 1739180160000,
+      "endTime": 1739206620000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-39",
+      "tag": "Sleep Mode",
+      "startTime": 1739267040000,
+      "endTime": 1739296560000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-40",
+      "tag": "Sleep Mode",
+      "startTime": 1739348280000,
+      "endTime": 1739378040000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-41",
+      "tag": "Sleep Mode",
+      "startTime": 1739440680000,
+      "endTime": 1739468940000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-42",
+      "tag": "Sleep Mode",
+      "startTime": 1739526540000,
+      "endTime": 1739553360000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-43",
+      "tag": "Sleep Mode",
+      "startTime": 1739606820000,
+      "endTime": 1739640240000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-44",
+      "tag": "Sleep Mode",
+      "startTime": 1739693160000,
+      "endTime": 1739729040000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-45",
+      "tag": "Sleep Mode",
+      "startTime": 1739779500000,
+      "endTime": 1739811180000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-46",
+      "tag": "Sleep Mode",
+      "startTime": 1739874180000,
+      "endTime": 1739902200000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-47",
+      "tag": "Sleep Mode",
+      "startTime": 1739954340000,
+      "endTime": 1739980980000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-48",
+      "tag": "Sleep Mode",
+      "startTime": 1740044100000,
+      "endTime": 1740069120000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-49",
+      "tag": "Sleep Mode",
+      "startTime": 1740128940000,
+      "endTime": 1740155040000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-50",
+      "tag": "Sleep Mode",
+      "startTime": 1740212880000,
+      "endTime": 1740247080000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-51",
+      "tag": "Sleep Mode",
+      "startTime": 1740303240000,
+      "endTime": 1740328560000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-52",
+      "tag": "Sleep Mode",
+      "startTime": 1740384660000,
+      "endTime": 1740421620000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-53",
+      "tag": "Sleep Mode",
+      "startTime": 1740472980000,
+      "endTime": 1740501900000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-54",
+      "tag": "Sleep Mode",
+      "startTime": 1740560940000,
+      "endTime": 1740585960000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-55",
+      "tag": "Sleep Mode",
+      "startTime": 1740638400000,
+      "endTime": 1740668700000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    },
+    {
+      "id": "fx-56",
+      "tag": "Sleep Mode",
+      "startTime": 1740722100000,
+      "endTime": 1740760200000,
+      "startTz": "America/Denver",
+      "endTz": "America/Denver"
+    }
+  ],
+  "optimalSleepMinutes": 90,
+  "optimalWakeMinutes": 570
+}
