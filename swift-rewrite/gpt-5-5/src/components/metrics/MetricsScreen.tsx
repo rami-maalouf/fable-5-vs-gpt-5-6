@@ -16,6 +16,11 @@ import {
   type MetricsRange,
   type MetricsScreenModel,
 } from './metrics-screen-model';
+import {
+  DurationMomentumCard,
+  RollingComponentsCard,
+  RollingConsistencyCard,
+} from './MetricsCharts';
 
 type LoadState = 'loading' | 'ready' | 'error';
 type SheetMode = 'timeline' | 'explanation' | null;
@@ -145,26 +150,6 @@ function EmptyState({ loading, theme }: { loading: boolean; theme: AppTheme }) {
           ? 'Pulling valid sleep sessions from the local store.'
           : 'Start sleep mode or add a manual log. Metrics will fill in as soon as there is one valid night.'}
       </Text>
-    </CardBackground>
-  );
-}
-
-function ShellSection({
-  body,
-  stat,
-  theme,
-  title,
-}: {
-  body: string;
-  stat: string;
-  theme: AppTheme;
-  title: string;
-}) {
-  return (
-    <CardBackground theme={theme} style={styles.shellCard}>
-      <Text style={[styles.shellTitle, { color: theme.textPrimary }]}>{title}</Text>
-      <Text style={[styles.shellStat, { color: theme.actionPrimary }]}>{stat}</Text>
-      <Text style={[styles.shellBody, { color: theme.textSecondary }]}>{body}</Text>
     </CardBackground>
   );
 }
@@ -316,24 +301,9 @@ export function MetricsScreen() {
         <CardGrid cards={model.highlights} theme={theme} />
 
         <SectionTitle kicker="charts" theme={theme} title="Detailed Trends" />
-        <ShellSection
-          body="Daily bars, the 7-night moving average, and the trends table land in the momentum chart task."
-          stat={`${model.rangeRecords.length} nights`}
-          theme={theme}
-          title="Duration momentum"
-        />
-        <ShellSection
-          body="Rolling consistency and component filters will use the same range model from this shell."
-          stat={model.overviewCards[2]?.value ?? '0'}
-          theme={theme}
-          title="Regularity"
-        />
-        <ShellSection
-          body="Sleep debt, weekday averages, histogram, and the detailed timeline are staged for the next chart pass."
-          stat={model.highlights[2]?.value ?? 'No data'}
-          theme={theme}
-          title="Recovery and behavior"
-        />
+        <DurationMomentumCard records={model.rangeRecords} settings={settings} theme={theme} />
+        <RollingConsistencyCard records={model.rangeRecords} settings={settings} theme={theme} />
+        <RollingComponentsCard records={model.rangeRecords} settings={settings} theme={theme} />
 
         <FooterTiles model={model} theme={theme} />
       </ScrollView>
@@ -501,24 +471,6 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 25,
-    fontWeight: '900',
-  },
-  shellBody: {
-    fontSize: 14,
-    fontWeight: '600',
-    lineHeight: 20,
-    marginTop: Spacing.one,
-  },
-  shellCard: {
-    marginHorizontal: Spacing.two,
-  },
-  shellStat: {
-    fontSize: 28,
-    fontWeight: '900',
-    marginTop: Spacing.two,
-  },
-  shellTitle: {
-    fontSize: 21,
     fontWeight: '900',
   },
   timelineDate: {
