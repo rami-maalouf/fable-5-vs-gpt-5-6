@@ -1,23 +1,43 @@
 import { Tabs } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { useColorScheme } from 'react-native';
 
-import { Colors } from '@/constants/theme';
 import { twilightTabsByRoute } from '@/navigation/twilight-tabs';
+import { themes } from '@/theme';
+
+import { rgba } from './common/color';
 
 export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+  const theme = themes.twilight;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.text,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveBackgroundColor: rgba(theme.accent, 0.14),
+        tabBarActiveTintColor: theme.accent,
+        tabBarInactiveTintColor: theme.textPrimary,
+        tabBarItemStyle: {
+          borderRadius: 34,
+          marginHorizontal: 4,
+          marginVertical: 8,
+          overflow: 'hidden',
+        },
+        tabBarLabelStyle: {
+          fontSize: 13,
+          fontWeight: '600',
+        },
         tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.backgroundElement,
+          backgroundColor: rgba('#061522', 0.9),
+          borderColor: rgba(theme.accent, 0.24),
+          borderRadius: 42,
+          borderTopWidth: 1,
+          bottom: 10,
+          height: 84,
+          left: 24,
+          paddingBottom: 10,
+          paddingTop: 8,
+          position: 'absolute',
+          right: 24,
         },
       }}>
       <Tabs.Screen

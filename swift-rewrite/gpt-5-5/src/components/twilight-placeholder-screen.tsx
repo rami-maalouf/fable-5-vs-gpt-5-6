@@ -1,8 +1,8 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { CardBackground, GlowingMoonView, ScreenChrome } from '@/components/common';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { themes } from '@/theme';
 
 type TwilightPlaceholderScreenProps = {
   eyebrow: string;
@@ -11,30 +11,36 @@ type TwilightPlaceholderScreenProps = {
 };
 
 export function TwilightPlaceholderScreen({ eyebrow, title, body }: TwilightPlaceholderScreenProps) {
+  const theme = themes.twilight;
+
   return (
-    <ThemedView style={styles.container}>
+    <ScreenChrome theme={theme}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.card}>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.eyebrow}>
-            {eyebrow}
-          </ThemedText>
-          <ThemedText type="subtitle" style={styles.title}>
-            {title}
-          </ThemedText>
-          <ThemedText themeColor="textSecondary" style={styles.body}>
-            {body}
-          </ThemedText>
-        </View>
+        <CardBackground theme={theme} recipe="large" style={styles.card}>
+          <View style={styles.heroCard}>
+            <View style={styles.titleBlock}>
+              <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>{eyebrow}</Text>
+              <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
+              <Text style={[styles.body, { color: theme.textSecondary }]}>{body}</Text>
+            </View>
+            <GlowingMoonView size={64} />
+          </View>
+        </CardBackground>
+        <CardBackground theme={theme} style={styles.card}>
+          <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>{eyebrow}</Text>
+          <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>shared chrome ready</Text>
+          <Text style={[styles.body, { color: theme.textSecondary }]}>
+            this tab is rendering through the reusable gradient, starfield, glass card, and accent system.
+          </Text>
+        </CardBackground>
       </ScrollView>
-    </ThemedView>
+    </ScreenChrome>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   content: {
+    gap: Spacing.four,
     flexGrow: 1,
     justifyContent: 'center',
     marginHorizontal: 'auto',
@@ -45,19 +51,38 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   card: {
-    borderRadius: 28,
+    marginHorizontal: Spacing.two,
+  },
+  heroCard: {
+    minHeight: 220,
+    position: 'relative',
+  },
+  titleBlock: {
     gap: Spacing.two,
-    padding: Spacing.four,
+    maxWidth: 280,
+    zIndex: 1,
   },
   eyebrow: {
+    fontSize: 13,
+    fontWeight: '700',
     letterSpacing: 1.4,
     textTransform: 'uppercase',
   },
   title: {
     fontSize: 40,
+    fontWeight: '800',
+    letterSpacing: -1.2,
     lineHeight: 46,
   },
+  cardTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: Spacing.two,
+    textTransform: 'capitalize',
+  },
   body: {
-    maxWidth: 420,
+    fontSize: 17,
+    lineHeight: 24,
+    maxWidth: 280,
   },
 });
