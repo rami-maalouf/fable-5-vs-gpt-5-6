@@ -52,7 +52,7 @@ conventional commit, deviations logged in DEVIATIONS.md.
   - depends: 3. files: src/theme/palettes.ts, src/theme/ThemeProvider.tsx, tests.
     size: S
 
-- [ ] **task 5: screen chrome**
+- [x] **task 5: screen chrome**
   - description: shared visual shell: gradient background, skia StarfieldView (40
     stars, twinkle/shooting-star params per spec), GlowingMoonView (3 glow layers,
     3.0s breathing), CardBackground (radius 24, spotlight blob) and the standard
