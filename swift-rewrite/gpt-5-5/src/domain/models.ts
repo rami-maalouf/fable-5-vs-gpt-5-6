@@ -22,14 +22,16 @@ export type SleepSettings = {
   themePalette: ThemePalette;
   windDownEnabled: boolean;
   liveActivityEnabled: boolean;
+  liveActivityId: string | null;
 };
 
 export const defaultSleepSettings: SleepSettings = {
   isOnboarded: false,
-  optimalSleepMinutes: 23 * 60 + 30,
-  optimalWakeMinutes: 6 * 60 + 30,
-  themeMode: 'system',
+  optimalSleepMinutes: 22 * 60,
+  optimalWakeMinutes: 7 * 60,
+  themeMode: 'dark',
   themePalette: 'twilight',
   windDownEnabled: true,
   liveActivityEnabled: true,
+  liveActivityId: null,
 };
