@@ -166,7 +166,7 @@ by side.
   - verify: `bun run test -- metrics`.
   - depends: 2. files: src/domain/metrics/core.ts, tests. size: M
 
-- [ ] **task 15: metrics advanced**
+- [x] **task 15: metrics advanced**
   - description: dashboard consistency (std-dev, -40pts/hr) + schedule accuracy
     (-30pts/hr), rolling 14-day consistency (bedtime/wake/accuracy), social jetlag
     (weekend vs weekday midpoint), cumulative sleep debt, weekday averages,
