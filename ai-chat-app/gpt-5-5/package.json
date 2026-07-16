@@ -50,7 +50,10 @@
     "test": "jest --passWithNoTests"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
   },
   "private": true
 }

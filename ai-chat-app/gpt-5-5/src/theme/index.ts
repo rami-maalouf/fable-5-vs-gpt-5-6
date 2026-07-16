@@ -1,6 +1,6 @@
 import { DynamicColorIOS, Platform, useColorScheme } from 'react-native';
 
-export const MODEL_OPTIONS = ['gpt-5.6-luna', 'gpt-5.6-sol', 'gpt-5.6-terra'] as const;
+export { CHAT_MODELS as MODEL_OPTIONS, DEFAULT_CHAT_MODEL } from '@/domain/model';
 
 export const spacing = {
   xs: 4,
