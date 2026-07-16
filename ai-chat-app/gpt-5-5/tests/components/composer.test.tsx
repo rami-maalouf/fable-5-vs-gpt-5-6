@@ -2,7 +2,7 @@ import { describe, expect, it, jest } from '@jest/globals';
 import type { ComponentProps } from 'react';
 import { act, create } from 'react-test-renderer';
 import type { ReactTestRenderer } from 'react-test-renderer';
-import { TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
 import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 
@@ -126,5 +126,28 @@ describe('Composer', () => {
 
     expect(CHAT_INPUT_NATIVE_ID).toBe('nova-chat-input');
     expect(tree.root.findByType(TextInput).props.nativeID).toBe(CHAT_INPUT_NATIVE_ID);
+  });
+
+  it('keeps composer action controls at least 44 points wide and tall', async () => {
+    const tree = await renderComposer({
+      isGenerating: false,
+      onSend: jest.fn(),
+      onStop: jest.fn(),
+    });
+    const sendButton = tree.root.findByProps({ accessibilityLabel: 'send message' });
+    const sendButtonStyle = StyleSheet.flatten(sendButton.props.style({ pressed: false }));
+
+    expect(sendButtonStyle.width).toBeGreaterThanOrEqual(44);
+    expect(sendButtonStyle.height).toBeGreaterThanOrEqual(44);
+
+    await act(async () => {
+      tree.update(<Composer isGenerating onSend={jest.fn()} onStop={jest.fn()} />);
+    });
+
+    const stopButton = tree.root.findByProps({ accessibilityLabel: 'stop generating' });
+    const stopButtonStyle = StyleSheet.flatten(stopButton.props.style({ pressed: false }));
+
+    expect(stopButtonStyle.width).toBeGreaterThanOrEqual(44);
+    expect(stopButtonStyle.height).toBeGreaterThanOrEqual(44);
   });
 });

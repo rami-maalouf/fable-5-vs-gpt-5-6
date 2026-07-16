@@ -11,6 +11,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import {
+  DRAWER_CLOSE_TIMING_CONFIG,
+  DRAWER_OPEN_TIMING_CONFIG,
+} from '@/components/drawer/drawerMotion';
 import { spacing, useNovaTheme } from '@/theme';
 
 type DrawerProps = {
@@ -23,9 +27,6 @@ const EDGE_WIDTH = 28;
 const MAX_DRAWER_WIDTH = 340;
 const MIN_DRAWER_WIDTH = 304;
 const OPEN_VELOCITY = 520;
-const TIMING_CONFIG = {
-  duration: 220,
-};
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -43,13 +44,19 @@ export function Drawer({ children, isOpen, onOpenChange }: DrawerProps) {
   const dragStartProgress = useSharedValue(isOpen ? 1 : 0);
 
   useEffect(() => {
-    progress.set(withTiming(isOpen ? 1 : 0, TIMING_CONFIG));
+    progress.set(withTiming(
+      isOpen ? 1 : 0,
+      isOpen ? DRAWER_OPEN_TIMING_CONFIG : DRAWER_CLOSE_TIMING_CONFIG
+    ));
   }, [isOpen, progress]);
 
   const settle = (shouldOpen: boolean) => {
     'worklet';
 
-    progress.set(withTiming(shouldOpen ? 1 : 0, TIMING_CONFIG));
+    progress.set(withTiming(
+      shouldOpen ? 1 : 0,
+      shouldOpen ? DRAWER_OPEN_TIMING_CONFIG : DRAWER_CLOSE_TIMING_CONFIG
+    ));
     runOnJS(onOpenChange)(shouldOpen);
   };
 

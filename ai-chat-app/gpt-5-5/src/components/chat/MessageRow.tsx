@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn, FadeInUp, LinearTransition } from 'react-native-reanimated';
 
 import { ErrorRow } from '@/components/chat/ErrorRow';
 import type { ChatTranscriptMessage } from '@/state/chat';
@@ -19,11 +20,15 @@ export function MessageRow({
 
   if (message.role === 'user') {
     return (
-      <View style={styles.userRow}>
+      <Animated.View
+        entering={FadeInUp.duration(160)}
+        layout={LinearTransition.duration(120)}
+        style={styles.userRow}
+      >
         <View style={[styles.userBubble, { backgroundColor: theme.colors.accent }]}>
           <Text style={styles.userText}>{message.content}</Text>
         </View>
-      </View>
+      </Animated.View>
     );
   }
 
@@ -32,7 +37,11 @@ export function MessageRow({
   const shouldShowEmptyErrorText = shouldShowError && message.content.length === 0;
 
   return (
-    <View style={styles.assistantRow}>
+    <Animated.View
+      entering={FadeIn.duration(140)}
+      layout={LinearTransition.duration(120)}
+      style={styles.assistantRow}
+    >
       {shouldShowLoading ? (
         <View
           accessibilityLabel="assistant response loading"
@@ -42,9 +51,12 @@ export function MessageRow({
           <ActivityIndicator color={theme.colors.secondaryText} size="small" />
         </View>
       ) : shouldShowEmptyErrorText ? null : (
-        <Text style={[styles.assistantText, { color: theme.colors.text }]}>
+        <Animated.Text
+          layout={LinearTransition.duration(120)}
+          style={[styles.assistantText, { color: theme.colors.text }]}
+        >
           {message.content}
-        </Text>
+        </Animated.Text>
       )}
 
       {shouldShowError ? (
@@ -55,7 +67,7 @@ export function MessageRow({
       ) : (
         null
       )}
-    </View>
+    </Animated.View>
   );
 }
 

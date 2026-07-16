@@ -2,6 +2,7 @@ import { act, create } from 'react-test-renderer';
 import type { ComponentProps } from 'react';
 import type { ReactTestRenderer } from 'react-test-renderer';
 import { describe, expect, it, jest } from '@jest/globals';
+import { StyleSheet } from 'react-native';
 
 import { ModelPicker } from '@/components/chat/ModelPicker';
 
@@ -60,5 +61,16 @@ describe('ModelPicker', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith('gpt-5.6-terra');
+  });
+
+  it('uses a 44 point menu hit target in the compact header', async () => {
+    const tree = await renderModelPicker({
+      model: 'gpt-5.6-luna',
+      onChange: jest.fn(),
+    });
+    const menu = tree.root.findByProps({ testID: 'model-picker-menu' });
+    const menuStyle = StyleSheet.flatten(menu.props.style);
+
+    expect(menuStyle.minHeight).toBeGreaterThanOrEqual(44);
   });
 });

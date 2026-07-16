@@ -11,6 +11,25 @@ jest.mock('expo-symbols', () => ({
   SymbolView: 'SymbolView',
 }));
 
+jest.mock('react-native-reanimated', () => {
+  const { Text, View } = require('react-native');
+
+  const createBuilder = () => ({
+    duration: () => createBuilder(),
+  });
+
+  return {
+    __esModule: true,
+    default: {
+      Text,
+      View,
+    },
+    FadeIn: createBuilder(),
+    FadeInUp: createBuilder(),
+    LinearTransition: createBuilder(),
+  };
+});
+
 jest.mock('react-native-keyboard-controller', () => {
   const React = require('react');
   const { ScrollView, View } = require('react-native');

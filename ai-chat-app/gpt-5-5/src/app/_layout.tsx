@@ -10,6 +10,7 @@ import {
   migrateDatabaseAsync,
   NOVA_DATABASE_NAME,
 } from '@/data';
+import { SystemChrome } from '@/components/SystemChrome';
 import { useNovaTheme } from '@/theme';
 
 async function initializeDatabase(db: SQLiteDatabase) {
@@ -25,6 +26,7 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1, backgroundColor: novaTheme.colors.background }}>
         <KeyboardProvider>
           <SQLiteProvider databaseName={NOVA_DATABASE_NAME} onInit={initializeDatabase}>
+            <SystemChrome backgroundColor={novaTheme.colors.background} />
             <Stack
               screenOptions={{
                 headerShown: false,

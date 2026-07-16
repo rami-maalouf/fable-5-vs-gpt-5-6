@@ -35,6 +35,7 @@ export function ModelPicker({ model, onChange }: ModelPickerProps) {
 
         onChange(nextModel);
       }}
+      style={styles.menuHitArea}
       testID="model-picker-menu"
       title="Model"
     >
@@ -57,6 +58,10 @@ export function ModelPicker({ model, onChange }: ModelPickerProps) {
 }
 
 const styles = StyleSheet.create({
+  menuHitArea: {
+    minHeight: 44,
+    justifyContent: 'center',
+  },
   trigger: {
     alignItems: 'center',
     flexDirection: 'row',
