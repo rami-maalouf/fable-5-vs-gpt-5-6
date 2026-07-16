@@ -43,6 +43,7 @@ type ChatState = {
   messages: ChatTranscriptMessage[];
   resetTranscript: () => void;
   setCurrentConversationId: (conversationId: string) => void;
+  setCurrentModel: (model: ChatModel) => void;
   startAssistantTurn: (content: string) => AssistantTurn;
 };
 
@@ -138,6 +139,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setCurrentConversationId: (conversationId) => {
     set({ currentConversationId: conversationId });
+  },
+
+  setCurrentModel: (model) => {
+    set({ currentModel: model });
   },
 
   startAssistantTurn: (content) => {

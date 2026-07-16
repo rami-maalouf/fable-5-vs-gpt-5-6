@@ -103,4 +103,20 @@ describe('chat store', () => {
       }),
     );
   });
+
+  it('sets the current draft model without changing the transcript', () => {
+    useChatStore.getState().startAssistantTurn('hello');
+
+    useChatStore.getState().setCurrentModel('gpt-5.6-terra');
+
+    expect(useChatStore.getState()).toEqual(
+      expect.objectContaining({
+        currentModel: 'gpt-5.6-terra',
+      }),
+    );
+    expect(useChatStore.getState().messages.map((message) => message.content)).toEqual([
+      'hello',
+      '',
+    ]);
+  });
 });

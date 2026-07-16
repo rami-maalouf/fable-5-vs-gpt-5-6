@@ -7,13 +7,16 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
+import { ModelPicker } from '@/components/chat/ModelPicker';
 import { ConversationDrawerContent } from '@/components/drawer/ConversationDrawerContent';
 import { Drawer } from '@/components/drawer/Drawer';
 import {
   createExpoSqlDatabaseAdapter,
   deleteConversationAsync,
   renameConversationAsync,
+  updateConversationModelAsync,
 } from '@/data';
+import type { ChatModel } from '@/domain';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
 import { useDrawerStore } from '@/state/drawer';
@@ -42,6 +45,7 @@ export default function HomeScreen() {
   const loadConversationTranscript = useChatStore((state) => state.loadConversationTranscript);
   const resetTranscript = useChatStore((state) => state.resetTranscript);
   const setCurrentConversationId = useChatStore((state) => state.setCurrentConversationId);
+  const setCurrentModel = useChatStore((state) => state.setCurrentModel);
   const startAssistantTurn = useChatStore((state) => state.startAssistantTurn);
   const isDrawerOpen = useDrawerStore((state) => state.isOpen);
   const openDrawer = useDrawerStore((state) => state.openDrawer);
@@ -141,6 +145,21 @@ export default function HomeScreen() {
     });
   };
 
+  const selectModel = (model: ChatModel) => {
+    setCurrentModel(model);
+
+    if (currentConversationId == null) {
+      return;
+    }
+
+    void updateConversationModelAsync(
+      db,
+      currentConversationId,
+      model,
+      Date.now()
+    ).then(refreshDrawerConversations);
+  };
+
   const renameConversation = (conversationId: string, title: string) => {
     Alert.prompt(
       'Rename conversation',
@@ -224,9 +243,7 @@ export default function HomeScreen() {
 
           <View style={styles.titleGroup}>
             <Text style={[styles.title, { color: theme.colors.text }]}>Nova</Text>
-            <Text style={[styles.model, { color: theme.colors.secondaryText }]}>
-              {currentModel}
-            </Text>
+            <ModelPicker model={currentModel} onChange={selectModel} />
           </View>
 
           <Pressable

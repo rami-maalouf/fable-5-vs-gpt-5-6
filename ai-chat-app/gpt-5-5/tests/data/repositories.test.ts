@@ -9,6 +9,7 @@ import {
   migrateDatabaseAsync,
   renameConversationAsync,
   searchConversationsAsync,
+  updateConversationModelAsync,
 } from '@/data';
 import type { SqlDatabase, SqlRunResult } from '@/data';
 
@@ -182,6 +183,40 @@ describe('sqlite repositories', () => {
         id: 'older',
         title: 'Renamed thread',
         model: 'gpt-5.6-luna',
+        createdAt: 100,
+        updatedAt: 300,
+      },
+      {
+        id: 'newer',
+        title: 'Newer',
+        model: 'gpt-5.6-sol',
+        createdAt: 200,
+        updatedAt: 200,
+      },
+    ]);
+  });
+
+  it('updates a conversation model and moves it to the top', async () => {
+    await createConversationAsync(db, {
+      id: 'older',
+      title: 'Older',
+      model: 'gpt-5.6-luna',
+      createdAt: 100,
+    });
+    await createConversationAsync(db, {
+      id: 'newer',
+      title: 'Newer',
+      model: 'gpt-5.6-sol',
+      createdAt: 200,
+    });
+
+    await updateConversationModelAsync(db, 'older', 'gpt-5.6-terra', 300);
+
+    expect(await listConversationsAsync(db)).toEqual([
+      {
+        id: 'older',
+        title: 'Older',
+        model: 'gpt-5.6-terra',
         createdAt: 100,
         updatedAt: 300,
       },
