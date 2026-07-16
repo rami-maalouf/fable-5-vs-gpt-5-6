@@ -5,8 +5,10 @@ import { CartesianChart, useChartPressState, type PointsArray } from 'victory-na
 
 import {
   createAlignmentChartModel,
+  type AlignmentCardMode,
   type AlignmentChartPoint,
 } from '@/components/charts/dashboard-chart-models';
+import { AlignmentCardHeader, AlignmentCardSelection } from '@/components/charts/alignment-card-details';
 import { createCatmullRomPath } from '@/components/charts/skia-chart-paths';
 import { usePersistentChartSelection } from '@/components/charts/use-persistent-chart-selection';
 import type { SleepNightRecord } from '@/domain/metrics/core';
@@ -18,18 +20,20 @@ const scoreTicks = [0, 25, 50, 70, 100] as const;
 const targetScore = 70;
 
 export function AlignmentCard({
+  mode = 'score',
   records,
   targetDurationHours,
   targetSleepOffset,
 }: {
+  mode?: AlignmentCardMode;
   records: readonly SleepNightRecord[];
   targetDurationHours: number;
   targetSleepOffset: number;
 }) {
   const { theme } = useTheme();
   const data = useMemo(
-    () => createAlignmentChartModel(records, targetDurationHours, targetSleepOffset),
-    [records, targetDurationHours, targetSleepOffset],
+    () => createAlignmentChartModel(records, targetDurationHours, targetSleepOffset, mode),
+    [mode, records, targetDurationHours, targetSleepOffset],
   );
   const { state } = useChartPressState({
     x: data.at(-1)?.date ?? 0,
@@ -37,10 +41,15 @@ export function AlignmentCard({
   });
   const { hasSelection, selectedIndex } = usePersistentChartSelection(state, data.length);
 
-  const selected = data[selectedIndex];
+  const selected = hasSelection ? data[selectedIndex] : data.at(-1);
   const labels = sampleDateLabels(data);
   return (
-    <View accessibilityLabel="Sleep alignment score chart. Drag horizontally to inspect a date." style={styles.frame}>
+    <View style={styles.container}>
+      <AlignmentCardHeader data={data} mode={mode} selected={selected} />
+      <View
+        accessibilityLabel={`${mode === 'score' ? 'Sleep alignment' : 'Core sleep'} score chart. Drag horizontally to inspect a date.`}
+        style={styles.frame}
+      >
       <CartesianChart<AlignmentChartPoint, 'date', 'dailyScore' | 'trendScore'>
         chartPressConfig={{ pan: { activateAfterLongPress: 0 } }}
         chartPressState={state}
@@ -82,7 +91,7 @@ export function AlignmentCard({
                 <DashPathEffect intervals={[4, 4]} />
               </Line>
               <TrendLine color={theme.actionPrimary} points={points.trendScore} />
-              {hasSelection && selected ? (
+              {selected ? (
                 <>
                   <Line
                     color="rgba(255,255,255,0.4)"
@@ -107,10 +116,14 @@ export function AlignmentCard({
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <ScoreAxis />
         <DateAxis data={data} labels={labels} />
-        {hasSelection && selected ? (
+        {selected ? (
           <SelectionLabel date={selected.date} score={selected.dailyScore} />
         ) : null}
       </View>
+      </View>
+      {selected ? <AlignmentCardSelection mode={mode} selected={selected} /> : (
+        <Text style={[styles.emptyCopy, { color: theme.textSecondary }]}>Track a completed night to unlock your alignment trend.</Text>
+      )}
     </View>
   );
 }
@@ -211,8 +224,10 @@ function axisTop(value: number): number {
 
 const styles = StyleSheet.create({
   axisLabel: { fontSize: 10, fontWeight: '700', left: 0, position: 'absolute' },
+  container: { gap: 12, width: '100%' },
   dateLabel: { fontSize: 9, fontWeight: '600', position: 'absolute', textAlign: 'center', width: 44 },
   dateLabels: { bottom: 0, height: 14, left: chartPadding.left, position: 'absolute', right: chartPadding.right },
+  emptyCopy: { fontSize: 13, lineHeight: 19, paddingVertical: 24 },
   frame: { height: chartHeight, overflow: 'hidden', width: '100%' },
   selection: { borderRadius: 10, paddingHorizontal: 9, paddingVertical: 6, position: 'absolute', right: 10, top: 10 },
   selectionDate: { fontSize: 9, fontWeight: '700' },

@@ -1,4 +1,5 @@
 import {
+  alignmentComponentScores,
   createAlignmentChartModel,
   createMovingAverageChartModel,
 } from '../src/components/charts/dashboard-chart-models';
@@ -50,6 +51,45 @@ describe('dashboard chart models', () => {
     expect(model.map(({ dailyScore, trendScore }) => ({ dailyScore, trendScore }))).toEqual(
       expected.map(({ dailyScore, trendScore }) => ({ dailyScore, trendScore })),
     );
+  });
+
+  it('builds the core score from duration and consistency only', () => {
+    const nights = records([6.5, 7, 7.5, 8, 7, 6.8, 7.2]);
+    const full = createAlignmentChartModel(nights, 7, 7, 'score');
+    const core = createAlignmentChartModel(nights, 7, 7, 'core');
+    const source = sleepAlignmentSeries(nights, 7, 7)[0];
+    const expectedCoreScore = 100
+      * source.durationScore ** (0.35 / 0.5)
+      * source.consistencyScore ** (0.15 / 0.5);
+
+    expect(core[0].dailyScore).toBeCloseTo(expectedCoreScore);
+    expect(core[0].durationScore).toBe(source.durationScore);
+    expect(core[0].consistencyScore).toBe(source.consistencyScore);
+    expect(core[0].dailyScore).not.toBeCloseTo(full[0].dailyScore);
+  });
+
+  it('recomputes the alignment trend with the displayed composite score', () => {
+    const nights = records([6.5, 7, 7.5]);
+    const model = createAlignmentChartModel(nights, 7, 7, 'core');
+
+    expect(model[1].trendScore).toBeCloseTo(
+      0.8 * model[0].trendScore + 0.2 * model[1].dailyScore,
+    );
+  });
+
+  it('shows all four score components and only the two core components', () => {
+    const point = createAlignmentChartModel(records([7]), 7, 7)[0];
+
+    expect(alignmentComponentScores(point, 'score').map((component) => component.id)).toEqual([
+      'duration',
+      'timing',
+      'phase',
+      'consistency',
+    ]);
+    expect(alignmentComponentScores(point, 'core').map((component) => component.id)).toEqual([
+      'duration',
+      'consistency',
+    ]);
   });
 
   it('does not invent values for empty ranges', () => {

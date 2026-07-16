@@ -23,10 +23,22 @@ export interface MovingAverageChartModel {
 }
 
 export interface AlignmentChartPoint extends Record<string, unknown> {
+  consistencyScore: number;
   dailyScore: number;
   date: number;
   dayKey: string;
+  durationScore: number;
+  phaseScore: number;
+  timingScore: number;
   trendScore: number;
+}
+
+export type AlignmentCardMode = 'score' | 'core';
+
+export interface AlignmentComponentScore {
+  id: 'duration' | 'timing' | 'phase' | 'consistency';
+  score: number;
+  title: string;
 }
 
 export function createMovingAverageChartModel(
@@ -51,9 +63,55 @@ export function createAlignmentChartModel(
   records: readonly SleepNightRecord[],
   targetDurationHours: number,
   targetSleepOffset: number | null,
+  mode: AlignmentCardMode = 'score',
 ): AlignmentChartPoint[] {
-  return sleepAlignmentSeries(records, targetDurationHours, targetSleepOffset).map(
-    ({ dailyScore, date, dayKey, trendScore }) => ({ dailyScore, date, dayKey, trendScore }),
+  let previousTrendScore: number | null = null;
+  return sleepAlignmentSeries(records, targetDurationHours, targetSleepOffset).map((point) => {
+    const dailyScore = displayedAlignmentScore(point, mode);
+    const trendScore = previousTrendScore === null
+      ? dailyScore
+      : 0.8 * previousTrendScore + 0.2 * dailyScore;
+    previousTrendScore = trendScore;
+    return { ...point, dailyScore, trendScore };
+  });
+}
+
+export function alignmentComponentScores(
+  point: AlignmentChartPoint,
+  mode: AlignmentCardMode,
+): AlignmentComponentScore[] {
+  const components: AlignmentComponentScore[] = [
+    { id: 'duration', score: point.durationScore, title: 'Duration' },
+    { id: 'timing', score: point.timingScore, title: 'Timing' },
+    { id: 'phase', score: point.phaseScore, title: 'Phase' },
+    { id: 'consistency', score: point.consistencyScore, title: 'Consistency' },
+  ];
+  return mode === 'score'
+    ? components
+    : components.filter(({ id }) => id === 'duration' || id === 'consistency');
+}
+
+function displayedAlignmentScore(
+  point: ReturnType<typeof sleepAlignmentSeries>[number],
+  mode: AlignmentCardMode,
+): number {
+  const components = mode === 'score'
+    ? [
+        { score: point.durationScore, weight: 0.35 },
+        { score: point.timingScore, weight: 0.3 },
+        { score: point.phaseScore, weight: 0.2 },
+        { score: point.consistencyScore, weight: 0.15 },
+      ]
+    : [
+        { score: point.durationScore, weight: 0.35 },
+        { score: point.consistencyScore, weight: 0.15 },
+      ];
+  const active = components.filter(({ score, weight }) => score > 0.03 && weight > 0);
+  const activeWeight = active.reduce((total, component) => total + component.weight, 0);
+  if (activeWeight === 0) return 0;
+  return 100 * active.reduce(
+    (product, component) => product * component.score ** (component.weight / activeWeight),
+    1,
   );
 }
 

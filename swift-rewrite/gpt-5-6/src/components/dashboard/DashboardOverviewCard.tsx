@@ -7,9 +7,7 @@ import { CardBackground } from '@/components/common/card-background';
 import { InsightPills, type InsightPillModel } from '@/components/dashboard/InsightPills';
 import type { DashboardViewMode } from '@/components/dashboard/SegmentedPicker';
 import {
-  regularityScore,
   scheduleAccuracyScore,
-  sleepAlignmentSeries,
   sleepConsistencyScore,
   wakeConsistencyScore,
 } from '@/domain/metrics/advanced';
@@ -36,18 +34,20 @@ export function DashboardOverviewCard({
 }) {
   const { theme } = useTheme();
   const recent = records.slice(-7);
-  const insights = createInsights(
-    mode,
-    recent,
-    records,
-    targetDurationHours,
-    targetSleepOffset,
-    targetWakeOffset,
-    theme,
-  );
+  const insights = mode === 'week' || mode === 'average'
+    ? createInsights(
+        mode,
+        recent,
+        records,
+        targetDurationHours,
+        targetSleepOffset,
+        targetWakeOffset,
+        theme,
+      )
+    : null;
   return (
     <CardBackground style={styles.card}>
-      <InsightPills items={insights} />
+      {insights ? <InsightPills items={insights} /> : null}
       <View style={styles.preview}>
         {records.length === 0 ? (
           <>
@@ -97,26 +97,20 @@ function ModePreview({
   if (mode === 'score') {
     return (
       <AlignmentCard
+        mode="score"
         records={records}
         targetDurationHours={targetDurationHours}
         targetSleepOffset={targetSleepOffset}
       />
     );
   }
-  const alignment = sleepAlignmentSeries(records, targetDurationHours, targetSleepOffset).at(-1);
-  const coreScore = alignment
-    ? Math.round((alignment.durationScore * 100 + regularityScore(records)) / 2)
-    : null;
-  return <PreviewNumber label="core sleep score" value={coreScore === null ? 'Not enough nights' : `${coreScore}`} />;
-}
-
-function PreviewNumber({ label, value }: { label: string; value: string }) {
-  const { theme } = useTheme();
   return (
-    <View style={styles.numberPreview}>
-      <Text style={[styles.previewNumber, { color: theme.textPrimary }]}>{value}</Text>
-      <Text style={[styles.previewLabel, { color: theme.textSecondary }]}>{label}</Text>
-    </View>
+    <AlignmentCard
+      mode="core"
+      records={records}
+      targetDurationHours={targetDurationHours}
+      targetSleepOffset={targetSleepOffset}
+    />
   );
 }
 
@@ -142,7 +136,6 @@ function createInsights(
       { color: theme.success, subtitle: 'target match', title: 'ACCURACY', value: hasRecentNights ? `${accuracy}%` : '--' },
     ];
   }
-  const alignment = sleepAlignmentSeries(all, targetDurationHours, targetSleepOffset).at(-1);
   if (mode === 'average') {
     const latestAverage = movingAverageSeries(all).at(-1)?.movingAverageHours ?? null;
     const trend = durationTrendPercent(all);
@@ -153,20 +146,7 @@ function createInsights(
       { color: trend !== null && trend >= 0 ? theme.success : theme.warning, subtitle: 'vs prior 7', title: 'CHANGE', value: trend === null ? '--' : `${trend >= 0 ? '+' : ''}${Math.round(trend)}%` },
     ];
   }
-  if (mode === 'core') {
-    return [
-      { color: theme.actionPrimary, subtitle: 'goal fit', title: 'DURATION', value: alignment ? `${Math.round(alignment.durationScore * 100)}` : '--' },
-      { color: theme.success, subtitle: 'bed + wake', title: 'TIMING', value: alignment ? `${Math.round(alignment.timingScore * 100)}` : '--' },
-      { color: theme.accent, subtitle: 'midpoint', title: 'PHASE', value: alignment ? `${Math.round(alignment.phaseScore * 100)}` : '--' },
-      { color: theme.warning, subtitle: 'rhythm', title: 'CONSIST.', value: alignment ? `${Math.round(alignment.consistencyScore * 100)}` : '--' },
-    ];
-  }
-  return [
-    { color: theme.actionPrimary, subtitle: 'duration', title: 'DAILY', value: alignment ? `${Math.round(alignment.dailyScore)}` : '--' },
-    { color: theme.success, subtitle: 'smoothed', title: 'TREND', value: alignment ? `${Math.round(alignment.trendScore)}` : '--' },
-    { color: theme.accent, subtitle: 'bed + wake', title: 'TIMING', value: alignment ? `${Math.round(alignment.timingScore * 100)}` : '--' },
-    { color: theme.warning, subtitle: 'rhythm', title: 'CONSIST.', value: alignment ? `${Math.round(alignment.consistencyScore * 100)}` : '--' },
-  ];
+  return [];
 }
 
 function formatHours(hours: number): string {
@@ -178,8 +158,5 @@ const styles = StyleSheet.create({
   card: { marginHorizontal: 16, minHeight: 248, padding: 14 },
   emptyCopy: { fontSize: 13, lineHeight: 19, marginTop: 7, maxWidth: 250, textAlign: 'center' },
   emptyTitle: { fontSize: 18, fontWeight: '800', textAlign: 'center' },
-  numberPreview: { alignItems: 'center' },
   preview: { alignItems: 'center', flex: 1, justifyContent: 'center', paddingTop: 8 },
-  previewLabel: { fontSize: 12, fontWeight: '600', marginTop: 4 },
-  previewNumber: { fontSize: 48, fontWeight: '800' },
 });
