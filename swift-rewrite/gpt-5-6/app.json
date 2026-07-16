@@ -35,6 +35,7 @@
           "imageWidth": 76
         }
       ],
+      "expo-notifications",
       "expo-widgets",
       "expo-sqlite",
       "@react-native-community/datetimepicker"

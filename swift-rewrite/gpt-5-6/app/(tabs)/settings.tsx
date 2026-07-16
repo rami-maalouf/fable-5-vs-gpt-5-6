@@ -3,7 +3,7 @@
 import { DateTimePicker } from '@expo/ui/community/datetime-picker';
 import * as Linking from 'expo-linking';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -26,6 +26,8 @@ import {
 } from '@/components/settings/settings-model';
 import { settingsStore } from '@/data/settings-store';
 import type { ThemeMode, ThemePalette } from '@/domain/models';
+import { requestNotificationPermission } from '@/services/notification-permissions';
+import { reconcileWindDownNotification } from '@/services/notifications';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface GoalSettings {
@@ -57,7 +59,14 @@ export default function SettingsScreen() {
   const { mode, palette, setMode, setPalette, theme } = useTheme();
   const [goals, setGoals] = useState<GoalSettings | null>(null);
   const [windDownEnabled, setWindDownEnabled] = useState(true);
+  const [windDownBusy, setWindDownBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!error) return;
+    const timeout = setTimeout(() => setError(null), 4_500);
+    return () => clearTimeout(timeout);
+  }, [error]);
 
   useFocusEffect(
     useCallback(() => {
@@ -95,17 +104,67 @@ export default function SettingsScreen() {
       await settingsStore.set(settingKey, value);
     } catch {
       setError('Twilight could not save your sleep goal.');
+      return;
+    }
+    if (key !== 'sleepMinutes' || !windDownEnabled) return;
+    try {
+      const result = await reconcileWindDownNotification({
+        bedtimeMinutes: value,
+        enabled: true,
+      });
+      if (result.status === 'permission-denied') {
+        setWindDownEnabled(false);
+        await settingsStore.set('windDownReminderEnabled', false);
+        setError('Notification access is off. Your wind-down reminder was disabled.');
+      }
+    } catch {
+      setError('Your bedtime was saved, but the wind-down reminder could not be rescheduled.');
     }
   };
 
   const updateWindDown = async (enabled: boolean) => {
+    const previous = windDownEnabled;
     setWindDownEnabled(enabled);
+    setWindDownBusy(true);
     setError(null);
     try {
+      if (enabled) {
+        const authorized = await requestNotificationPermission();
+        if (!authorized) {
+          setWindDownEnabled(false);
+          await settingsStore.set('windDownReminderEnabled', false);
+          await reconcileWindDownNotification({
+            bedtimeMinutes: goals?.sleepMinutes ?? 22 * 60,
+            enabled: false,
+          });
+          setError('Notification access is off. Enable it in system Settings to use reminders.');
+          return;
+        }
+      }
       await settingsStore.set('windDownReminderEnabled', enabled);
+      const result = await reconcileWindDownNotification({
+        bedtimeMinutes: goals?.sleepMinutes ?? 22 * 60,
+        enabled,
+      });
+      if (result.status === 'permission-denied') {
+        setWindDownEnabled(false);
+        await settingsStore.set('windDownReminderEnabled', false);
+        setError('Notification access is off. Enable it in system Settings to use reminders.');
+      }
     } catch {
-      setWindDownEnabled(!enabled);
-      setError('Twilight could not save your reminder preference.');
+      setWindDownEnabled(previous);
+      try {
+        await settingsStore.set('windDownReminderEnabled', previous);
+        await reconcileWindDownNotification({
+          bedtimeMinutes: goals?.sleepMinutes ?? 22 * 60,
+          enabled: previous,
+        });
+      } catch {
+        // the toast below keeps the failure visible while launch reconciliation retries later.
+      }
+      setError('Twilight could not update your scheduled reminder.');
+    } finally {
+      setWindDownBusy(false);
     }
   };
 
@@ -263,6 +322,7 @@ export default function SettingsScreen() {
               </View>
               <Switch
                 accessibilityLabel="Wind-down reminder"
+                disabled={windDownBusy}
                 onValueChange={(enabled) => void updateWindDown(enabled)}
                 thumbColor="#ffffff"
                 trackColor={{ false: theme.actionSecondary, true: theme.actionPrimary }}
@@ -295,12 +355,13 @@ export default function SettingsScreen() {
             ))}
           </GlassCard>
 
-          {error ? (
-            <Text accessibilityRole="alert" style={[styles.error, { color: theme.warning }]}>
-              {error}
-            </Text>
-          ) : null}
         </ScrollView>
+        {error ? (
+          <View accessibilityRole="alert" style={[styles.errorToast, { backgroundColor: theme.cardBackground }]}>
+            <PlatformSymbol androidName="warning" color={theme.warning} size={18} symbol="exclamationmark.triangle.fill" />
+            <Text style={[styles.errorToastText, { color: theme.textPrimary }]}>{error}</Text>
+          </View>
+        ) : null}
       </SafeAreaView>
     </ScreenBackground>
   );
@@ -423,7 +484,8 @@ const styles = StyleSheet.create({
   cardFlush: { marginHorizontal: 0 },
   content: { paddingBottom: 44, paddingHorizontal: 18 },
   divider: { height: StyleSheet.hairlineWidth, marginLeft: 54 },
-  error: { fontSize: 14, fontWeight: '600', marginTop: 18, textAlign: 'center' },
+  errorToast: { alignItems: 'center', borderColor: 'rgba(255,255,255,0.18)', borderRadius: 16, borderWidth: 1, bottom: 86, flexDirection: 'row', gap: 10, left: 18, paddingHorizontal: 15, paddingVertical: 13, position: 'absolute', right: 18 },
+  errorToastText: { flex: 1, fontSize: 13, fontWeight: '700', lineHeight: 18 },
   flex: { flex: 1 },
   goalChip: { alignItems: 'center', alignSelf: 'center', borderRadius: 14, flexDirection: 'row', gap: 7, marginTop: 22, paddingHorizontal: 16, paddingVertical: 9 },
   goalChipText: { fontSize: 13, fontWeight: '800' },

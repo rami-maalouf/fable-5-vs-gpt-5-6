@@ -2,10 +2,16 @@
 
 import { Stack } from 'expo-router/stack';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { OnboardingProvider, useOnboarding } from '@/onboarding/OnboardingProvider';
+import { settingsStore } from '@/data/settings-store';
+import {
+  configureWindDownNotificationHandler,
+  reconcileWindDownNotification,
+} from '@/services/notifications';
 
 import {
   ActiveSleepSessionProvider,
@@ -38,6 +44,30 @@ function ThemedApp() {
   const { theme } = useTheme();
   const { isHydrated, isOnboarded } = useOnboarding();
 
+  useEffect(() => {
+    configureWindDownNotificationHandler();
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated || !isOnboarded) return;
+    let isCurrent = true;
+    const reconcile = async () => {
+      const settings = await settingsStore.getAll();
+      if (!isCurrent) return;
+      const result = await reconcileWindDownNotification({
+        bedtimeMinutes: settings.optimalSleepMinutes,
+        enabled: settings.windDownReminderEnabled,
+      });
+      if (result.status === 'permission-denied') {
+        await settingsStore.set('windDownReminderEnabled', false);
+      }
+    };
+    void reconcile().catch(() => undefined);
+    return () => {
+      isCurrent = false;
+    };
+  }, [isHydrated, isOnboarded]);
+
   if (!isHydrated) {
     return <View style={[styles.loading, { backgroundColor: theme.backgroundGradient[0] }]} />;
   }
@@ -59,6 +89,7 @@ function ThemedApp() {
           <Stack.Screen name="chart-spike" />
           <Stack.Screen name="grayscale-spike" />
           <Stack.Screen name="time-picker-spike" />
+          <Stack.Screen name="notification-spike" />
         </Stack.Protected>
         <Stack.Screen name="restart-onboarding" />
       </Stack>

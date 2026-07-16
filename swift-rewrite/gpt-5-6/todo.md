@@ -287,7 +287,7 @@ by side.
   - verify: manual sweep with fps overlay; note results in DEVIATIONS.md.
   - depends: checkpoint 6. files: touched components. size: S
 
-- [ ] **task 26: wind-down notification + edge cases**
+- [x] **task 26: wind-down notification + edge cases**
   - description: expo-notifications daily trigger 3h before bedtime (10 messages,
     title "Wind Down Time 🌙"), reschedule on bedtime change and app launch,
     permission handling; sweep empty states and error toasts.
