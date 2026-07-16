@@ -13,6 +13,7 @@ import {
 
 import { CardBackground, ScreenChrome } from '@/components/common';
 import { rgba } from '@/components/common/color';
+import { WeekChart } from '@/components/charts/WeekChart';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { settingsStore } from '@/data/settings-store';
 import { getSessionRepository } from '@/data/session-store';
@@ -464,7 +465,11 @@ export function DashboardScreen() {
           <LastNightCard summary={summary} theme={theme} />
         </FadeInSlide>
         <FadeInSlide delay={180}>
-          <ModeCard mode={mode} settings={data.settings} summary={summary} theme={theme} />
+          {mode === 'Week' ? (
+            <WeekChart records={summary.rangeRecords} settings={data.settings} theme={theme} />
+          ) : (
+            <ModeCard mode={mode} settings={data.settings} summary={summary} theme={theme} />
+          )}
         </FadeInSlide>
         <FadeInSlide delay={240}>
           <SleepToggleCard onSessionChange={refreshDashboard} />
