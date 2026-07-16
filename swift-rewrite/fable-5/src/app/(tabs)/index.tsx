@@ -13,10 +13,12 @@ import { Screen } from '@/components/common/Screen';
 import { InsightPills } from '@/components/dashboard/InsightPills';
 import { SegmentedPicker } from '@/components/dashboard/SegmentedPicker';
 import { StatusCard } from '@/components/dashboard/StatusCard';
+import { AlignmentCard } from '@/components/charts/AlignmentCard';
+import { MovingAverageCard } from '@/components/charts/MovingAverageCard';
 import { WeekChart, type WeekChartDay } from '@/components/charts/WeekChart';
 import { settingsStore } from '@/data/app-db';
 import { getGreeting, getShuffledGreeting } from '@/copy/greetings';
-import { SleepMetricsAnalyzer } from '@/domain/metrics/analyzer';
+import { SleepMetricsAnalyzer, type AlignmentScorePoint, type MovingAveragePoint } from '@/domain/metrics/analyzer';
 import {
   averageWeekDurationSeconds,
   formatAvgDuration,
@@ -27,7 +29,7 @@ import {
   weekWakeConsistency,
 } from '@/domain/metrics/week-data';
 import type { CalendarDay } from '@/domain/models';
-import { zonedParts } from '@/domain/session-rules';
+import { addDays, dayKey, zonedParts } from '@/domain/session-rules';
 import { useSleepStore } from '@/state/app-sleep-store';
 import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 
@@ -90,7 +92,7 @@ export default function DashboardScreen() {
   };
 
   // analytics data
-  const { weekData, weekDays, insights, streak, changePercent, lastSession } =
+  const { weekData, weekDays, insights, streak, changePercent, lastSession, movingAverageSeries, alignmentSeries, targetDurationHours, today } =
     useMemo(() => {
       const { today } = nowMinutesAndToday();
       const analyzer = new SleepMetricsAnalyzer(sessions, {
@@ -161,6 +163,7 @@ export default function DashboardScreen() {
             : null;
       }
 
+      const allRecords = analyzer.recordsIn('All');
       return {
         weekData,
         weekDays,
@@ -168,8 +171,23 @@ export default function DashboardScreen() {
         streak: analyzer.currentStreak(),
         changePercent,
         lastSession: sessions.length > 0 ? sessions[0] : null,
+        movingAverageSeries: analyzer.movingAverageSeries(allRecords, 7),
+        alignmentSeries: analyzer.sleepAlignmentSeries(allRecords),
+        targetDurationHours: analyzer.targetDurationHours,
+        today,
       };
     }, [sessions, optimalSleepMinutes, optimalWakeMinutes, theme, fixed]);
+
+  // dashboard 90D/All history toggle: keep points from the last 90 days
+  const rangeStartKey = dayKey(addDays(today, -89));
+  const visibleMovingAverage: MovingAveragePoint[] =
+    historyRange === '90D'
+      ? movingAverageSeries.filter((p) => dayKey(p.date) >= rangeStartKey)
+      : movingAverageSeries;
+  const visibleAlignment: AlignmentScorePoint[] =
+    historyRange === '90D'
+      ? alignmentSeries.filter((p) => dayKey(p.date) >= rangeStartKey)
+      : alignmentSeries;
 
   const onToggle = () => {
     const result = toggleSleep();
@@ -252,15 +270,28 @@ export default function DashboardScreen() {
                   </View>
                 </Card>
               ))}
-            {viewMode !== 'Week' && (
-              // moving-average and alignment cards land in task 19
-              <Card>
-                <View style={styles.emptyChart}>
-                  <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
-                    {viewMode} view coming in task 19
-                  </Text>
-                </View>
-              </Card>
+            {viewMode === '7-Night Avg' && (
+              <MovingAverageCard
+                series={visibleMovingAverage}
+                targetDurationHours={targetDurationHours}
+                width={chartWidth}
+              />
+            )}
+            {viewMode === 'Score' && (
+              <AlignmentCard
+                series={visibleAlignment}
+                title="Sleep Alignment Score"
+                includesTimingAndPhase
+                width={chartWidth}
+              />
+            )}
+            {viewMode === 'Core' && (
+              <AlignmentCard
+                series={visibleAlignment}
+                title="Core Sleep Score"
+                includesTimingAndPhase={false}
+                width={chartWidth}
+              />
             )}
           </View>
         </FadeInSlide>

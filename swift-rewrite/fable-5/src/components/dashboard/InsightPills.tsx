@@ -3,6 +3,8 @@
 // semibold tinted, subtitle caption2
 import { StyleSheet, Text, View } from 'react-native';
 
+import { useTheme } from '@/theme/ThemeProvider';
+
 export interface InsightItem {
   title: string;
   value: string;
@@ -11,11 +13,15 @@ export interface InsightItem {
 }
 
 export function InsightPills({ items }: { items: InsightItem[] }) {
+  const theme = useTheme();
+  const pillBg =
+    theme.name === 'sunset' ? 'rgba(255, 255, 255, 0.55)' : 'rgba(28, 28, 30, 0.55)';
+  const secondary = theme.name === 'sunset' ? '#5c4b5e' : '#98989f';
   return (
     <View style={styles.row}>
       {items.map((item) => (
-        <View key={item.title} style={styles.pill}>
-          <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+        <View key={item.title} style={[styles.pill, { backgroundColor: pillBg }]}>
+          <Text style={[styles.title, { color: secondary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
             {item.title.toUpperCase()}
           </Text>
           <Text
@@ -25,7 +31,7 @@ export function InsightPills({ items }: { items: InsightItem[] }) {
             minimumFontScale={0.8}>
             {item.value}
           </Text>
-          <Text style={styles.subtitle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          <Text style={[styles.subtitle, { color: secondary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
             {item.subtitle}
           </Text>
         </View>
@@ -42,7 +48,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: 'rgba(28, 28, 30, 0.55)',
   },
   title: { fontSize: 10, fontWeight: '700', color: '#98989f' },
   value: { fontSize: 15, fontWeight: '600' },
