@@ -252,8 +252,8 @@ falls back to a new chat). Search field filters by title and message content.
 ## Task 12: model picker
 
 **Description:** Chat header shows the active conversation's model; tapping opens a
-picker (`gpt-5.6-luna` default, `gpt-5.6`, `gpt-5.5`). Choice persists per conversation
-and is sent with every request.
+picker (`gpt-5.6-luna` default, `gpt-5.6-sol`, `gpt-5.6-terra`). Choice persists per
+conversation and is sent with every request.
 
 **Acceptance criteria:**
 - [ ] each conversation keeps its own model across jumps and relaunch
