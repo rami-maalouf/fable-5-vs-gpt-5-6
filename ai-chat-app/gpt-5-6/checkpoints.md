@@ -85,3 +85,20 @@ Code-quality review:
 - Security: user-visible errors remain generic and do not expose server response details or credentials.
 - Accessibility: loading has a progress role, the error row announces as an alert, and Retry has a 44-point target with an explicit accessible label.
 - Maintainability: pure chat-state helpers isolate transitions from transport and React, with focused tests for partial failure, retry reset, stale failure settlement, and request serialization.
+
+## Persistence - Task 7
+
+Status: passed on 2026-07-16.
+
+- Migration: an isolated native database opened at schema version 1 with WAL journaling and foreign keys enabled.
+- Schema: conversation and message tables, role validation, recency indexes, and cascading message deletion were exercised on the simulator.
+- Queries: create, get, list, rename, delete, model update, message insert, message list, and search all returned typed records with camel-case fields.
+- Ordering: message writes advanced conversation recency, rename did not reorder rows, and a later model update moved its conversation to the top.
+- Search: title and message-content matches were case-insensitive, while `%`, `_`, and `\\` remained literal user input.
+- Fidelity: message content with surrounding spaces round-tripped exactly.
+- Cleanup: the isolated smoke database was closed and deleted after verification; Nova's production database was not modified.
+- Automated gates: 16 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed.
+
+Evidence:
+
+- `verification/07-sqlite-smoke.json`

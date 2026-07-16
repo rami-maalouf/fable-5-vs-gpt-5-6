@@ -15,7 +15,7 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 - [x] checkpoint: verification scenarios 1-3 pass; commit
 
 ## phase 3: persistence
-- [ ] task 7: sqlite layer (schema, migrations, queries)
+- [x] task 7: sqlite layer (schema, migrations, queries)
 - [ ] task 8: wire chat to sqlite (titles, partial-on-stop, relaunch restore)
 - [ ] checkpoint: relaunch restores history; commit
 

@@ -1,0 +1,12 @@
+{
+  "databaseVersion": 1,
+  "foreignKeys": true,
+  "renamePreservedOrder": true,
+  "modelUpdateReorderedConversation": true,
+  "titleSearchMatched": ["conversation-2"],
+  "contentSearchMatched": ["conversation-2"],
+  "escapedWildcardMatched": [],
+  "contentPreservedExactly": true,
+  "cascadeDeleteMessageCount": 0,
+  "smokeDatabaseDeleted": true
+}
