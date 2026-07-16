@@ -16,6 +16,7 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="log-editor" options={{ presentation: 'modal' }} />
         </Stack>
       </GestureHandlerRootView>
     </ThemeProvider>

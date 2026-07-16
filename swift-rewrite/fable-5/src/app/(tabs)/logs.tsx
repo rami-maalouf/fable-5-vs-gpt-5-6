@@ -4,7 +4,7 @@
 import { SymbolView } from 'expo-symbols';
 import { useCallback } from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 import { LogRow } from '@/components/logs/LogRow';
 import { Screen } from '@/components/common/Screen';
@@ -24,8 +24,8 @@ export default function LogsScreen() {
     }, [refresh])
   );
 
-  const openEditor = (_session: SleepSession | null) => {
-    // task 13 wires the editor sheet here
+  const openEditor = (session: SleepSession | null) => {
+    router.push(session ? { pathname: '/log-editor', params: { id: session.id } } : '/log-editor');
   };
 
   return (
