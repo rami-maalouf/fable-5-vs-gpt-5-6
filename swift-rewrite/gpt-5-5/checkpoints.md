@@ -52,3 +52,63 @@ known gaps:
 - Star placement and the shooting-star trail are deterministic and static in this
   checkpoint. Full twinkle and moving shooting-star behavior is deferred to the
   animation pass.
+
+## checkpoint 2 - risk burn-down spikes
+
+covered tasks:
+
+- task 6: expo-widgets live activity spike.
+- task 7: dashboard Week chart approach spike.
+- task 8: grayscale-while-asleep approach spike.
+
+decisions:
+
+- live activity: feasible for iOS dev builds with `expo-widgets`; production should
+  keep widget closures self-contained and verify Dynamic Island polish on device.
+- chart approach: use Victory Native for scales, Catmull-Rom lines, and press state;
+  use custom Skia marks for floating sleep-window bars, dashed rules, labels, and
+  selection overlays.
+- grayscale while asleep: use desaturated theme palettes plus Skia `ColorMatrix`;
+  do not build a native root color-filter module for the initial port.
+
+verification:
+
+- `bun run test`: passed, 10 suites and 29 tests.
+- `bunx tsc --noEmit`: passed.
+- `bun run lint`: passed.
+- `git diff --check -- .`: passed.
+- em-dash scan over app files: no matches.
+- iOS dev build booted on iPhone 17 Pro simulator
+  `93EEF062-B4DC-4989-AF77-CF47EE2A9816`.
+
+visual and simulator evidence:
+
+- task 6 lock-screen live activity rendered with progress and `Wake Up` button:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-aW8Jd6/media/372823000-1784198144373.png`.
+- task 7 chart spike selected-state screenshot:
+  `spikes/chart-approach/evidence/week-chart-spike-selected.png`.
+- task 7 reference screenshot used for comparison:
+  `/Users/rami/Documents/life-os/expo/content/videos/ai-model-comparison/prompt/test-3-tasks/twilight-swift-ui-screenshots/IMG_4796.PNG`.
+- task 8 grayscale asleep toggle screenshot:
+  `spikes/grayscale-while-asleep/evidence/grayscale-asleep-demo.png`.
+
+code quality gate:
+
+- Reviewed all spike code written since checkpoint 1 for correctness, isolation,
+  release impact, naming, duplication, and documented decisions.
+- Fixed repeated Watchman recrawl warnings by resetting the workspace watch.
+- Fixed spike mounting so app screens load scratch components through dev-only
+  dynamic imports instead of static imports.
+- Confirmed spike artifacts are quarantined under `spikes/` and documented with
+  decision notes.
+
+known gaps:
+
+- Live Activity permission and lock-screen button taps were partly limited by
+  simulator accessibility. The lock-screen card and button rendered, and native
+  interaction plumbing exists in `expo-widgets`, but a full lock-screen wake-button
+  mutation should be verified on a physical iPhone.
+- Metro logged a web bundling error for `expo-sqlite` resolving
+  `wa-sqlite.wasm` during the dev session. Native iOS verification is unaffected,
+  but web should be treated as not verified until that Expo SQLite web packaging
+  issue is addressed.

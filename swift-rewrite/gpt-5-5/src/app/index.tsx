@@ -1,10 +1,20 @@
+import type { ComponentType } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { TwilightPlaceholderScreen } from '@/components/twilight-placeholder-screen';
 
-import { LiveActivitySpikeControls } from '../../spikes/live-activity/LiveActivitySpikeControls';
-
 export default function HomeScreen() {
+  const [LiveActivitySpikeControls, setLiveActivitySpikeControls] = useState<ComponentType | null>(null);
+
+  useEffect(() => {
+    if (__DEV__) {
+      void import('../../spikes/live-activity/LiveActivitySpikeControls').then((module) => {
+        setLiveActivitySpikeControls(() => module.LiveActivitySpikeControls);
+      });
+    }
+  }, []);
+
   return (
     <View style={{ flex: 1 }}>
       <TwilightPlaceholderScreen
@@ -12,7 +22,7 @@ export default function HomeScreen() {
         title="Dashboard"
         body="sleep session controls, last-night status, and the dashboard charts will land here."
       />
-      {__DEV__ ? <LiveActivitySpikeControls /> : null}
+      {LiveActivitySpikeControls ? <LiveActivitySpikeControls /> : null}
     </View>
   );
 }
