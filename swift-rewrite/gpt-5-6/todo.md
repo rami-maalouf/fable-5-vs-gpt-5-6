@@ -19,7 +19,7 @@ conventional commit, deviations logged in DEVIATIONS.md.
   - depends: none. files: app/_layout.tsx, app/(tabs)/*, package.json, tsconfig,
     jest config. size: M
 
-- [ ] **task 2: domain models + session rules**
+- [x] **task 2: domain models + session rules**
   - description: pure-ts `src/domain/models.ts` + `src/domain/session-rules.ts`:
     SleepSession/SleepSettings types, 300s validity rule, wake-day attribution
     (startOfDay of end_time in the session's tz), canonical-longest-night selection,
