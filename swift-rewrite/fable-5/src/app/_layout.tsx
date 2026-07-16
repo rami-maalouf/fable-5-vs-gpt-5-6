@@ -24,6 +24,14 @@ export default function RootLayout() {
           <Stack.Screen name="log-editor" options={{ presentation: 'modal' }} />
           <Stack.Screen name="sleep-tips" options={{ presentation: 'modal' }} />
           <Stack.Screen
+            name="timeline-sheet"
+            options={{
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.82, 1.0],
+              sheetGrabberVisible: true,
+            }}
+          />
+          <Stack.Screen
             name="metrics-explanation"
             options={{
               presentation: 'formSheet',
