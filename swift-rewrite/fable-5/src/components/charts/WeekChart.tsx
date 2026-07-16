@@ -15,7 +15,7 @@ import {
   timeOffsetFromMinutes,
 } from '@/domain/metrics/chart-data';
 import { catmullRomPath } from './path-utils';
-import { useTheme } from '@/theme/ThemeProvider';
+import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 
 export interface WeekChartDay {
   dayLabel: string;
@@ -53,12 +53,15 @@ function formatHm(durationSeconds: number): string {
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
-function deviationText(deviationMinutes: number): { text: string; color: string } {
-  if (deviationMinutes === 0) return { text: 'On target', color: GREEN };
+function deviationText(
+  deviationMinutes: number,
+  fixed: (c: string) => string
+): { text: string; color: string } {
+  if (deviationMinutes === 0) return { text: 'On target', color: fixed(GREEN) };
   const abs = Math.abs(deviationMinutes);
   const direction = deviationMinutes > 0 ? 'late' : 'early';
   const formatted = abs >= 60 ? `${Math.trunc(abs / 60)}h ${abs % 60}m` : `${abs}m`;
-  const color = abs <= 15 ? GREEN : abs <= 31 ? YELLOW : '';
+  const color = abs <= 15 ? fixed(GREEN) : abs <= 31 ? fixed(YELLOW) : '';
   return { text: `${formatted} ${direction}`, color };
 }
 
@@ -76,6 +79,9 @@ export function WeekChart({
   width: number;
 }) {
   const theme = useTheme();
+  const fixed = useFixedColor();
+  const indigo = fixed(INDIGO);
+  const orange = fixed(ORANGE);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const { min: minY, max: maxY } = calculateYAxisDomain(days, optimalSleepMinutes, optimalWakeMinutes);
@@ -151,7 +157,7 @@ export function WeekChart({
           <Line
             p1={vec(MARGIN.left, y(-optSleepOffset))}
             p2={vec(MARGIN.left + plotW, y(-optSleepOffset))}
-            color={INDIGO}
+            color={indigo}
             strokeWidth={2}>
             <DashPathEffect intervals={[4, 4]} />
           </Line>
@@ -160,7 +166,7 @@ export function WeekChart({
           <Line
             p1={vec(MARGIN.left, y(-optWakeOffset))}
             p2={vec(MARGIN.left + plotW, y(-optWakeOffset))}
-            color={ORANGE}
+            color={orange}
             strokeWidth={2}>
             <DashPathEffect intervals={[4, 4]} />
           </Line>
@@ -229,12 +235,12 @@ export function WeekChart({
       })}
       {/* rule annotations (trailing, colored) */}
       {optSleepOffset != null && optimalSleepMinutes != null && (
-        <Text style={[styles.ruleAnnotation, { color: INDIGO, top: y(-optSleepOffset) - 7, left: MARGIN.left + plotW + 4 }]}>
+        <Text style={[styles.ruleAnnotation, { color: indigo, top: y(-optSleepOffset) - 7, left: MARGIN.left + plotW + 4 }]}>
           {formatClockLabel(optimalSleepMinutes)}
         </Text>
       )}
       {optWakeOffset != null && optimalWakeMinutes != null && (
-        <Text style={[styles.ruleAnnotation, { color: ORANGE, top: y(-optWakeOffset) - 7, left: MARGIN.left + plotW + 4 }]}>
+        <Text style={[styles.ruleAnnotation, { color: orange, top: y(-optWakeOffset) - 7, left: MARGIN.left + plotW + 4 }]}>
           {formatClockLabel(optimalWakeMinutes)}
         </Text>
       )}
@@ -281,7 +287,7 @@ export function WeekChart({
                 <Text
                   style={[
                     styles.popoverChange,
-                    { color: selected.changePercent >= 0 ? GREEN : RED },
+                    { color: fixed(selected.changePercent >= 0 ? GREEN : RED) },
                   ]}>
                   {selected.changePercent >= 0 ? '↗' : '↘'}{' '}
                   {Math.abs(Math.trunc(selected.changePercent))}%
@@ -290,12 +296,12 @@ export function WeekChart({
             </View>
             {(
               [
-                ['Bedtime', selectedDeviation(selected.startOffset, optSleepOffset), INDIGO],
-                ['Wake', selectedDeviation(selected.endOffset, optWakeOffset), ORANGE],
+                ['Bedtime', selectedDeviation(selected.startOffset, optSleepOffset), indigo],
+                ['Wake', selectedDeviation(selected.endOffset, optWakeOffset), orange],
               ] as const
             ).map(([label, dev, fallback]) => {
               if (dev == null) return null;
-              const { text, color } = deviationText(dev);
+              const { text, color } = deviationText(dev, fixed);
               return (
                 <View key={label} style={styles.popoverRow}>
                   <Text style={styles.popoverDevLabel}>{label}</Text>

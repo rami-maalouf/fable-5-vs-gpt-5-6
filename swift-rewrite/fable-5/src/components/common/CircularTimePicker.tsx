@@ -33,7 +33,7 @@ import {
   snapAngle,
 } from '@/domain/circular-picker';
 import { roundedFont } from '@/theme/fonts';
-import { useTheme } from '@/theme/ThemeProvider';
+import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 
 const MOON_COLOR = '#7b68ee';
 const SUN_COLOR = '#ffb347';
@@ -113,6 +113,10 @@ export function CircularTimePicker({
   size?: number;
 }) {
   const theme = useTheme();
+  const fixed = useFixedColor();
+  const moonColor = fixed(MOON_COLOR);
+  const sunColor = fixed(SUN_COLOR);
+  const arcColors = ARC_COLORS.map(fixed);
   const box = size + 80;
   const center = box / 2;
   const radius = size / 2;
@@ -168,7 +172,6 @@ export function CircularTimePicker({
   let sweepEnd = wakeAngle - sleepAngle;
   if (sweepEnd < 0) sweepEnd += 360;
 
-  const draggingColor = dragging === 'sleep' ? MOON_COLOR : SUN_COLOR;
   const dragRad = ((dragging === 'sleep' ? sleepAngle : wakeAngle) * Math.PI) / 180;
 
   return (
@@ -180,7 +183,7 @@ export function CircularTimePicker({
             <Circle c={vec(center, center)} r={(size + 20) / 2} style="stroke" strokeWidth={50}>
               <SweepGradient
                 c={vec(center, center)}
-                colors={['rgba(175, 82, 222, 0.1)', 'rgba(88, 86, 214, 0.2)', 'rgba(175, 82, 222, 0.1)']}
+                colors={[fixed('rgba(175, 82, 222, 0.1)'), fixed('rgba(88, 86, 214, 0.2)'), fixed('rgba(175, 82, 222, 0.1)')]}
               />
               <BlurMask blur={15} style="normal" />
             </Circle>
@@ -194,10 +197,10 @@ export function CircularTimePicker({
             />
           </Circle>
           {/* arc glow shadows (purple r10 + orange r20) */}
-          <Path path={arc} style="stroke" strokeWidth={40} strokeCap="round" color="rgba(175, 82, 222, 0.5)">
+          <Path path={arc} style="stroke" strokeWidth={40} strokeCap="round" color={fixed('rgba(175, 82, 222, 0.5)')}>
             <BlurMask blur={10} style="normal" />
           </Path>
-          <Path path={arc} style="stroke" strokeWidth={40} strokeCap="round" color="rgba(255, 149, 0, 0.3)">
+          <Path path={arc} style="stroke" strokeWidth={40} strokeCap="round" color={fixed('rgba(255, 149, 0, 0.3)')}>
             <BlurMask blur={20} style="normal" />
           </Path>
           {/* active arc with angular gradient sleep -> wake */}
@@ -206,7 +209,7 @@ export function CircularTimePicker({
               c={vec(center, center)}
               start={0}
               end={sweepEnd}
-              colors={ARC_COLORS}
+              colors={arcColors}
               origin={vec(center, center)}
               transform={[{ rotate: ((sleepAngle - 90) * Math.PI) / 180 }]}
             />
@@ -230,7 +233,7 @@ export function CircularTimePicker({
               cx={center + radius * Math.sin(dragRad)}
               cy={center - radius * Math.cos(dragRad)}
               r={32}
-              color={dragging === 'sleep' ? 'rgba(123, 104, 238, 0.3)' : 'rgba(255, 179, 71, 0.3)'}>
+              color={fixed(dragging === 'sleep' ? 'rgba(123, 104, 238, 0.3)' : 'rgba(255, 179, 71, 0.3)')}>
               <BlurMask blur={8} style="normal" />
             </Circle>
           )}
@@ -271,8 +274,8 @@ export function CircularTimePicker({
         })}
 
         {/* knobs */}
-        <Knob icon="moon.fill" color={MOON_COLOR} angle={sleepAngle} isDragging={dragging === 'sleep'} radius={radius} center={center} />
-        <Knob icon="sun.max.fill" color={SUN_COLOR} angle={wakeAngle} isDragging={dragging === 'wake'} radius={radius} center={center} />
+        <Knob icon="moon.fill" color={moonColor} angle={sleepAngle} isDragging={dragging === 'sleep'} radius={radius} center={center} />
+        <Knob icon="sun.max.fill" color={sunColor} angle={wakeAngle} isDragging={dragging === 'wake'} radius={radius} center={center} />
 
         {/* center content */}
         <View pointerEvents="none" style={styles.center}>

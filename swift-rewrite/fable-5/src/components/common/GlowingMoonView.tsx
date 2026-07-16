@@ -12,6 +12,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useFixedColor } from '@/theme/ThemeProvider';
+
 const GLOW_LAYERS = [
   { radius: 40, opacity: 0.15 },
   { radius: 25, opacity: 0.25 },
@@ -66,6 +68,8 @@ export function GlowingMoonView({
   accentColor?: string;
   size?: number;
 }) {
+  const fixed = useFixedColor();
+  const moonColor = fixed(accentColor);
   const breath = useSharedValue(0);
 
   useEffect(() => {
@@ -87,12 +91,12 @@ export function GlowingMoonView({
           radius={layer.radius}
           opacity={layer.opacity}
           breath={breath}
-          color={accentColor}
+          color={moonColor}
           size={size}
         />
       ))}
       <Animated.View style={iconStyle}>
-        <MoonIcon color={accentColor} size={size} />
+        <MoonIcon color={moonColor} size={size} />
       </Animated.View>
     </View>
   );

@@ -6,7 +6,7 @@ import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { StatusCard } from '@/components/dashboard/StatusCard';
 import { Screen } from '@/components/common/Screen';
 import { canonicalNight, dayKey, sessionDurationSeconds, wakeDay } from '@/domain/session-rules';
-import { useSleepStore } from '@/state/sleep-store';
+import { useSleepStore } from '@/state/app-sleep-store';
 
 export default function DashboardScreen() {
   const activeSession = useSleepStore((s) => s.activeSession);

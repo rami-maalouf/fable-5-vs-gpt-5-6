@@ -1,7 +1,6 @@
 // app session state over the sqlite repository (zustand per the spec's stack)
 // ports the sleep-relevant behavior of Utils/StrategyManager.swift's toggle
 import { createStore, type StoreApi } from 'zustand/vanilla';
-import { useStore } from 'zustand';
 
 import { shortSleepJoke } from '../copy/jokes';
 import type { SleepSession } from '../domain/models';
@@ -86,19 +85,4 @@ export function createSleepStore(
       },
     };
   });
-}
-
-// app-level singleton + hook (kept apart from the factory for testability)
-let appStore: StoreApi<SleepState> | null = null;
-
-export function getAppSleepStore(): StoreApi<SleepState> {
-  if (!appStore) {
-    const { sessionRepo } = require('../data/app-db') as typeof import('../data/app-db');
-    appStore = createSleepStore(sessionRepo);
-  }
-  return appStore;
-}
-
-export function useSleepStore<T>(selector: (state: SleepState) => T): T {
-  return useStore(getAppSleepStore(), selector);
 }

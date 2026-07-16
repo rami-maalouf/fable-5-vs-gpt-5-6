@@ -10,7 +10,7 @@ import { Card } from '@/components/common/Card';
 import { formatDurationHm } from '@/domain/metrics/chart-data';
 import type { SleepSession } from '@/domain/models';
 import { sessionDurationSeconds } from '@/domain/session-rules';
-import { useTheme } from '@/theme/ThemeProvider';
+import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 
 const GREEN = '#34c759';
 const RED = '#ff3b30';
@@ -45,6 +45,9 @@ export function StatusCard({
   onToggle: () => void;
 }) {
   const theme = useTheme();
+  const fixed = useFixedColor();
+  const green = fixed(GREEN);
+  const red = fixed(RED);
 
   return (
     <Card>
@@ -88,10 +91,10 @@ export function StatusCard({
                           name={changePercent >= 0 ? 'arrow.up.right' : 'arrow.down.right'}
                           size={12}
                           weight="bold"
-                          tintColor={changePercent >= 0 ? GREEN : RED}
+                          tintColor={changePercent >= 0 ? green : red}
                         />
                         <Text
-                          style={[styles.changeText, { color: changePercent >= 0 ? GREEN : RED }]}>
+                          style={[styles.changeText, { color: changePercent >= 0 ? green : red }]}>
                           {Math.abs(Math.trunc(changePercent))}%
                         </Text>
                       </View>

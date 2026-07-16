@@ -4,7 +4,7 @@ import { useColorScheme } from 'react-native';
 
 import type { ThemeMode, ThemePalette } from '../domain/models';
 import type { SettingsStore } from '../data/settings-store';
-import { desaturateTheme, resolveTheme, type AppTheme } from './palettes';
+import { desaturateColor, desaturateTheme, resolveTheme, type AppTheme } from './palettes';
 
 interface ThemeControls {
   mode: ThemeMode;
@@ -15,6 +15,7 @@ interface ThemeControls {
 
 const ThemeContext = createContext<AppTheme | null>(null);
 const ThemeControlsContext = createContext<ThemeControls | null>(null);
+const DesaturatedContext = createContext(false);
 
 export function ThemeProvider({
   store,
@@ -55,9 +56,23 @@ export function ThemeProvider({
 
   return (
     <ThemeContext value={theme}>
-      <ThemeControlsContext value={controls}>{children}</ThemeControlsContext>
+      <ThemeControlsContext value={controls}>
+        <DesaturatedContext value={desaturated}>{children}</DesaturatedContext>
+      </ThemeControlsContext>
     </ThemeContext>
   );
+}
+
+// grayscale-while-asleep also covers colors that are not theme slots (chart
+// rule colors, the gold moon, knob tints): components map fixed colors
+// through this hook so they gray out with the rest of the app
+export function useFixedColor(): (color: string) => string {
+  const desaturated = useContext(DesaturatedContext);
+  return desaturated ? desaturateColor : identity;
+}
+
+function identity(color: string): string {
+  return color;
 }
 
 export function useTheme(): AppTheme {

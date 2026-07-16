@@ -62,7 +62,7 @@ export const PALETTES: Record<ThemeName, AppTheme> = {
 // grayscale-while-asleep (spike 3 decision): ios has no whole-tree saturate
 // filter, so the active-session grayscale is a luminance-preserving palette
 // swap applied to every theme slot (plus white/black passthroughs)
-function desaturateColor(color: string): string {
+export function desaturateColor(color: string): string {
   const toGray = (r: number, g: number, b: number) =>
     Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
   const hexMatch = /^#([0-9a-f]{6})$/i.exec(color);
