@@ -1,5 +1,5 @@
 import { Host, Menu, Picker, Text, VStack } from '@expo/ui/swift-ui';
-import { font, foregroundColor, frame, tag } from '@expo/ui/swift-ui/modifiers';
+import { font, foregroundColor, tag } from '@expo/ui/swift-ui/modifiers';
 import { useCallback } from 'react';
 import { StyleSheet, useColorScheme } from 'react-native';
 

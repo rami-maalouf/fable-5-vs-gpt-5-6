@@ -3,22 +3,28 @@
 every non-obvious call made while implementing nova, in order. spec > plan > todo
 on conflict; the contestant prompt (`spec.md`) is functional ground truth.
 
-## 0. shared-machine contention: dedicated simulator + metro port 8090
+## 0. shared-machine contention: dedicated simulator + pinned metro port
 
 this machine runs several contestant sessions concurrently. found: stale/live
-metro dev servers from other contestants holding ports 8081-8084 (8081 belonged
-to `ai-chat-app/gpt-5-6` - my app silently loaded THEIR js bundle from it), a
-second app also named "Nova" (`com.rami.nova.gpt56`), and live ui automation
-from another session driving the booted iphone 17 pro simulator. resolution:
+metro dev servers from other contestants holding ports 8081-8084 and later
+8090/8097 (my app silently loaded ANOTHER contestant's js bundle twice - port
+8081 belonged to `ai-chat-app/gpt-5-6`, and after they restarted, so did the
+8090 port i had moved to), a second app also named "Nova"
+(`com.rami.nova.gpt56`), and live ui automation from another session driving
+the simulators i booted. resolution:
 
 - killed the stale metro processes squatting 8081-8084 (leftover dev servers,
   no data loss; 8081 was required for my app's default bundle url)
-- moved to a dedicated simulator: iphone 17 pro max, ios 27
-  (udid 705C1405-E555-4C11-840D-A874D16FA712) - still "iphone pro class"
-- pinned my dev server to port 8090 (`bunx expo run:ios --port 8090`) so no
-  other session can collide with my bundle/api requests again. the port is a
-  dev-session flag only, nothing is committed; a judge running plain
-  `bunx expo run:ios` with a free 8081 gets default behavior.
+- learned that `expo run:ios`/`expo start` silently REUSES any server already
+  answering on the target port without verifying project identity - every
+  server start is now followed by a check that the listening pid's cwd is
+  this project
+- settled on a dedicated simulator (iphone 17 pro, ios 26.5,
+  udid B47A3DF3-056A-4531-B9FA-8327C7C8A485 - other sessions kept claiming
+  the ios 27 devices) and dev server port 8123 (uncommon, identity-verified)
+- the port is a dev-session flag only, nothing committed depends on it; a
+  judge running plain `bunx expo run:ios` on a clean machine gets default
+  behavior end to end
 
 ## 1. authoritative task docs synced into `tasks/`
 
@@ -48,6 +54,18 @@ architecture, so its structure wins; non-component modules stay kebab-case
   expo-sqlite's SQLiteDatabase, so production code paths are identical
 - `zod@^4` added explicitly: `@openai/agents` declares a zod ^4 peer that bun
   resolved to 3.x transitively
+- `@testing-library/react-native` v14 has an async api - render/fireEvent/
+  rerender must be awaited (sync-style tests fail with a misleading "render
+  function has not been called")
+- eslint pinned to 9.x (`expo lint` scaffolds a config but ships no eslint;
+  eslint 10 breaks eslint-plugin-react)
+
+## 4. starter scaffolding removed
+
+deleted the starter's tabs/explore demo screens, demo components, and the
+expo-widgets plugin + dependency (unused by this app, slows the native build).
+app identity set to "Nova" / `com.ramimaalouf.nova`, scheme `nova`. splash
+changed from starter blue to adaptive white/black (no launch flash).
 
 ## 5. client resolves /chat against window.location, not expo/fetch relative
 
@@ -77,8 +95,15 @@ via SwiftUI) hosting each drawer row; rename uses the native Alert.prompt,
 delete a destructive Alert.alert. the menu is fully native (lift preview,
 sf-symbol icons, destructive tint) with zero added dependencies.
 
-## 4. starter scaffolding removed
+## 8. other product judgment calls
 
-deleted the starter's tabs/explore demo screens, demo components, and the
-expo-widgets plugin + dependency (unused by this app, slows the native build).
-app identity set to "Nova" / `com.ramimaalouf.nova`, scheme `nova`.
+- new chat keeps the last chosen model (chatgpt convention); a cold launch
+  always starts on the default gpt-5.6-luna
+- message ids are local time+random strings, not rfc uuids (no crypto
+  dependency needed for a per-device store)
+- retry deletes the errored assistant row (store + db) and streams a fresh
+  reply; the retry affordance is only offered on the newest turn
+- reanimated shared values use the `.get()`/`.set()` api (react-compiler
+  compatible) rather than `.value`
+- an errored reply with partial text keeps the partial in history and it is
+  included in subsequent request payloads (it is visible conversation content)

@@ -231,3 +231,23 @@ transitions look smooth in captures. flagged for rami's physical-device pass.
 
 code-quality gate: reviewed phase-7 diffs (MessageList pill, MessageRow
 animations, usePinnedScroll, splash config). no dead code, no debt.
+
+## final checkpoint - definition-of-done sweep (task 17) - PASS
+
+date: 2026-07-16 ~05:05.
+
+1. full 13-item dod walked with evidence per item: verification/DOD.md.
+   every item checked honestly; the only caveat in the whole run is the fps
+   overlay measurement (checkpoint 7 note) - replaced with architectural and
+   visual evidence, flagged for the physical-device pass.
+2. judging script: all 5 steps executed on-device across checkpoints 2-6 on
+   this code, plus a fresh step-1 re-run on the final build
+   (verification/01-intro-streaming-light.png). NN-scenario evidence copies
+   created (01-*.png .. 06-*.png).
+3. lint brought green (`bun run lint` clean; eslint was missing from the
+   starter - pinned 9.x, fixed 1 unused import, migrated drawer shared values
+   to the compiler-safe .get()/.set() api), tests 58/58, tsc clean.
+4. DEVIATIONS.md finalized (9 entries), SUMMARY.md written (what was built,
+   judgment calls, how to run, evidence paths).
+
+ready for rami's independent judging-script run.

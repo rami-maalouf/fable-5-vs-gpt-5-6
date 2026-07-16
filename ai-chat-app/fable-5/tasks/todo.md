@@ -197,7 +197,7 @@ recorded.
 
 ## phase 8: verification sweep
 
-- [ ] **task 17: definition-of-done sweep**
+- [x] **task 17: definition-of-done sweep**
   - description: walk the contestant prompt's 13-item dod with evidence
     (screenshots/logs) per item; run the full 5-step judging script; finalize
     DEVIATIONS.md; write the summary (what was built, judgment calls, screenshot

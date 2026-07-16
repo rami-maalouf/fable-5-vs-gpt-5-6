@@ -37,12 +37,12 @@ export function Drawer() {
 
   useEffect(() => {
     if (open) KeyboardController.dismiss();
-    translateX.value = withSpring(open ? 0 : -drawerWidth, SPRING);
+    translateX.set(withSpring(open ? 0 : -drawerWidth, SPRING));
   }, [open, drawerWidth, translateX]);
 
   const settle = (shouldOpen: boolean) => {
     'worklet';
-    translateX.value = withSpring(shouldOpen ? 0 : -drawerWidth, SPRING);
+    translateX.set(withSpring(shouldOpen ? 0 : -drawerWidth, SPRING));
     runOnJS(setOpen)(shouldOpen);
   };
 
@@ -51,13 +51,13 @@ export function Drawer() {
     .failOffsetY([-16, 16])
     .onUpdate((e) => {
       'worklet';
-      translateX.value = Math.min(0, Math.max(-drawerWidth, -drawerWidth + e.translationX));
+      translateX.set(Math.min(0, Math.max(-drawerWidth, -drawerWidth + e.translationX)));
     })
     .onEnd((e) => {
       'worklet';
       if (e.velocityX > FLING_VELOCITY) settle(true);
       else if (e.velocityX < -FLING_VELOCITY) settle(false);
-      else settle(translateX.value > -drawerWidth / 2);
+      else settle(translateX.get() > -drawerWidth / 2);
     });
 
   const closePan = Gesture.Pan()
@@ -65,21 +65,21 @@ export function Drawer() {
     .failOffsetY([-16, 16])
     .onUpdate((e) => {
       'worklet';
-      translateX.value = Math.min(0, Math.max(-drawerWidth, e.translationX));
+      translateX.set(Math.min(0, Math.max(-drawerWidth, e.translationX)));
     })
     .onEnd((e) => {
       'worklet';
       if (e.velocityX < -FLING_VELOCITY) settle(false);
       else if (e.velocityX > FLING_VELOCITY) settle(true);
-      else settle(translateX.value > -drawerWidth / 2);
+      else settle(translateX.get() > -drawerWidth / 2);
     });
 
   const panelStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
+    transform: [{ translateX: translateX.get() }],
   }));
 
   const dimStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(translateX.value, [-drawerWidth, 0], [0, 1]),
+    opacity: interpolate(translateX.get(), [-drawerWidth, 0], [0, 1]),
   }));
 
   return (
