@@ -53,3 +53,12 @@
   authoritative and added the local spike.
 - chose desaturated theme palettes plus Skia `ColorMatrix` grayscale filtering
   over a native root color-filter module for the initial port.
+
+## task 10
+
+- the shared external `todo.md` had task 10 checked, but this app did not contain
+  the sleep toggle implementation. Treated the app worktree as authoritative and
+  implemented task 10 locally.
+- the Swift sub-5-minute joke strings include emoji glyphs. The app keeps the same
+  seven message variants and interpolation behavior, but omits emoji glyphs to
+  satisfy the repo-wide no-emoji rule.
