@@ -5,6 +5,7 @@ import { Alert, ScrollView, StyleSheet } from 'react-native';
 
 import { StatusCard } from '@/components/dashboard/StatusCard';
 import { Screen } from '@/components/common/Screen';
+import type { SleepSession } from '@/domain/models';
 import { canonicalNight, dayKey, sessionDurationSeconds, wakeDay } from '@/domain/session-rules';
 import { useSleepStore } from '@/state/app-sleep-store';
 
@@ -45,7 +46,7 @@ export default function DashboardScreen() {
 }
 
 // most recent wake day's canonical (longest) session
-function latestNight(sessions: readonly import('@/domain/models').SleepSession[]) {
+function latestNight(sessions: readonly SleepSession[]) {
   if (sessions.length === 0) return null;
   const newestDay = dayKey(wakeDay(sessions[0]));
   const sameDay = sessions.filter((s) => dayKey(wakeDay(s)) === newestDay);
@@ -53,8 +54,8 @@ function latestNight(sessions: readonly import('@/domain/models').SleepSession[]
 }
 
 function durationChangePercent(
-  sessions: readonly import('@/domain/models').SleepSession[],
-  last: import('@/domain/models').SleepSession
+  sessions: readonly SleepSession[],
+  last: SleepSession
 ): number | null {
   const lastDay = dayKey(wakeDay(last));
   const previous = sessions

@@ -49,3 +49,35 @@ agent had staged into the shared index (commit 3eaa554 contains
 swift-rewrite/gpt-5-6 data-layer files not authored by this run). history was
 not rewritten (later commits landed on top); prevention adopted: all commits
 now use `git commit -- .` scoped to this app dir and never `-A`/`--amend`.
+
+## checkpoint 3: core sleep flow (tasks 9-13) - PASS (jul 16)
+
+track-a-night verified end to end on the simulator (iPhone 17e, iOS 27):
+
+- circular picker: drag both knobs with 5-min snap + haptics, midnight-crossing
+  arc, live 48pt duration + quality copy; ieee754 angle math at exact parity
+  with the swift original incl. its Int() truncation quirk
+  (evidence/task-09/). drag math unit-tested (14 tests).
+- toggle: go to sleep -> wake persists a session; sub-5-minute wake shows the
+  "Pause..." alert with a pluralized joke from the 7-message bank and the
+  session is hidden from every list; exactly one active session; kill +
+  relaunch restores the sleeping state (evidence/task-10/).
+- grayscale-while-asleep: entire ui desaturates (gradient, buttons, tab tint,
+  picker arc/knobs, chart fixed colors) and restores on wake
+  (evidence/task-11/).
+- logs list matches IMG_4809 (large title, + button, day / start->end /
+  accent duration badge rows, hairline separators); swipe-to-delete removes
+  from store (evidence/task-12/).
+- editor matches IMG_4810 (cancel/inline title, wake-day pill, goal-match card
+  with the -30pts/hr formula, 220pt picker, bedtime/wake cards, pinned save
+  bar); create ("Manual Log") and edit paths persist tz-correctly; crossover
+  logic unit-tested incl. dst and travel round-trips (evidence/task-13/).
+
+verification: 94 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 9-13): moved the app sleep-store singleton out of
+the factory module (kills a require() cycle + lint warning); replaced inline
+import() types with top-level type imports on the dashboard; migrated
+DateTimePicker to the non-deprecated onValueChange; fixed a
+setState-during-render warning in the picker's drag handler. no quality debt
+carried forward.
