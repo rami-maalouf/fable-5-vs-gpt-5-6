@@ -127,7 +127,7 @@ original look.
   - depends: 2, 3, 5. files: app/(tabs)/index.tsx, src/components/dashboard/,
     src/copy/jokes.ts. size: M
 
-- [ ] **task 11: grayscale-while-asleep**
+- [x] **task 11: grayscale-while-asleep**
   - description: apply the spike-chosen approach app-wide when a session is active
     (original: .grayscale(1.0) on the root, no explicit animation).
   - acceptance: entire ui desaturates while sleeping, restores on wake, across all

@@ -23,6 +23,7 @@ import {
 } from 'react-native';
 import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 
+import { SleepColorGroup } from '@/components/common/sleep-color-group';
 import {
   AURORA_SPEC,
   createAuroraBlobs,
@@ -89,41 +90,43 @@ export function CardBackground({ active = false, children, style }: CardBackgrou
       <BlurView intensity={20} style={StyleSheet.absoluteFill} tint={theme.colorScheme} />
       <View style={[StyleSheet.absoluteFill, styles.material]} />
       <Canvas pointerEvents="none" style={StyleSheet.absoluteFill}>
-        {active ? (
-          <Group
-            opacity={0.45}
-            layer={
-              <Paint>
-                <Blur blur={12} mode="clamp">
-                  <RuntimeShader source={ALPHA_THRESHOLD_SHADER}>
-                    <Blur blur={AURORA_SPEC.blur} mode="clamp" />
-                  </RuntimeShader>
-                </Blur>
-              </Paint>
-            }
-          >
-            {blobs.map((blob) => (
-              <AuroraBlob
-                key={blob.id}
-                blob={blob}
-                clock={clock}
-                color={theme.accent}
-                height={layout.height}
-                width={layout.width}
-              />
-            ))}
-          </Group>
-        ) : (
-          <Circle
-            cx={layout.width * 0.9}
-            cy={layout.height * 0.5}
-            r={Math.min(layout.width, layout.height) * 0.42}
-            color={theme.accent}
-            opacity={0.5}
-          >
-            <BlurMask blur={15} style="normal" />
-          </Circle>
-        )}
+        <SleepColorGroup>
+          {active ? (
+            <Group
+              opacity={0.45}
+              layer={
+                <Paint>
+                  <Blur blur={12} mode="clamp">
+                    <RuntimeShader source={ALPHA_THRESHOLD_SHADER}>
+                      <Blur blur={AURORA_SPEC.blur} mode="clamp" />
+                    </RuntimeShader>
+                  </Blur>
+                </Paint>
+              }
+            >
+              {blobs.map((blob) => (
+                <AuroraBlob
+                  key={blob.id}
+                  blob={blob}
+                  clock={clock}
+                  color={theme.accent}
+                  height={layout.height}
+                  width={layout.width}
+                />
+              ))}
+            </Group>
+          ) : (
+            <Circle
+              cx={layout.width * 0.9}
+              cy={layout.height * 0.5}
+              r={Math.min(layout.width, layout.height) * 0.42}
+              color={theme.accent}
+              opacity={0.5}
+            >
+              <BlurMask blur={15} style="normal" />
+            </Circle>
+          )}
+        </SleepColorGroup>
       </Canvas>
       <View pointerEvents="none" style={styles.stroke} />
       <View style={styles.content}>{children}</View>

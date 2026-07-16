@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
 import { GLOWING_MOON_SPEC } from '@/components/common/visual-specs';
+import { desaturateColor } from '@/theme/grayscale';
+import { useTheme } from '@/theme/ThemeProvider';
 
 interface GlowingMoonViewProps {
   color?: string;
@@ -15,6 +17,8 @@ export function GlowingMoonView({
   color = GLOWING_MOON_SPEC.color,
   size = GLOWING_MOON_SPEC.size,
 }: GlowingMoonViewProps) {
+  const { isSleeping } = useTheme();
+  const resolvedColor = isSleeping ? desaturateColor(color) : color;
   const [glow] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
@@ -51,7 +55,7 @@ export function GlowingMoonView({
                 inputRange: [0, 1],
                 outputRange: [layer.opacity * 0.5, layer.opacity * 1.6],
               }),
-              shadowColor: color,
+              shadowColor: resolvedColor,
               shadowOpacity: 1,
               shadowRadius: layer.radius,
               transform: [
@@ -62,7 +66,7 @@ export function GlowingMoonView({
             },
           ]}
         >
-          <SymbolView name="moon.stars.fill" size={size} tintColor={color} />
+          <SymbolView name="moon.stars.fill" size={size} tintColor={resolvedColor} />
         </Animated.View>
       ))}
       <Animated.View
@@ -79,7 +83,7 @@ export function GlowingMoonView({
           accessibilityLabel="Glowing moon"
           name="moon.stars.fill"
           size={size}
-          tintColor={color}
+          tintColor={resolvedColor}
         />
       </Animated.View>
     </View>

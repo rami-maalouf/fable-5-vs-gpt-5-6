@@ -13,6 +13,7 @@ import { type ColorSchemeName, useColorScheme } from 'react-native';
 
 import { settingsStore } from '@/data/settings-store';
 import type { ThemeMode, ThemePalette } from '@/domain/models';
+import { desaturateTheme } from '@/theme/grayscale';
 
 import { type AppTheme, resolveTheme } from './palettes';
 
@@ -28,11 +29,13 @@ interface ThemeContextValue {
   mode: ThemeMode;
   palette: ThemePalette;
   isHydrated: boolean;
+  isSleeping: boolean;
   setMode(mode: ThemeMode): Promise<void>;
   setPalette(palette: ThemePalette): Promise<void>;
 }
 
 interface ThemeProviderProps extends PropsWithChildren {
+  isSleeping?: boolean;
   persistence?: ThemePersistence;
   systemColorScheme?: ColorSchemeName;
 }
@@ -48,6 +51,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({
   children,
+  isSleeping = false,
   persistence = defaultPersistence,
   systemColorScheme,
 }: ThemeProviderProps) {
@@ -90,10 +94,14 @@ export function ThemeProvider({
     [persistence],
   );
 
-  const theme = resolveTheme(mode, palette, systemColorScheme ?? detectedColorScheme);
+  const resolvedTheme = resolveTheme(mode, palette, systemColorScheme ?? detectedColorScheme);
+  const theme = useMemo(
+    () => (isSleeping && resolvedTheme.colorScheme === 'dark' ? desaturateTheme(resolvedTheme) : resolvedTheme),
+    [isSleeping, resolvedTheme],
+  );
   const value = useMemo(
-    () => ({ isHydrated, mode, palette, setMode, setPalette, theme }),
-    [isHydrated, mode, palette, setMode, setPalette, theme],
+    () => ({ isHydrated, isSleeping, mode, palette, setMode, setPalette, theme }),
+    [isHydrated, isSleeping, mode, palette, setMode, setPalette, theme],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

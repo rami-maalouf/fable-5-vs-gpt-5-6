@@ -43,11 +43,13 @@ class MemoryThemePersistence implements ThemePersistence {
 }
 
 function ThemeProbe() {
-  const { isHydrated, mode, palette, setMode, setPalette, theme } = useTheme();
+  const { isHydrated, isSleeping, mode, palette, setMode, setPalette, theme } = useTheme();
 
   return (
     <View>
       <Text testID="theme-id">{theme.id}</Text>
+      <Text testID="theme-accent">{theme.accent}</Text>
+      <Text testID="sleeping-state">{String(isSleeping)}</Text>
       <Text testID="theme-state">{`${mode}:${palette}:${isHydrated}`}</Text>
       <Pressable testID="light-mode" onPress={() => void setMode('light')} />
       <Pressable testID="amethyst-palette" onPress={() => void setPalette('amethyst')} />
@@ -132,5 +134,30 @@ describe('theme provider', () => {
       expect(screen.getByTestId('theme-id').props.children).toBe('sunset');
     });
     expect(persistence.mode).toBe('light');
+  });
+
+  it('desaturates night palettes only while sleeping', async () => {
+    const nightPersistence = new MemoryThemePersistence('dark', 'twilight');
+    await render(
+      <ThemeProvider isSleeping persistence={nightPersistence} systemColorScheme="dark">
+        <ThemeProbe />
+      </ThemeProvider>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('sleeping-state').props.children).toBe('true');
+    });
+    expect(screen.getByTestId('theme-accent').props.children).toBe('#aaaaaa');
+
+    const sunsetPersistence = new MemoryThemePersistence('light', 'twilight');
+    await render(
+      <ThemeProvider isSleeping persistence={sunsetPersistence} systemColorScheme="dark">
+        <ThemeProbe />
+      </ThemeProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId('theme-id').props.children).toBe('sunset');
+    });
+    expect(screen.getByTestId('theme-accent').props.children).toBe(SUNSET_THEME.accent);
   });
 });

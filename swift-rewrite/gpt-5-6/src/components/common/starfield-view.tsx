@@ -10,6 +10,7 @@ import {
   createStars,
   type StarSpec,
 } from '@/components/common/visual-specs';
+import { SleepColorGroup } from '@/components/common/sleep-color-group';
 
 interface StarfieldViewProps {
   seed?: number;
@@ -154,10 +155,12 @@ export const StarfieldView = memo(function StarfieldView({
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <Canvas style={styles.canvas}>
-        {stars.map((star) => (
-          <TwinklingStar key={star.id} clock={clock} height={height} star={star} width={width} />
-        ))}
-        {showShootingStars ? <ShootingStar clock={clock} height={height} width={width} /> : null}
+        <SleepColorGroup>
+          {stars.map((star) => (
+            <TwinklingStar key={star.id} clock={clock} height={height} star={star} width={width} />
+          ))}
+          {showShootingStars ? <ShootingStar clock={clock} height={height} width={width} /> : null}
+        </SleepColorGroup>
       </Canvas>
     </View>
   );

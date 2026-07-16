@@ -43,6 +43,8 @@ import {
   type DurationQuality,
   type TimePickerKnob,
 } from '@/components/common/circularTimePickerModel';
+import { SleepColorGroup } from '@/components/common/sleep-color-group';
+import { desaturateColor } from '@/theme/grayscale';
 
 const activeColors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#ffb347'];
 
@@ -162,78 +164,80 @@ export function CircularTimePicker({
       testID="circular-time-picker"
     >
       <Canvas pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <Circle
-          cx={center}
-          cy={center}
-          opacity={0.6}
-          r={ringRadius}
-          strokeWidth={50}
-          style="stroke"
-        >
-          <SweepGradient c={vec(center, center)} colors={['#7b68ee', '#4f46e5', '#7b68ee']} />
-          <BlurMask blur={15} style="normal" />
-        </Circle>
-
-        <Circle cx={center} cy={center} r={ringRadius} strokeWidth={40} style="stroke">
-          <LinearGradient
-            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.03)']}
-            end={vec(center + ringRadius, center + ringRadius)}
-            start={vec(center - ringRadius, center - ringRadius)}
-          />
-        </Circle>
-
-        {hourTicks(center, ringRadius).map((tick) => (
-          <Line
-            color="rgba(255,255,255,0.15)"
-            key={tick.hour}
-            p1={tick.start}
-            p2={tick.end}
-            strokeCap="round"
-            strokeWidth={2}
-          />
-        ))}
-
-        <Group opacity={pulse}>
-          {paths.map((path, index) => (
-            <Path
-              color={index === 0 ? 'rgba(123,104,238,0.52)' : 'rgba(255,179,71,0.38)'}
-              key={`shadow-${index}`}
-              path={path}
-              strokeCap="round"
-              strokeWidth={44}
-              style="stroke"
-            >
-              <BlurMask blur={index === 0 ? 10 : 20} style="normal" />
-            </Path>
-          ))}
-          {paths.map((path, index) => (
-            <Path
-              key={`active-${index}`}
-              path={path}
-              strokeCap="round"
-              strokeWidth={40}
-              style="stroke"
-            >
-              <SweepGradient
-                c={vec(center, center)}
-                colors={activeColors}
-                end={270}
-                start={-90}
-              />
-            </Path>
-          ))}
-        </Group>
-
-        {activeKnob === 'sleep' ? (
-          <Circle color="rgba(123,104,238,0.42)" cx={sleepPosition.x} cy={sleepPosition.y} r={32}>
-            <BlurMask blur={8} style="normal" />
+        <SleepColorGroup>
+          <Circle
+            cx={center}
+            cy={center}
+            opacity={0.6}
+            r={ringRadius}
+            strokeWidth={50}
+            style="stroke"
+          >
+            <SweepGradient c={vec(center, center)} colors={['#7b68ee', '#4f46e5', '#7b68ee']} />
+            <BlurMask blur={15} style="normal" />
           </Circle>
-        ) : null}
-        {activeKnob === 'wake' ? (
-          <Circle color="rgba(255,179,71,0.42)" cx={wakePosition.x} cy={wakePosition.y} r={32}>
-            <BlurMask blur={8} style="normal" />
+
+          <Circle cx={center} cy={center} r={ringRadius} strokeWidth={40} style="stroke">
+            <LinearGradient
+              colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.03)']}
+              end={vec(center + ringRadius, center + ringRadius)}
+              start={vec(center - ringRadius, center - ringRadius)}
+            />
           </Circle>
-        ) : null}
+
+          {hourTicks(center, ringRadius).map((tick) => (
+            <Line
+              color="rgba(255,255,255,0.15)"
+              key={tick.hour}
+              p1={tick.start}
+              p2={tick.end}
+              strokeCap="round"
+              strokeWidth={2}
+            />
+          ))}
+
+          <Group opacity={pulse}>
+            {paths.map((path, index) => (
+              <Path
+                color={index === 0 ? 'rgba(123,104,238,0.52)' : 'rgba(255,179,71,0.38)'}
+                key={`shadow-${index}`}
+                path={path}
+                strokeCap="round"
+                strokeWidth={44}
+                style="stroke"
+              >
+                <BlurMask blur={index === 0 ? 10 : 20} style="normal" />
+              </Path>
+            ))}
+            {paths.map((path, index) => (
+              <Path
+                key={`active-${index}`}
+                path={path}
+                strokeCap="round"
+                strokeWidth={40}
+                style="stroke"
+              >
+                <SweepGradient
+                  c={vec(center, center)}
+                  colors={activeColors}
+                  end={270}
+                  start={-90}
+                />
+              </Path>
+            ))}
+          </Group>
+
+          {activeKnob === 'sleep' ? (
+            <Circle color="rgba(123,104,238,0.42)" cx={sleepPosition.x} cy={sleepPosition.y} r={32}>
+              <BlurMask blur={8} style="normal" />
+            </Circle>
+          ) : null}
+          {activeKnob === 'wake' ? (
+            <Circle color="rgba(255,179,71,0.42)" cx={wakePosition.x} cy={wakePosition.y} r={32}>
+              <BlurMask blur={8} style="normal" />
+            </Circle>
+          ) : null}
+        </SleepColorGroup>
       </Canvas>
 
       <HourLabels center={center} radius={ringRadius + 34} />
@@ -277,6 +281,8 @@ function Knob({
   scale: Animated.Value;
   testID: string;
 }) {
+  const { isSleeping } = useTheme();
+  const resolvedColor = isSleeping ? desaturateColor(color) : color;
   return (
     <Animated.View
       accessibilityLabel={accessibilityLabel}
@@ -286,7 +292,7 @@ function Knob({
         styles.knob,
         {
           left: position.x - 26,
-          shadowColor: color,
+          shadowColor: resolvedColor,
           shadowRadius: isActive ? 12 : 6,
           top: position.y - 26,
           transform: [{ scale }],
@@ -294,7 +300,7 @@ function Knob({
       ]}
     >
       <ExpoLinearGradient colors={['#ffffff', '#f2f2f7']} style={styles.knobFace}>
-        <SymbolView name={icon} size={23} tintColor={color} />
+        <SymbolView name={icon} size={23} tintColor={resolvedColor} />
       </ExpoLinearGradient>
     </Animated.View>
   );
