@@ -95,7 +95,7 @@ recorded.
 
 ## phase 4: drawer
 
-- [ ] **task 8: drawer shell + gesture**
+- [x] **task 8: drawer shell + gesture**
   - description: custom drawer (reanimated + gesture-handler): slides over the
     chat from the left, dim overlay (tap to close), interactive edge swipe
     tracking the finger with fling, header button toggle; must not fight list
@@ -105,7 +105,7 @@ recorded.
   - depends: 6. files: src/components/drawer/Drawer.tsx, src/state/drawer.ts.
     size: M
 
-- [ ] **task 9: conversation list + search + new chat**
+- [x] **task 9: conversation list + search + new chat**
   - description: drawer content: conversations newest first, search field
     filtering by title + message content (domain filter), new-chat button (resets
     to fresh unsaved conversation), tapping a conversation loads its history and
@@ -115,7 +115,7 @@ recorded.
   - verify: `bun run test -- search`; manual two-conversation walk.
   - depends: 7, 8. files: src/components/drawer/*, src/state/*. size: M
 
-- [ ] **task 10: rename + delete**
+- [x] **task 10: rename + delete**
   - description: native long-press context menu (zeego) with rename (alert text
     prompt) and delete (destructive + confirm); swipe-to-delete optional extra;
     deleting the open conversation resets to fresh empty state.

@@ -66,6 +66,17 @@ RCT_jsLocation "localhost:8123"` once per device, then launched normally. a
 judge on a clean machine with 8081 free needs none of this - plain
 `bunx expo run:ios` works with defaults.
 
+## 7. context menu: @expo/ui swift-ui ContextMenu instead of zeego
+
+the spec's stack table names zeego for the native long-press menu. zeego's
+native dependency `react-native-ios-utilities` fails to link against
+react-native 0.86 (undefined symbol `RCTRootContentView`, removed in newer RN)
+- verified by a full build attempt, and 5.2.0 is its latest release. fallback:
+`@expo/ui/swift-ui` ContextMenu (ships with the starter, real UIContextMenu
+via SwiftUI) hosting each drawer row; rename uses the native Alert.prompt,
+delete a destructive Alert.alert. the menu is fully native (lift preview,
+sf-symbol icons, destructive tint) with zero added dependencies.
+
 ## 4. starter scaffolding removed
 
 deleted the starter's tabs/explore demo screens, demo components, and the

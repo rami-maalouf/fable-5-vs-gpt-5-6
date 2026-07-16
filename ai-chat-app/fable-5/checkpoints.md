@@ -104,3 +104,40 @@ at checkpoint 4 once the drawer exists.
 code-quality gate: persistence module is two small functions against the repo
 layer; send flow persists at message boundaries only (never per token) and
 db failures degrade to console.warn without blocking chat. no debt.
+
+## checkpoint 4 - drawer (tasks 8-10) - PASS
+
+date: 2026-07-16 ~04:27. same device/server.
+
+checked (judging step 4 end to end):
+
+1. drawer opens via header button AND interactive left-edge swipe; tracks the
+   finger; closes via dim-tap, leftward drag, and fling. dim overlay scales
+   with position. evidence: verification/checkpoint-4-drawer-open-dim.png
+2. created a second conversation ("Give me three quick sourdough bread tips");
+   drawer lists both newest-first.
+3. search: typing "paris" filtered to only the France conversation - a
+   CONTENT match (the word appears only in the assistant reply, not the
+   title). live filtering as typed. evidence:
+   verification/checkpoint-4-search-content-match.png
+4. jump: tapping a row loads that conversation's full history and closes the
+   drawer; switching between the two restores each correctly.
+5. rename via native long-press context menu (real UIContextMenu with lift
+   preview, sf-symbols, destructive tint - see DEVIATIONS.md #7 for the
+   zeego -> @expo/ui fallback) + native Alert.prompt; renamed to "Bread tips";
+   persisted and reflected in the list immediately. evidence:
+   verification/checkpoint-4-native-context-menu.png,
+   verification/checkpoint-4-rename-prompt.png
+6. delete via context menu + destructive confirm: row removed; db shows 1
+   conversation and 0 orphaned messages (cascade verified live); deleting the
+   OPEN conversation reset the chat to the fresh empty state. evidence:
+   verification/checkpoint-4-delete-confirm.png,
+   verification/checkpoint-4-delete-active-resets-to-empty.png
+7. tests still 56/56; tsc clean.
+
+fps: spring open/close appears smooth; formal fps-overlay pass is scheduled in
+task 15 (polish) as planned.
+
+code-quality gate: reviewed drawer code (Drawer gesture math, DrawerContent,
+ConversationRow, SearchField, stores). zeego dead code fully removed with the
+dependency; no debt carried.

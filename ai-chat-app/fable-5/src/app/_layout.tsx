@@ -4,6 +4,8 @@ import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
+import { Drawer } from '@/components/drawer/Drawer';
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
@@ -11,6 +13,8 @@ export default function RootLayout() {
       <KeyboardProvider>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack />
+          {/* rendered above the stack so it slides over the native header */}
+          <Drawer />
           <StatusBar style="auto" />
         </ThemeProvider>
       </KeyboardProvider>
