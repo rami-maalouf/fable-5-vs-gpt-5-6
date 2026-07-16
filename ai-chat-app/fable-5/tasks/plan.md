@@ -1,328 +1,125 @@
-# Implementation Plan: ai chat app (fully fledged)
+# implementation plan: nova - ai chat app (expo, full stack)
 
-spec: `../spec.md` - the source of truth. this plan implements it, nothing more.
+source of truth: `test-2-spec.md` alongside this plan (which itself defers to the
+functional/backend specs in the contestant prompt it was derived from). this plan
+sequences the work; the detailed checklist lives in `todo.md`. if plan and spec
+disagree, the spec wins.
 
-## Overview
+## overview
 
-Build the chat app in vertical slices: get a real streamed reply on screen first (walking
-skeleton), then make the chat screen feel native, then add persistence, then the drawer
-and conversation management, then the model picker and final polish. Every phase ends
-with the app in a working, demoable state.
+build the Nova chat app in the current working directory: a single chat screen with
+a chatgpt-style drawer, streaming replies from an expo router api route running the
+openai agents sdk, sqlite persistence, and native feel judged against the chatgpt
+ios app (keyboard, scroll anchoring, drawer gesture, dark mode, haptics). ios is the
+target; scope is exactly the spec's functional spec - nothing more.
 
-## Architecture decisions
+## architecture decisions (rationale in the spec)
 
-- routes live in `src/app/` (starter convention); the api route is `src/app/chat+api.ts`
-- single chat screen (`src/app/index.tsx`); the active conversation is state, not a route
-  param - the drawer is an overlay, not a navigator
-- drawer is a custom reanimated + gesture-handler implementation (spec requires
-  chatgpt-feel interactive edge swipe; stock navigator drawer doesn't clear that bar)
-- streaming state lives in `use-chat.ts`; sqlite is written at message boundaries
-  (user message on send, assistant message on stream end or stop), never per token
-- scroll anchoring via the list's `maintainVisibleContentPosition` + pinned-to-bottom
-  tracking; do not fight manual scroll-up with imperative scrollToEnd calls
-- server validates the model against the allowlist; client never sends free-form strings
+- **streaming isolated in one hook** (`useChatStream`): expo/fetch + ReadableStream
+  + AbortController. ui components never touch fetch. stop aborts and persists the
+  partial reply as `stopped`.
+- **backend is one file** (`src/app/chat+api.ts`): validate model allowlist -> 400,
+  run agent Nova (verbatim instructions) streaming, pipe tokens into a plain-text
+  streamed response. key stays server-side.
+- **pure-ts domain layer** (title truncation, search filter, allowlist, status
+  transitions) so the logic that gets judged in the drawer is unit-tested.
+- **custom drawer** (reanimated + gesture-handler) for the finger-tracking edge
+  swipe; **react-native-keyboard-controller** for the composer;
+  **FlatList + maintainVisibleContentPosition** with a pinned-to-bottom controller
+  for streaming scroll.
+- **native components first**: system context menus (zeego), native header, ios
+  semantic colors so light/dark is intentional for free.
+- **one commit per task, conventional prefixes; judgment calls in DEVIATIONS.md.**
 
-## Dependency graph
+## dependency graph
 
 ```
-task 1 (setup: deps, server output)
-   ├── task 2 (api route)
-   │      └── task 3 (walking skeleton: send -> stream -> render)
-   │             ├── task 4 (message list feel)
-   │             ├── task 5 (composer + keyboard)
-   │             └── task 6 (loading + error + retry)
-   └── task 7 (sqlite layer)
-          └── task 8 (wire chat to sqlite)          [needs 3]
-                 ├── task 9 (drawer shell)
-                 │      └── task 10 (conversation list + new chat + titles)
-                 │             └── task 11 (rename + delete + search)
-                 └── task 12 (model picker)
-                                └── task 13 (polish audit)
-                                       └── task 14 (final DoD verification)
+scaffold check (starter repo, deps)
+  ├─ theme tokens + providers ─────────────┐
+  ├─ domain (title/search/allowlist) ─┐    │
+  │     └─ data layer (sqlite) ───────┤    │
+  ├─ SPIKE: api route + expo/fetch streaming e2e (riskiest - first)
+  │                                   │    │
+  └─ composer ──┬─ message list + streaming render
+                └─ keyboard integration (risk: interplay with list)
+                      └─ persistence wiring (fresh-launch rule, titles)
+                            └─ drawer (gesture -> list/search -> manage)
+                                  └─ model picker + route validation
+                                        └─ resilience (stop, errors, retry)
+                                              └─ native-feel hardening
+                                                    └─ verification sweep
 ```
 
-## Task list
+## phases and checkpoints
 
-### Phase 1: walking skeleton
+### phase 1: foundation + riskiest integration (tasks 1-3)
+repo/deps/shell, domain + data layers, and the streaming spike (api route +
+expo/fetch + agents sdk runtime check) before anything depends on it.
 
-## Task 1: project setup
+**checkpoint 1:** `bunx expo run:ios` boots the shell; unit tests green; a hardcoded
+prompt streams tokens from the real route into a debug text view. agents-sdk runtime
+decision recorded (sdk or plain-openai fallback).
 
-**Description:** Install `expo-sqlite` and `@openai/agents`, set `"web": { "output": "server" }`
-in app.json, strip the starter's tabs/explore scaffolding down to a single index screen.
+### phase 2: core chat (tasks 4-6)
+composer, message list with incremental streaming render, keyboard integration.
 
-**Acceptance criteria:**
-- [ ] app builds and launches on the simulator with a blank single screen
-- [ ] no tab bar, no explore screen, no console warnings at startup
+**checkpoint 2:** judging step 1 passes ("hey nova, introduce yourself" streams
+smoothly); keyboard show/hide/interactive-dismiss keeps the composer attached.
 
-**Verification:** `bunx expo run:ios` launches clean; `bunx tsc --noEmit` and `bun run lint` pass.
+### phase 3: persistence (task 7)
+sqlite wiring: conversations save on first message, titles auto-derive, relaunch
+restores everything.
 
-**Dependencies:** none
-**Files likely touched:** `package.json`, `app.json`, `src/app/_layout.tsx`, `src/app/index.tsx` (delete `explore.tsx`, tab components)
-**Estimated scope:** S
+**checkpoint 3:** kill + relaunch restores conversation, messages, title.
 
-## Task 2: streaming api route
+### phase 4: drawer (tasks 8-10)
+drawer shell + gesture, conversation list + search + new chat + jump, rename/delete.
 
-**Description:** Implement `src/app/chat+api.ts`: POST `{ messages, model }`, validate the
-model against the allowlist (400 otherwise), stream the Nova agent reply as plain text
-via `@openai/agents`. Verify against current docs first - the sdk is newer than training data.
+**checkpoint 4:** judging step 4 passes (two conversations: rename, search, jump,
+delete) at 60fps.
 
-**Acceptance criteria:**
-- [ ] `curl -N` against the dev server streams a reply chunk by chunk
-- [ ] invalid model returns 400; missing key returns a 5xx without leaking the key
-- [ ] key never appears in client bundle or logs
+### phase 5: model picker (task 11)
+header model display + picker, per-conversation persistence, route 400 validation.
 
-**Verification:** curl the route on `expo start` dev server for all three allowlisted models + one invalid.
+**checkpoint 5:** judging step 5 passes (switch model, kill, relaunch - choices
+survive; off-list model gets 400).
 
-**Dependencies:** task 1
-**Files likely touched:** `src/app/chat+api.ts`
-**Estimated scope:** S
+### phase 6: resilience (tasks 12-13)
+stop/abort with partial save; loading and error states with retry.
 
-## Task 3: walking skeleton - send, stream, render
+**checkpoint 6:** judging steps 2 (stop mid-stream) and 3 (airplane mode -> inline
+error -> retry) pass.
 
-**Description:** Minimal end-to-end chat: `use-chat.ts` posts the in-memory history to
-`/chat`, reads the stream, renders it incrementally into an unstyled list. Stop button
-aborts via AbortController and keeps the partial text.
+### phase 7: native-feel hardening (tasks 14-16)
+scroll anchoring, animations/haptics/launch polish, light-dark + empty state audit.
 
-**Acceptance criteria:**
-- [ ] a sent message gets a streamed reply rendered token by token on the simulator
-- [ ] stop mid-stream cancels the request; partial reply stays; ui recovers
+**checkpoint 7:** scroll-up mid-stream is never hijacked; fps overlay clean on
+drawer and streaming; both modes screenshot-verified.
 
-**Verification:** manual on simulator: scenario 1 from the spec's testing strategy ("hey nova, introduce yourself") + stop mid-reply.
+### phase 8: verification sweep (task 17)
+walk the prompt's 13-item definition of done with evidence, full judging script,
+DEVIATIONS.md, summary.
 
-**Dependencies:** task 2
-**Files likely touched:** `src/hooks/use-chat.ts`, `src/app/index.tsx`, `src/components/chat/message-list.tsx`, `src/components/chat/composer.tsx`
-**Estimated scope:** M
+**final checkpoint:** every dod item checked with a screenshot or log; rami runs the
+judging script independently.
 
-### Checkpoint: skeleton
-- [ ] real streamed conversation works end to end on the simulator
-- [ ] typecheck + lint clean; commit
+## risks and mitigations
 
-### Phase 2: native-feel chat screen
+| risk | impact | mitigation |
+|---|---|---|
+| expo/fetch can't stream incrementally in this setup | high (kills the core loop) | spike in task 3 before anything depends on it; fallback documented there |
+| @openai/agents fails in the api-route runtime | high | same spike; pre-agreed fallback: plain openai sdk streaming with the Nova persona as system prompt, noted in DEVIATIONS.md |
+| keyboard-controller vs maintainVisibleContentPosition interplay | med | integrated early (task 6) while the surface is small |
+| drawer edge swipe fights list/back gestures | med | gesture built in isolation (task 8), tested with the list before management features pile on |
+| streaming re-render jank on long replies | med | chunk batching (~30-60ms) in the stream hook from day one; tune at checkpoint 7 |
 
-## Task 4: message list feel
+## parallelization
 
-**Description:** Bubbles (user vs assistant visually distinct, newest at bottom), scroll
-pinned to bottom while streaming, manual scroll-up mid-stream never hijacked, empty state
-for a fresh conversation.
+safe to parallelize: tasks 1/2 after the repo check; 9/10 after 8; 14/15/16.
+must be sequential: 3 before 5; 5 before 6 and 14; 7 before 8; 12 before 13.
+shared contract: domain types + repo interfaces (task 2) - land first, keep stable.
 
-**Acceptance criteria:**
-- [ ] long streamed reply keeps the list anchored without jumps
-- [ ] scrolling up mid-stream stays where the user put it
-- [ ] empty state renders on fresh launch
+## open questions (carry from spec)
 
-**Verification:** scenario 2 (long story prompt; scroll up mid-stream; stop).
-
-**Dependencies:** task 3
-**Files likely touched:** `src/components/chat/message-list.tsx`, `message-bubble.tsx`, `empty-state.tsx`
-**Estimated scope:** M
-
-## Task 5: composer + keyboard
-
-**Description:** Multiline composer pinned above the keyboard: send disabled when empty,
-stop swaps in while generating, interactive keyboard dismissal, subtle haptic on send,
-safe areas respected.
-
-**Acceptance criteria:**
-- [ ] keyboard show/hide/interactive-dismiss keep the composer attached, no gap or jump
-- [ ] send disabled on empty input and while a reply is generating; stop replaces send while streaming; composer clears on send
-- [ ] haptic fires on send
-
-**Verification:** manual keyboard torture pass on simulator (show, hide, drag-dismiss, rotate through repeatedly).
-
-**Dependencies:** task 3
-**Files likely touched:** `src/components/chat/composer.tsx`, `src/app/index.tsx`
-**Estimated scope:** M
-
-## Task 6: loading + error + retry
-
-**Description:** Loading indicator between send and first token; network/server failure
-shows a readable inline error with a retry affordance that re-sends the failed turn. A
-stream that dies mid-reply keeps the partial text with the error row beneath it. The
-composer does not restore its text on error.
-
-**Acceptance criteria:**
-- [ ] visible loading state before first token
-- [ ] airplane mode send shows inline error; retry works after network returns
-- [ ] mid-stream failure keeps the partial reply with the error row beneath it
-
-**Verification:** scenario 3 (airplane mode, send, retry).
-
-**Dependencies:** task 3
-**Files likely touched:** `src/hooks/use-chat.ts`, `src/components/chat/error-row.tsx`
-**Estimated scope:** S
-
-### Checkpoint: chat screen
-- [ ] verification scenarios 1-3 all pass on the simulator
-- [ ] light + dark quick check; commit
-
-### Phase 3: persistence
-
-## Task 7: sqlite layer
-
-**Description:** `src/lib/db.ts` with the spec's schema (conversations, messages, cascade
-delete), migration on first launch, and typed queries: create/list/rename/delete/search
-conversations, insert/list messages, update conversation model + updated_at.
-
-**Acceptance criteria:**
-- [ ] all queries work against a seeded db (exercise via a temporary dev screen or logs)
-- [ ] search matches title and message content
-
-**Verification:** seed + query smoke test on simulator; `bunx tsc --noEmit`.
-
-**Dependencies:** task 1
-**Files likely touched:** `src/lib/db.ts`
-**Estimated scope:** S
-
-## Task 8: wire chat to sqlite
-
-**Description:** Conversation row created on first send (title = first message truncated
-~40 chars), user and assistant messages persisted at boundaries, partial reply persisted
-on stop, app relaunch restores history. Launch lands on a fresh empty chat.
-
-**Acceptance criteria:**
-- [ ] kill and relaunch: the conversation and all messages come back
-- [ ] unsent new chats leave no row behind
-- [ ] stopped stream persists the partial reply
-
-**Verification:** manual: chat, kill app, relaunch, reopen conversation from db (temporary jump until drawer exists).
-
-**Dependencies:** tasks 3, 7
-**Files likely touched:** `src/hooks/use-chat.ts`, `src/hooks/use-conversations.ts`, `src/app/index.tsx`
-**Estimated scope:** M
-
-### Checkpoint: persistence
-- [ ] relaunch restores history; commit
-
-### Phase 4: drawer + conversation management
-
-## Task 9: drawer shell
-
-**Description:** Custom drawer: slides in from the left over the chat, dim overlay,
-opens from a header button and an interactive left-edge swipe that tracks the finger,
-closes by swipe/tap-outside. Reanimated + gesture-handler, 60fps.
-
-**Acceptance criteria:**
-- [ ] edge swipe tracks the finger both directions; button toggles it
-- [ ] no dropped frames opening/closing; chat behind dims
-
-**Verification:** manual gesture pass; fps overlay if in doubt.
-
-**Dependencies:** task 8
-**Files likely touched:** `src/components/drawer/drawer.tsx`, `src/app/index.tsx`, `src/app/_layout.tsx`
-**Estimated scope:** M
-
-## Task 10: conversation list + new chat + titles
-
-**Description:** Drawer lists conversations newest first with auto titles; tapping one
-jumps to it (loads its history + model); new chat button opens a fresh empty conversation.
-
-**Acceptance criteria:**
-- [ ] two+ conversations: jumping between them restores each history correctly
-- [ ] titles show the truncated first message
-- [ ] new chat resets to the empty state without saving a row
-
-**Verification:** scenario 4 (first half: create second conversation, jump between the two).
-
-**Dependencies:** task 9
-**Files likely touched:** `src/components/drawer/conversation-row.tsx`, `src/hooks/use-conversations.ts`, `src/app/index.tsx`
-**Estimated scope:** M
-
-## Task 11: rename, delete, search
-
-**Description:** Long-press context menu on a conversation row with rename (inline
-prompt) and delete (confirm; cascade removes messages; deleting the active conversation
-falls back to a new chat). Search field filters by title and message content.
-
-**Acceptance criteria:**
-- [ ] rename persists and reorders nothing unexpectedly
-- [ ] delete removes conversation + messages; active-conversation delete recovers cleanly
-- [ ] search narrows the list by title and content
-
-**Verification:** scenario 4 (second half: rename, search, delete).
-
-**Dependencies:** task 10
-**Files likely touched:** `src/components/drawer/conversation-row.tsx`, `src/components/drawer/search-field.tsx`, `src/lib/db.ts`
-**Estimated scope:** M
-
-### Checkpoint: drawer
-- [ ] full verification scenario 4 passes; commit
-
-### Phase 5: model picker + polish
-
-## Task 12: model picker
-
-**Description:** Chat header shows the active conversation's model; tapping opens a
-picker (`gpt-5.6-luna` default, `gpt-5.6-sol`, `gpt-5.6-terra`). Choice persists per
-conversation and is sent with every request.
-
-**Acceptance criteria:**
-- [ ] each conversation keeps its own model across jumps and relaunch
-- [ ] the selected model reaches the backend (verify via route behavior/logs, key never logged)
-
-**Verification:** scenario 5 (model switch + relaunch) + curl 400 check for invalid model.
-
-**Dependencies:** task 8 (schema field exists from task 7)
-**Files likely touched:** `src/components/model-picker/model-picker.tsx`, `src/app/index.tsx`, `src/hooks/use-chat.ts`
-**Estimated scope:** S
-
-## Task 13: polish audit
-
-**Description:** Full pass on the "feels native" bar: light/dark intentional and live,
-status bar style, no launch flash, safe areas, animation smoothness (send, bubbles,
-streaming, drawer), touch targets.
-
-**Acceptance criteria:**
-- [ ] light and dark both look intentional; system toggle updates live
-- [ ] no layout flash on cold launch
-- [ ] all animations smooth on device-class simulator
-
-**Verification:** screenshot pass light + dark of every state (empty, chatting, streaming, error, drawer open).
-
-**Dependencies:** tasks 4-6, 9-12
-**Files likely touched:** `src/constants/theme.ts` + touch-ups across components
-**Estimated scope:** M
-
-## Task 14: final verification + summary
-
-**Description:** Run the complete definition-of-done checklist from the spec on the
-simulator, capture evidence (screenshots/logs) per item, write the final summary with
-judgment calls and screenshot paths.
-
-**Acceptance criteria:**
-- [ ] every DoD item independently verified with evidence
-- [ ] summary written
-
-**Verification:** the DoD checklist itself.
-
-**Dependencies:** all
-**Files likely touched:** none (verification artifacts only)
-**Estimated scope:** S
-
-### Checkpoint: complete
-- [ ] full DoD green, evidence captured, ready for review
-
-## Risks and mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| `@openai/agents` streaming api differs from training data | High | task 2 is early and isolated; verify against current docs + curl before any ui work |
-| scroll anchoring while streaming is the hardest ux item | High | isolated in task 4 with the long-reply scenario as the test; prefer `maintainVisibleContentPosition` over imperative scrolling |
-| keyboard interactive dismiss without an extra library | Med | attempt native approach in task 5; if it can't clear the bar, add react-native-keyboard-controller |
-| drawer edge-swipe conflicts with list gestures | Med | edge-hitbox-only gesture activation; test with the message list scrolled |
-| sqlite writes during streaming cause jank | Low | write at message boundaries only, never per token |
-| model ids not live | Med | curl all three ids against the route before building the picker |
-
-## Parallelization
-
-tasks 4, 5, 6 are independent after task 3. task 7 is independent of 2-6. everything
-else is sequential per the graph. single-session build order: 1 -> 2 -> 3 -> 4 -> 5 ->
-6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14.
-
-## Execution context
-
-this plan plus `../spec.md` are the full context for the implementing session; the spec
-is authoritative if they ever disagree. work autonomously in the given repo, follow the
-task order, and commit after every task (conventional prefixes, lowercase). verify each
-checkpoint on the simulator with Argent MCP before moving on, saving evidence
-screenshots to `verification/` per the spec's tooling section. any libraries you judge
-necessary are allowed - record judgment calls in the final summary.
+1. app identity "Nova" with ios-semantic minimal look - confirm or supply branding.
+2. spike outcomes (task 3) - resolved at checkpoint 1.
