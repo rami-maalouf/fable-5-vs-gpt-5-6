@@ -183,4 +183,38 @@ describe('chat persistence', () => {
       'assistant-2',
     ]);
   });
+
+  it('keeps interrupted assistant partials stopped', async () => {
+    const started = await persistAssistantTurnStartAsync(db, {
+      assistantMessage: createAssistantMessage(),
+      conversationId: null,
+      model: 'gpt-5.6-luna',
+      userMessage: createUserMessage('Stop after the first idea'),
+    });
+
+    await persistAssistantMessageContentAsync(db, {
+      assistantMessageId: 'assistant-1',
+      content: 'The first idea is already useful',
+      updatedAt: 150,
+    });
+    await persistAssistantMessageStatusAsync(db, {
+      assistantMessageId: 'assistant-1',
+      content: 'The first idea is already useful',
+      status: 'stopped',
+      updatedAt: 151,
+    });
+
+    expect(await listMessagesAsync(db, started.conversationId)).toEqual([
+      expect.objectContaining({
+        content: 'Stop after the first idea',
+        id: 'user-1',
+        status: 'complete',
+      }),
+      expect.objectContaining({
+        content: 'The first idea is already useful',
+        id: 'assistant-1',
+        status: 'stopped',
+      }),
+    ]);
+  });
 });

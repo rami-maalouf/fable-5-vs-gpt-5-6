@@ -35,4 +35,26 @@ describe('consumeTextStream', () => {
     expect(onText).toHaveBeenCalledTimes(1);
     expect(onText).toHaveBeenCalledWith('hello nova');
   });
+
+  it('flushes partial text before surfacing an interrupted stream', async () => {
+    const onText = jest.fn();
+    let didSendChunk = false;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        if (!didSendChunk) {
+          didSendChunk = true;
+          controller.enqueue(new TextEncoder().encode('partial reply'));
+          return;
+        }
+
+        controller.error(new Error('Fetch request has been canceled'));
+      },
+    });
+
+    await expect(consumeTextStream(stream, {
+      flushIntervalMs: 40,
+      onText,
+    })).rejects.toThrow('Fetch request has been canceled');
+    expect(onText).toHaveBeenCalledWith('partial reply');
+  });
 });
