@@ -4,7 +4,7 @@ import { act, create } from 'react-test-renderer';
 import type { ReactTestRenderer } from 'react-test-renderer';
 import { TextInput } from 'react-native';
 
-import { Composer } from '@/components/chat/Composer';
+import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 
 const mockImpactAsync = jest.fn();
 
@@ -115,5 +115,16 @@ describe('Composer', () => {
         }),
       ]),
     );
+  });
+
+  it('exposes a stable native id for keyboard gesture coordination', async () => {
+    const tree = await renderComposer({
+      isGenerating: false,
+      onSend: jest.fn(),
+      onStop: jest.fn(),
+    });
+
+    expect(CHAT_INPUT_NATIVE_ID).toBe('nova-chat-input');
+    expect(tree.root.findByType(TextInput).props.nativeID).toBe(CHAT_INPUT_NATIVE_ID);
   });
 });

@@ -1,8 +1,9 @@
 import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardGestureArea, KeyboardStickyView } from 'react-native-keyboard-controller';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Composer } from '@/components/chat/Composer';
+import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
@@ -10,6 +11,7 @@ import { spacing, useNovaTheme } from '@/theme';
 
 export default function HomeScreen() {
   const theme = useNovaTheme();
+  const { bottom } = useSafeAreaInsets();
   const chatStream = useChatStream();
   const activeAssistantMessageId = useChatStore((state) => state.activeAssistantMessageId);
   const appendAssistantChunk = useChatStore((state) => state.appendAssistantChunk);
@@ -73,16 +75,27 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
-        <MessageList
-          isAwaitingFirstToken={isAwaitingFirstToken}
-          messages={messages}
-        />
+        <KeyboardGestureArea
+          interpolator="ios"
+          style={styles.chatArea}
+          textInputNativeID={CHAT_INPUT_NATIVE_ID}
+        >
+          <MessageList
+            isAwaitingFirstToken={isAwaitingFirstToken}
+            messages={messages}
+          />
 
-        <Composer
-          isGenerating={chatStream.isStreaming || activeAssistantMessageId != null}
-          onSend={sendMessage}
-          onStop={stopMessage}
-        />
+          <KeyboardStickyView
+            collapsable={false}
+            offset={{ closed: 0, opened: bottom }}
+          >
+            <Composer
+              isGenerating={chatStream.isStreaming || activeAssistantMessageId != null}
+              onSend={sendMessage}
+              onStop={stopMessage}
+            />
+          </KeyboardStickyView>
+        </KeyboardGestureArea>
       </SafeAreaView>
     </View>
   );
@@ -93,6 +106,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   safeArea: {
+    flex: 1,
+  },
+  chatArea: {
     flex: 1,
   },
   header: {

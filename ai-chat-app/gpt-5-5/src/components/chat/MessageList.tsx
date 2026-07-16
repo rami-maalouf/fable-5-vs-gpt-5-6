@@ -1,5 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
+import type { ScrollViewProps } from 'react-native';
+import { KeyboardChatScrollView } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MessageRow } from '@/components/chat/MessageRow';
 import type { ChatTranscriptMessage } from '@/state/chat';
@@ -10,10 +13,12 @@ type MessageListProps = {
   messages: ChatTranscriptMessage[];
 };
 
-const COMPOSER_RESERVED_SPACE = 92;
+const COMPOSER_RESERVED_SPACE = 20;
+const KEYBOARD_BOTTOM_OFFSET = spacing.sm;
 
 export function MessageList({ isAwaitingFirstToken, messages }: MessageListProps) {
   const theme = useNovaTheme();
+  const { bottom } = useSafeAreaInsets();
   const listRef = useRef<FlatList<ChatTranscriptMessage>>(null);
 
   const scrollToEnd = useCallback(() => {
@@ -24,10 +29,20 @@ export function MessageList({ isAwaitingFirstToken, messages }: MessageListProps
     listRef.current?.scrollToEnd({ animated: true });
   }, [messages.length]);
 
+  const renderScrollComponent = useCallback((props: ScrollViewProps) => (
+    <KeyboardChatScrollView
+      {...props}
+      automaticallyAdjustContentInsets={false}
+      contentInsetAdjustmentBehavior="never"
+      keyboardDismissMode="interactive"
+      keyboardLiftBehavior="whenAtEnd"
+      offset={Math.max(bottom - KEYBOARD_BOTTOM_OFFSET, 0)}
+    />
+  ), [bottom]);
+
   return (
     <FlatList
       ref={listRef}
-      automaticallyAdjustKeyboardInsets
       contentContainerStyle={[
         styles.content,
         messages.length === 0 && styles.emptyContent,
@@ -55,6 +70,7 @@ export function MessageList({ isAwaitingFirstToken, messages }: MessageListProps
       renderItem={({ item }) => (
         <MessageRow isAwaitingFirstToken={isAwaitingFirstToken} message={item} />
       )}
+      renderScrollComponent={renderScrollComponent}
       scrollEventThrottle={16}
       style={styles.list}
     />

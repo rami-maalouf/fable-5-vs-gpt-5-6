@@ -13,6 +13,8 @@ type ComposerProps = {
 
 const MAX_INPUT_HEIGHT = 128;
 
+export const CHAT_INPUT_NATIVE_ID = 'nova-chat-input';
+
 export function Composer({ isGenerating, onSend, onStop }: ComposerProps) {
   const theme = useNovaTheme();
   const [content, setContent] = useState('');
@@ -44,6 +46,7 @@ export function Composer({ isGenerating, onSend, onStop }: ComposerProps) {
         accessibilityLabel="message input"
         editable={!isGenerating}
         multiline
+        nativeID={CHAT_INPUT_NATIVE_ID}
         onChangeText={setContent}
         placeholder="Message Nova"
         placeholderTextColor={theme.colors.tertiaryText}
@@ -102,10 +105,8 @@ export function Composer({ isGenerating, onSend, onStop }: ComposerProps) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
-    bottom: spacing.sm,
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
     minHeight: 52,
     paddingLeft: spacing.md,
     paddingRight: 6,
