@@ -7,11 +7,12 @@ import {
 } from 'react-native';
 
 import { EmptyState } from '@/components/chat/empty-state';
-import { MessageBubble } from '@/components/chat/message-bubble';
-import type { ChatMessage } from '@/hooks/use-chat';
+import { MessageRow } from '@/components/chat/message-row';
+import type { ChatMessage } from '@/lib/chat-state';
 
 type MessageListProps = {
   messages: ChatMessage[];
+  onRetry: () => void;
 };
 
 const BOTTOM_THRESHOLD = 48;
@@ -21,7 +22,7 @@ function isNearBottom(event: NativeSyntheticEvent<NativeScrollEvent>) {
   return contentSize.height - contentOffset.y - layoutMeasurement.height <= BOTTOM_THRESHOLD;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages, onRetry }: MessageListProps) {
   const list = useRef<FlatList<ChatMessage>>(null);
   const shouldFollowContent = useRef(true);
   const isUserScrolling = useRef(false);
@@ -68,7 +69,7 @@ export function MessageList({ messages }: MessageListProps) {
         }
       }}
       removeClippedSubviews={false}
-      renderItem={({ item }) => <MessageBubble content={item.content} role={item.role} />}
+      renderItem={({ item }) => <MessageRow message={item} onRetry={onRetry} />}
     />
   );
 }

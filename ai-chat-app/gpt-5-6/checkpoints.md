@@ -57,3 +57,31 @@ Evidence:
 - `verification/05-multiline-keyboard-light.png`
 - `verification/05-keyboard-attached-light.png`
 - `verification/05-landscape-keyboard-light.png`
+
+## Native Chat Screen - Task 6 And Phase Checkpoint
+
+Status: passed on 2026-07-16.
+
+- Loading: an assistant progress indicator appeared immediately after send and remained until the first text chunk arrived.
+- Pre-token failure: stopping the local API server while the loaded native app stayed active produced an inline, readable connection error and left the composer empty.
+- Retry: restarting the server and tapping `Retry` resent the retained request history, removed the error row, and rendered a successful response without duplicating the user message.
+- Midstream failure: a deterministic stream-reader fault retained the delivered partial text and rendered the same error row directly beneath it. The temporary fault was removed before the final gates.
+- State safety: sending a different prompt settles any prior failed row so no stale Retry action remains.
+- Appearance: a live React Native Appearance switch updated the error state, chat chrome, composer, and keyboard to dark mode without reloading. The override was restored to system appearance afterward.
+- Scenarios 1-3: basic streaming and stop, long-response scroll anchoring, and offline failure plus retry all pass on the iPhone 17 Pro Max simulator.
+- Automated gates: 14 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed.
+
+Evidence:
+
+- `verification/06-loading-light.png`
+- `verification/06-offline-error-light.png`
+- `verification/06-midstream-error-light.png`
+- `verification/06-error-dark.png`
+
+Code-quality review:
+
+- Correctness: pending, streaming, complete, and error transitions are explicit; retry retains the failed request history and replaces the failed assistant attempt in place.
+- Recovery: abort before the first chunk removes the empty placeholder, while abort after a chunk preserves partial text without presenting an error.
+- Security: user-visible errors remain generic and do not expose server response details or credentials.
+- Accessibility: loading has a progress role, the error row announces as an alert, and Retry has a 44-point target with an explicit accessible label.
+- Maintainability: pure chat-state helpers isolate transitions from transport and React, with focused tests for partial failure, retry reset, stale failure settlement, and request serialization.

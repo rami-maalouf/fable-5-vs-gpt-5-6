@@ -7,7 +7,7 @@ import { useChat } from '@/hooks/use-chat';
 import { colors } from '@/theme/colors';
 
 export default function HomeScreen() {
-  const { isGenerating, messages, sendMessage, stop } = useChat();
+  const { isGenerating, messages, retry, sendMessage, stop } = useChat();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -17,7 +17,7 @@ export default function HomeScreen() {
       <KeyboardAvoidingView
         behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
         style={styles.chat}>
-        <MessageList messages={messages} />
+        <MessageList messages={messages} onRetry={retry} />
         <Composer isGenerating={isGenerating} onSend={sendMessage} onStop={stop} />
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -92,4 +92,34 @@ describe('streamChatResponse', () => {
       }),
     ).rejects.toHaveProperty('name', 'AbortError');
   });
+
+  test('delivers partial text before a stream reader failure', async () => {
+    const received: string[] = [];
+    let pullCount = 0;
+    const fetchImpl: FetchLike = async () =>
+      new Response(
+        new ReadableStream({
+          pull(controller) {
+            if (pullCount === 0) {
+              pullCount += 1;
+              controller.enqueue(encoder.encode('partial response'));
+              return;
+            }
+
+            controller.error(new Error('connection lost'));
+          },
+        }),
+      );
+
+    await expect(
+      streamChatResponse({
+        messages: [{ role: 'user', content: 'hello' }],
+        model: 'gpt-5.6-luna',
+        signal: new AbortController().signal,
+        onChunk: (chunk) => received.push(chunk),
+        fetchImpl,
+      }),
+    ).rejects.toThrow('connection lost');
+    expect(received).toEqual(['partial response']);
+  });
 });
