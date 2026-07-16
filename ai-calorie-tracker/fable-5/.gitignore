@@ -44,3 +44,5 @@ example
 
 # agent local state
 .claude/settings.local.json
+
+.env
