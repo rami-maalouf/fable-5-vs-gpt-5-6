@@ -39,3 +39,21 @@ Evidence:
 - `verification/04-empty-light.png`
 - `verification/04-stream-anchored-light.png`
 - `verification/04-manual-scroll-light.png`
+
+## Native Chat Screen - Task 5
+
+Status: passed on 2026-07-16.
+
+- Multiline input: six explicit lines expanded the composer to its cap, then scrolled internally while the action button stayed fixed.
+- Send behavior: the explicit send action cleared the input, preserved line breaks in the user message, kept the keyboard visible, and swapped to `Stop generation` while streaming.
+- Keyboard attachment: two interactive keyboard-dismiss cycles kept the composer attached to the keyboard and screen bottom without a gap or layout jump.
+- Rotation: portrait, landscape left, landscape right, and repeated portrait transitions kept the focused composer and keyboard clear of the header and message content.
+- Haptics: Expo Haptics was linked in the native build, and the accepted-send path executed without a runtime error.
+- Native build: 0 errors and 0 warnings after marking Expo Dev Launcher's generated strip phase as intentionally always-run.
+- Automated gates: 9 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed.
+
+Evidence:
+
+- `verification/05-multiline-keyboard-light.png`
+- `verification/05-keyboard-attached-light.png`
+- `verification/05-landscape-keyboard-light.png`

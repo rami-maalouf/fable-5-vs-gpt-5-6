@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Composer } from '@/components/chat/composer';
@@ -15,7 +15,7 @@ export default function HomeScreen() {
         <Text style={styles.title}>Nova</Text>
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
         style={styles.chat}>
         <MessageList messages={messages} />
         <Composer isGenerating={isGenerating} onSend={sendMessage} onStop={stop} />
