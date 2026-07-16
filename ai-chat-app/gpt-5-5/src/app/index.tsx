@@ -2,6 +2,7 @@ import { SymbolView } from 'expo-symbols';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Composer } from '@/components/chat/Composer';
 import { useChatStream } from '@/hooks/useChatStream';
 import { MODEL_OPTIONS, spacing, useNovaTheme } from '@/theme';
 
@@ -9,11 +10,11 @@ export default function HomeScreen() {
   const theme = useNovaTheme();
   const chatStream = useChatStream();
 
-  const testAssistant = () => {
+  const sendMessage = (content: string) => {
     void chatStream.send({
       messages: [
         {
-          content: 'Introduce yourself in one short paragraph.',
+          content,
           role: 'user',
         },
       ],
@@ -65,25 +66,6 @@ export default function HomeScreen() {
             Start a conversation with Nova. Your history will live in the sidebar once
             there is something to save.
           </Text>
-          <Pressable
-            accessibilityLabel="test Nova stream"
-            accessibilityRole="button"
-            disabled={chatStream.isStreaming}
-            onPress={testAssistant}
-            style={({ pressed }) => [
-              styles.debugButton,
-              {
-                backgroundColor: chatStream.isStreaming
-                  ? theme.colors.disabledFill
-                  : theme.colors.accent,
-                opacity: pressed ? 0.72 : 1,
-              },
-            ]}
-          >
-            <Text style={styles.debugButtonText}>
-              {chatStream.isStreaming ? 'Streaming...' : 'Ask Nova'}
-            </Text>
-          </Pressable>
           {(chatStream.text.length > 0 || chatStream.error != null) && (
             <View
               style={[
@@ -103,22 +85,11 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <View
-          style={[
-            styles.composer,
-            {
-              backgroundColor: theme.colors.elevated,
-              borderColor: theme.colors.separator,
-            },
-          ]}
-        >
-          <Text style={[styles.placeholder, { color: theme.colors.tertiaryText }]}>
-            Message Nova
-          </Text>
-          <View style={[styles.sendButton, { backgroundColor: theme.colors.disabledFill }]}>
-            <SymbolView name="arrow.up" size={18} tintColor={theme.colors.secondaryText} />
-          </View>
-        </View>
+        <Composer
+          isGenerating={chatStream.isStreaming}
+          onSend={sendMessage}
+          onStop={chatStream.stop}
+        />
       </SafeAreaView>
     </View>
   );
@@ -189,22 +160,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
   },
-  debugButton: {
-    marginTop: spacing.lg,
-    minHeight: 42,
-    minWidth: 112,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-  },
-  debugButtonText: {
-    color: '#ffffff',
-    fontSize: 15,
-    lineHeight: 20,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
   debugResponse: {
     width: '100%',
     marginTop: spacing.md,
@@ -215,32 +170,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 21,
     textAlign: 'left',
-  },
-  composer: {
-    position: 'absolute',
-    left: spacing.md,
-    right: spacing.md,
-    bottom: spacing.sm,
-    minHeight: 52,
-    paddingLeft: spacing.md,
-    paddingRight: 6,
-    paddingVertical: 6,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 26,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  placeholder: {
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 20,
-    marginRight: spacing.sm,
-  },
-  sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

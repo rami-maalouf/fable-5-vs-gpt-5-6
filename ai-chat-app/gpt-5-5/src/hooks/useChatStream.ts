@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { fetch } from 'expo/fetch';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import { DEFAULT_CHAT_MODEL, type ChatModel } from '@/domain/model';
 
@@ -60,11 +60,14 @@ function getDevServerOriginFromUrl(value: string | undefined) {
 }
 
 export function useChatStream() {
+  const abortRef = useRef<AbortController | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [text, setText] = useState('');
 
   const send = useCallback(async ({ messages, model = DEFAULT_CHAT_MODEL }: SendChatStreamOptions) => {
+    const abortController = new AbortController();
+    abortRef.current = abortController;
     setError(null);
     setIsStreaming(true);
     setText('');
@@ -76,6 +79,7 @@ export function useChatStream() {
           'content-type': 'application/json',
         },
         method: 'POST',
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -100,16 +104,27 @@ export function useChatStream() {
         setText((current) => current + decoder.decode(result.value, { stream: true }));
       }
     } catch (streamError) {
-      setError(streamError instanceof Error ? streamError.message : 'chat stream failed');
+      if (!abortController.signal.aborted) {
+        setError(streamError instanceof Error ? streamError.message : 'chat stream failed');
+      }
     } finally {
+      if (abortRef.current === abortController) {
+        abortRef.current = null;
+      }
+
       setIsStreaming(false);
     }
+  }, []);
+
+  const stop = useCallback(() => {
+    abortRef.current?.abort();
   }, []);
 
   return {
     error,
     isStreaming,
     send,
+    stop,
     text,
   };
 }
