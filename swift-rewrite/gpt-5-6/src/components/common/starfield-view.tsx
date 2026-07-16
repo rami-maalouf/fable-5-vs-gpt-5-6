@@ -11,6 +11,7 @@ import {
   type StarSpec,
 } from '@/components/common/visual-specs';
 import { SleepColorGroup } from '@/components/common/sleep-color-group';
+import { useTheme } from '@/theme/ThemeProvider';
 
 interface StarfieldViewProps {
   seed?: number;
@@ -149,13 +150,14 @@ export const StarfieldView = memo(function StarfieldView({
   starCount,
 }: StarfieldViewProps) {
   const { height, width } = useWindowDimensions();
+  const { isSleeping } = useTheme();
   const clock = useClock();
   const stars = useMemo(() => createStars(seed, starCount), [seed, starCount]);
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       <Canvas style={styles.canvas}>
-        <SleepColorGroup>
+        <SleepColorGroup isSleeping={isSleeping}>
           {stars.map((star) => (
             <TwinklingStar key={star.id} clock={clock} height={height} star={star} width={width} />
           ))}

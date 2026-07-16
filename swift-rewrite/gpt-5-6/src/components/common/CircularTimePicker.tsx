@@ -64,6 +64,7 @@ export function CircularTimePicker({
   sleepMinutes,
   wakeMinutes,
 }: CircularTimePickerProps) {
+  const { isSleeping } = useTheme();
   const outerSize = size + 80;
   const center = outerSize / 2;
   const ringRadius = size / 2;
@@ -164,7 +165,7 @@ export function CircularTimePicker({
       testID="circular-time-picker"
     >
       <Canvas pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <SleepColorGroup>
+        <SleepColorGroup isSleeping={isSleeping}>
           <Circle
             cx={center}
             cy={center}

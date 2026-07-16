@@ -75,7 +75,7 @@ function AuroraBlob({ blob, clock, color, height, width }: AuroraBlobProps) {
 }
 
 export function CardBackground({ active = false, children, style }: CardBackgroundProps) {
-  const { theme } = useTheme();
+  const { isSleeping, theme } = useTheme();
   const clock = useClock();
   const blobs = useMemo(() => createAuroraBlobs(7), []);
   const [layout, setLayout] = useState({ height: 1, width: 1 });
@@ -90,7 +90,7 @@ export function CardBackground({ active = false, children, style }: CardBackgrou
       <BlurView intensity={20} style={StyleSheet.absoluteFill} tint={theme.colorScheme} />
       <View style={[StyleSheet.absoluteFill, styles.material]} />
       <Canvas pointerEvents="none" style={StyleSheet.absoluteFill}>
-        <SleepColorGroup>
+        <SleepColorGroup isSleeping={isSleeping}>
           {active ? (
             <Group
               opacity={0.45}
