@@ -16,7 +16,6 @@ import { StatusCard } from '@/components/dashboard/StatusCard';
 import { AlignmentCard } from '@/components/charts/AlignmentCard';
 import { MovingAverageCard } from '@/components/charts/MovingAverageCard';
 import { WeekChart, type WeekChartDay } from '@/components/charts/WeekChart';
-import { settingsStore } from '@/data/app-db';
 import { getGreeting, getShuffledGreeting } from '@/copy/greetings';
 import { SleepMetricsAnalyzer, type AlignmentScorePoint, type MovingAveragePoint } from '@/domain/metrics/analyzer';
 import {
@@ -31,6 +30,7 @@ import {
 import type { CalendarDay } from '@/domain/models';
 import { addDays, dayKey, zonedParts } from '@/domain/session-rules';
 import { useSleepStore } from '@/state/app-sleep-store';
+import { useSettings } from '@/state/settings-state';
 import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 
 const VIEW_MODES = ['Week', '7-Night Avg', 'Score', 'Core'] as const;
@@ -63,8 +63,8 @@ export default function DashboardScreen() {
   const refresh = useSleepStore((s) => s.refresh);
 
   const isSleeping = activeSession != null;
-  const optimalSleepMinutes = settingsStore.get('optimalSleepMinutes');
-  const optimalWakeMinutes = settingsStore.get('optimalWakeMinutes');
+  const optimalSleepMinutes = useSettings((s) => s.optimalSleepMinutes);
+  const optimalWakeMinutes = useSettings((s) => s.optimalWakeMinutes);
 
   const [viewMode, setViewMode] = useState<ViewMode>('Week');
   const [historyRange, setHistoryRange] = useState<'90D' | 'All'>('90D');

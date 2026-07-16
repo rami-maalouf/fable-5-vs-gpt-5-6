@@ -9,7 +9,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CircularTimePicker } from '@/components/common/CircularTimePicker';
 import { Screen } from '@/components/common/Screen';
-import { settingsStore } from '@/data/app-db';
 import {
   editorTimesFromSession,
   epochFromDayMinutes,
@@ -26,6 +25,7 @@ import {
 import { roundedFont } from '@/theme/fonts';
 import { useFixedColor, useTheme } from '@/theme/ThemeProvider';
 import { useSleepStore } from '@/state/app-sleep-store';
+import { useSettings } from '@/state/settings-state';
 
 const MOON_COLOR = '#7b68ee';
 const SUN_COLOR = '#ffb347';
@@ -71,8 +71,8 @@ export default function LogEditorScreen() {
     if (existing) return editorTimesFromSession(existing);
     return {
       wakeDay: todayCalendarDay(),
-      sleepMinutes: settingsStore.get('optimalSleepMinutes'),
-      wakeMinutes: settingsStore.get('optimalWakeMinutes'),
+      sleepMinutes: useSettings.getState().optimalSleepMinutes,
+      wakeMinutes: useSettings.getState().optimalWakeMinutes,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existing?.id]);
@@ -81,8 +81,8 @@ export default function LogEditorScreen() {
   const [sleepMinutes, setSleepMinutes] = useState(initial.sleepMinutes);
   const [wakeMinutes, setWakeMinutes] = useState(initial.wakeMinutes);
 
-  const optimalSleep = settingsStore.get('optimalSleepMinutes');
-  const optimalWake = settingsStore.get('optimalWakeMinutes');
+  const optimalSleep = useSettings((s) => s.optimalSleepMinutes);
+  const optimalWake = useSettings((s) => s.optimalWakeMinutes);
   const deviation = averageGoalDeviationMinutes(sleepMinutes, wakeMinutes, optimalSleep, optimalWake);
   const score = goalMatchScore(sleepMinutes, wakeMinutes, optimalSleep, optimalWake);
   const scoreColor =
