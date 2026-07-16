@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { ComponentProps } from 'react';
 import { act, create } from 'react-test-renderer';
 import type { ReactTestRenderer } from 'react-test-renderer';
@@ -6,6 +6,10 @@ import { ActivityIndicator, FlatList, ScrollView, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { MessageList } from '@/components/chat/MessageList';
+
+jest.mock('expo-symbols', () => ({
+  SymbolView: 'SymbolView',
+}));
 
 jest.mock('react-native-keyboard-controller', () => {
   const React = require('react');
@@ -27,6 +31,17 @@ jest.mock('react-native-keyboard-controller', () => {
   };
 });
 
+beforeEach(() => {
+  jest.useFakeTimers();
+});
+
+afterEach(() => {
+  act(() => {
+    jest.runOnlyPendingTimers();
+  });
+  jest.useRealTimers();
+});
+
 async function renderMessageList(props: ComponentProps<typeof MessageList>) {
   let tree: ReactTestRenderer | undefined;
 
@@ -44,6 +59,20 @@ async function renderMessageList(props: ComponentProps<typeof MessageList>) {
   });
 
   return tree!;
+}
+
+function createScrollEvent(input: {
+  contentHeight: number;
+  layoutHeight: number;
+  offsetY: number;
+}) {
+  return {
+    nativeEvent: {
+      contentOffset: { x: 0, y: input.offsetY },
+      contentSize: { height: input.contentHeight, width: 390 },
+      layoutMeasurement: { height: input.layoutHeight, width: 390 },
+    },
+  };
 }
 
 describe('MessageList', () => {
@@ -175,5 +204,80 @@ describe('MessageList', () => {
     expect(flatList.props.keyboardDismissMode).toBe('interactive');
     expect(scrollView.props.keyboardDismissMode).toBe('interactive');
     expect(scrollView.props.keyboardLiftBehavior).toBe('whenAtEnd');
+  });
+
+  it('shows a scroll-to-bottom control when manual scrolling detaches auto-follow', async () => {
+    const tree = await renderMessageList({
+      isAwaitingFirstToken: false,
+      messages: [
+        {
+          content: 'hello',
+          createdAt: 1,
+          id: 'user-1',
+          role: 'user',
+          status: 'complete',
+        },
+        {
+          content: 'long reply',
+          createdAt: 2,
+          id: 'assistant-1',
+          role: 'assistant',
+          status: 'streaming',
+        },
+      ],
+    });
+
+    expect(tree.root.findAll((node) => (
+      node.props.accessibilityLabel === 'scroll to latest message'
+        && node.props.onPress != null
+    ))).toHaveLength(0);
+
+    const flatList = tree.root.findByType(FlatList);
+
+    await act(async () => {
+      flatList.props.onScroll(createScrollEvent({
+        contentHeight: 1400,
+        layoutHeight: 600,
+        offsetY: 240,
+      }));
+    });
+
+    expect(tree.root.findAll((node) => (
+      node.props.accessibilityLabel === 'scroll to latest message'
+        && node.props.onPress != null
+    ))).toHaveLength(1);
+  });
+
+  it('detaches auto-follow when the user starts dragging the transcript', async () => {
+    const tree = await renderMessageList({
+      isAwaitingFirstToken: false,
+      messages: [
+        {
+          content: 'hello',
+          createdAt: 1,
+          id: 'user-1',
+          role: 'user',
+          status: 'complete',
+        },
+        {
+          content: 'long reply',
+          createdAt: 2,
+          id: 'assistant-1',
+          role: 'assistant',
+          status: 'complete',
+        },
+      ],
+    });
+
+    const flatList = tree.root.findByType(FlatList);
+
+    await act(async () => {
+      flatList.props.onScrollBeginDrag();
+    });
+
+    expect(tree.root.findAll((node) => (
+      node.props.accessibilityLabel === 'scroll to latest message'
+        && node.props.onPress != null
+    ))).toHaveLength(1);
   });
 });

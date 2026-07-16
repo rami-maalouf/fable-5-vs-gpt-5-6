@@ -1,10 +1,12 @@
-import { useCallback, useRef } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ScrollViewProps } from 'react-native';
+import { SymbolView } from 'expo-symbols';
 import { KeyboardChatScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MessageRow } from '@/components/chat/MessageRow';
+import { usePinnedScroll } from '@/hooks/usePinnedScroll';
 import type { ChatTranscriptMessage } from '@/state/chat';
 import { spacing, useNovaTheme } from '@/theme';
 
@@ -24,15 +26,23 @@ export function MessageList({
 }: MessageListProps) {
   const theme = useNovaTheme();
   const { bottom } = useSafeAreaInsets();
-  const listRef = useRef<FlatList<ChatTranscriptMessage>>(null);
+  const pinnedScroll = usePinnedScroll();
+  const {
+    bindListRef,
+    onContentSizeChange,
+    onScroll,
+    onScrollBeginDrag,
+    scrollToBottom,
+    shouldShowScrollToBottom,
+  } = pinnedScroll;
 
-  const scrollToEnd = useCallback(() => {
+  const handleContentSizeChange = useCallback(() => {
     if (messages.length === 0) {
       return;
     }
 
-    listRef.current?.scrollToEnd({ animated: true });
-  }, [messages.length]);
+    onContentSizeChange();
+  }, [messages.length, onContentSizeChange]);
 
   const renderScrollComponent = useCallback((props: ScrollViewProps) => (
     <KeyboardChatScrollView
@@ -46,47 +56,72 @@ export function MessageList({
   ), [bottom]);
 
   return (
-    <FlatList
-      ref={listRef}
-      contentContainerStyle={[
-        styles.content,
-        messages.length === 0 && styles.emptyContent,
-      ]}
-      data={messages}
-      keyboardDismissMode="interactive"
-      keyboardShouldPersistTaps="handled"
-      keyExtractor={(message) => message.id}
-      ListEmptyComponent={
-        <View style={styles.emptyState}>
-          <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
-            What should we explore?
-          </Text>
-          <Text style={[styles.emptySubtitle, { color: theme.colors.secondaryText }]}>
-            Start a conversation with Nova. Your history will live in the sidebar once
-            there is something to save.
-          </Text>
-        </View>
-      }
-      maintainVisibleContentPosition={{
-        autoscrollToTopThreshold: 80,
-        minIndexForVisible: 0,
-      }}
-      onContentSizeChange={scrollToEnd}
-      renderItem={({ item }) => (
-        <MessageRow
-          isAwaitingFirstToken={isAwaitingFirstToken}
-          message={item}
-          onRetryMessage={onRetryMessage}
-        />
-      )}
-      renderScrollComponent={renderScrollComponent}
-      scrollEventThrottle={16}
-      style={styles.list}
-    />
+    <View style={styles.container}>
+      <FlatList
+        ref={bindListRef}
+        contentContainerStyle={[
+          styles.content,
+          messages.length === 0 && styles.emptyContent,
+        ]}
+        data={messages}
+        keyboardDismissMode="interactive"
+        keyboardShouldPersistTaps="handled"
+        keyExtractor={(message) => message.id}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={[styles.emptyTitle, { color: theme.colors.text }]}>
+              What should we explore?
+            </Text>
+            <Text style={[styles.emptySubtitle, { color: theme.colors.secondaryText }]}>
+              Start a conversation with Nova. Your history will live in the sidebar once
+              there is something to save.
+            </Text>
+          </View>
+        }
+        maintainVisibleContentPosition={{
+          autoscrollToTopThreshold: 80,
+          minIndexForVisible: 0,
+        }}
+        onContentSizeChange={handleContentSizeChange}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        renderItem={({ item }) => (
+          <MessageRow
+            isAwaitingFirstToken={isAwaitingFirstToken}
+            message={item}
+            onRetryMessage={onRetryMessage}
+          />
+        )}
+        renderScrollComponent={renderScrollComponent}
+        scrollEventThrottle={16}
+        style={styles.list}
+      />
+
+      {shouldShowScrollToBottom ? (
+        <Pressable
+          accessibilityLabel="scroll to latest message"
+          accessibilityRole="button"
+          onPress={scrollToBottom}
+          style={({ pressed }) => [
+            styles.scrollToBottomButton,
+            {
+              backgroundColor: theme.colors.elevated,
+              borderColor: theme.colors.separator,
+              opacity: pressed ? 0.72 : 1,
+            },
+          ]}
+        >
+          <SymbolView name="arrow.down" size={16} tintColor={theme.colors.text} />
+        </Pressable>
+      ) : null}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   list: {
     flex: 1,
   },
@@ -114,5 +149,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
     textAlign: 'center',
+  },
+  scrollToBottomButton: {
+    position: 'absolute',
+    right: spacing.md,
+    bottom: spacing.md,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
