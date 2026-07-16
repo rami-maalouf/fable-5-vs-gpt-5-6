@@ -176,3 +176,30 @@ Code-quality review:
 - Data integrity: New chat only resets in-memory state; the existing first-send transaction remains the sole conversation creation boundary.
 - Accessibility: every history action has a 44-point target, semantic role, and descriptive label.
 - Maintainability: the drawer shell owns motion, the conversation list owns presentation, and `useConversations` owns repository loading and failure state.
+
+## Conversation Management - Task 11 And Phase Checkpoint
+
+Status: passed on 2026-07-16.
+
+- Context actions: a 350 ms row long press opens the native iOS action sheet with Rename and destructive Delete actions.
+- Rename: the dialog selected the complete existing title, persisted `Northern Light Archive`, and retained the row's second-place ordering until the newer conversation was deleted.
+- Search by content: `icy moon` matched only the Saturn conversation through assistant-message content even though the phrase was absent from its title.
+- Search by title: `Northern` matched only the renamed lighthouse conversation; clearing restored the complete newest-first list.
+- Active delete: deleting the open Saturn conversation required destructive confirmation, cascaded its messages, closed the drawer, and returned the chat to `How can I help?`.
+- Persistence: after a cold relaunch, only `Northern Light Archive` remained and its renamed title was intact.
+- Accessibility: search and clear actions have explicit labels, rows announce the long-press management hint, and the rename dialog isolates list descendants while open.
+- Runtime: the final cold relaunch produced zero JavaScript log entries.
+- Automated gates: 20 Bun tests passed; `bunx tsc --noEmit` passed; `bun run lint` passed; `git diff --check` passed.
+
+Evidence:
+
+- `verification/11-rename-search-light.png`
+- `verification/11-active-delete-light.png`
+
+Code-quality review:
+
+- Correctness: debounced searches and explicit refreshes share a request-version guard, so stale query results cannot replace a newer list.
+- Data integrity: rename does not touch `updated_at`; delete uses the existing foreign-key cascade; active-chat reset occurs only after the delete succeeds.
+- Recovery: query, rename, delete, and refresh failures remain generic, visible, and retryable without exposing SQLite details.
+- Accessibility: management actions use native system sheets and alerts, the custom rename input has a selected initial value, and all custom actions retain 44-point targets.
+- Maintainability: SQLite operations remain in the repository-backed hook, while the list owns only interaction presentation and Home owns active-chat recovery.

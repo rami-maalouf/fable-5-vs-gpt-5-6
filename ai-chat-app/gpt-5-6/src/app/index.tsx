@@ -21,7 +21,16 @@ export default function HomeScreen() {
     startNewChat,
     stop,
   } = useChat();
-  const { conversations, error, isLoading, refresh } = useConversations();
+  const {
+    conversations,
+    error,
+    isLoading,
+    query,
+    refresh,
+    remove,
+    rename,
+    setQuery,
+  } = useConversations();
 
   return (
     <DrawerShell
@@ -31,11 +40,21 @@ export default function HomeScreen() {
           conversations={conversations}
           error={error}
           isLoading={isLoading}
+          onDelete={async (conversationId) => {
+            const didDelete = await remove(conversationId);
+            if (didDelete && conversationId === activeConversationId) {
+              startNewChat();
+              closeDrawer();
+            }
+            return didDelete;
+          }}
           onNewChat={() => {
             startNewChat();
             closeDrawer();
           }}
+          onQueryChange={setQuery}
           onRefresh={() => void refresh()}
+          onRename={rename}
           onSelect={(conversationId) => {
             if (conversationId === activeConversationId) {
               closeDrawer();
@@ -50,6 +69,7 @@ export default function HomeScreen() {
               }
             });
           }}
+          query={query}
         />
       )}
       onOpen={() => void refresh()}>

@@ -22,8 +22,8 @@ plan: `plan.md` - task details, acceptance criteria, and verification live there
 ## phase 4: drawer + conversation management
 - [x] task 9: drawer shell (edge swipe, dim overlay, header button)
 - [x] task 10: conversation list + new chat + titles
-- [ ] task 11: rename, delete, search
-- [ ] checkpoint: verification scenario 4 passes; commit
+- [x] task 11: rename, delete, search
+- [x] checkpoint: verification scenario 4 passes; commit
 
 ## phase 5: model picker + polish
 - [ ] task 12: model picker (per-conversation, allowlist)

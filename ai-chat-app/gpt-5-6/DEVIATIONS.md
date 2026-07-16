@@ -16,3 +16,5 @@
 - Keep launch on a fresh in-memory chat even when SQLite contains history. Persisted conversations are loaded only through `openConversation`, which satisfies the fresh-launch requirement and gives the drawer a single explicit restoration boundary.
 - Use a custom Reanimated drawer shell with a 24-point leading-edge gesture target. Expo Router's stack has no drawer primitive, and this keeps motion, accessibility isolation, and responsive sizing explicit without adding a navigation dependency for one screen.
 - Refresh conversation history whenever the drawer opens. This keeps the list synchronized after sends, stops, retries, renames, and deletes without coupling SQLite write callbacks into drawer presentation state.
+- Use the native iOS action sheet for long-press conversation actions and a small cross-platform modal for title entry. React Native's alert prompt is iOS-only, while the custom input preserves the same rename path on Android.
+- Debounce repository search by 180 ms and retain the previous list during refresh. This avoids a database query for every immediate keystroke while preventing result flicker during normal filtering.

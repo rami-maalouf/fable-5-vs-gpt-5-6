@@ -6,19 +6,24 @@ import { colors } from '@/theme/colors';
 type ConversationRowProps = {
   conversation: ConversationRecord;
   isActive: boolean;
+  onLongPress: () => void;
   onPress: () => void;
 };
 
 export function ConversationRow({
   conversation,
   isActive,
+  onLongPress,
   onPress,
 }: ConversationRowProps) {
   return (
     <Pressable
+      accessibilityHint="Long press for rename and delete actions"
       accessibilityLabel={`Open conversation: ${conversation.title}`}
       accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
+      delayLongPress={350}
+      onLongPress={onLongPress}
       onPress={onPress}
       style={({ pressed }) => [
         styles.row,
