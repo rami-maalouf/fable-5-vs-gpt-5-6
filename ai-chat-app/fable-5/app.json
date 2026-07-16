@@ -1,14 +1,15 @@
 {
   "expo": {
-    "name": "_starter",
-    "slug": "_starter",
+    "name": "Nova",
+    "slug": "nova",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "starter",
+    "scheme": "nova",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.ramimaalouf.nova"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -33,7 +34,7 @@
           "imageWidth": 76
         }
       ],
-      "expo-widgets"
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

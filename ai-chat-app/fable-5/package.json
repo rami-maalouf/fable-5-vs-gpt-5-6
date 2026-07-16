@@ -1,44 +1,62 @@
 {
-  "name": "starter",
+  "name": "nova",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~57.0.6",
+    "@openai/agents": "^0.13.4",
     "expo": "~57.0.6",
     "expo-constants": "~57.0.5",
     "expo-device": "~57.0.1",
     "expo-font": "~57.0.1",
     "expo-glass-effect": "~57.0.1",
+    "expo-haptics": "~57.0.1",
     "expo-image": "~57.0.1",
     "expo-linking": "~57.0.3",
     "expo-router": "~57.0.6",
     "expo-splash-screen": "~57.0.4",
+    "expo-sqlite": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.1",
     "expo-system-ui": "~57.0.1",
     "expo-web-browser": "~57.0.1",
-    "expo-widgets": "~57.0.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.0",
     "react-native-gesture-handler": "~2.32.0",
+    "react-native-keyboard-controller": "1.21.9",
     "react-native-reanimated": "4.5.0",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "4.25.2",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.10.0"
+    "react-native-worklets": "0.10.0",
+    "zod": "^4",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jest": "^29",
     "@types/react": "~19.2.2",
+    "better-sqlite3": "^12.11.1",
+    "jest": "^29.7.0",
+    "jest-expo": "~57.0.0",
+    "react-test-renderer": "19.2.3",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testMatch": [
+      "**/tests/**/*.test.(ts|tsx)"
+    ]
   },
   "private": true
 }
