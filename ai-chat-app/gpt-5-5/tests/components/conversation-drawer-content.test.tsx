@@ -31,6 +31,16 @@ jest.mock('expo-symbols', () => ({
   SymbolView: 'SymbolView',
 }));
 
+jest.mock('@expo/ui/community/menu', () => {
+  const { View } = require('react-native');
+
+  return {
+    MenuView: ({ children, ...props }: Record<string, unknown>) => (
+      <View {...props}>{children}</View>
+    ),
+  };
+});
+
 class NodeSqlDatabase implements SqlDatabase {
   private readonly db = new DatabaseSync(':memory:');
 
@@ -92,7 +102,9 @@ async function renderContent(db: SqlDatabase, overrides = {}) {
     activeConversationId: null,
     db,
     isOpen: true,
+    onDeleteConversation: jest.fn(),
     onNewChat: jest.fn(),
+    onRenameConversation: jest.fn(),
     onSelectConversation: jest.fn(),
     ...overrides,
   };
@@ -157,5 +169,33 @@ describe('ConversationDrawerContent', () => {
     });
 
     expect(onNewChat).toHaveBeenCalledTimes(1);
+  });
+
+  it('exposes native menu actions for rename and delete', async () => {
+    const onDeleteConversation = jest.fn();
+    const onRenameConversation = jest.fn();
+    const { tree } = await renderContent(db, {
+      onDeleteConversation,
+      onRenameConversation,
+    });
+    const menu = tree.root.findByProps({ testID: 'actions-for-newer' });
+
+    expect(menu.props.shouldOpenOnLongPress).toBe(true);
+    expect(menu.props.actions).toEqual([
+      expect.objectContaining({ id: 'rename', title: 'Rename' }),
+      expect.objectContaining({
+        attributes: expect.objectContaining({ destructive: true }),
+        id: 'delete',
+        title: 'Delete',
+      }),
+    ]);
+
+    await act(async () => {
+      menu.props.onPressAction({ nativeEvent: { event: 'rename' } });
+      menu.props.onPressAction({ nativeEvent: { event: 'delete' } });
+    });
+
+    expect(onRenameConversation).toHaveBeenCalledWith('newer', 'Beach ideas');
+    expect(onDeleteConversation).toHaveBeenCalledWith('newer', 'Beach ideas');
   });
 });

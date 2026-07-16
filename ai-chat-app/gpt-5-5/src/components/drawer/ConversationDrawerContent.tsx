@@ -1,3 +1,4 @@
+import { MenuView } from '@expo/ui/community/menu';
 import { SymbolView } from 'expo-symbols';
 import { useEffect, useState } from 'react';
 import {
@@ -17,16 +18,38 @@ type ConversationDrawerContentProps = {
   activeConversationId: string | null;
   db: SqlDatabase;
   isOpen: boolean;
+  onDeleteConversation: (conversationId: string, title: string) => void;
   onNewChat: () => void;
+  onRenameConversation: (conversationId: string, title: string) => void;
   onSelectConversation: (conversationId: string) => void;
+  refreshKey?: number;
 };
+
+const ROW_MENU_ACTIONS = [
+  {
+    id: 'rename',
+    image: 'pencil',
+    title: 'Rename',
+  },
+  {
+    attributes: {
+      destructive: true,
+    },
+    id: 'delete',
+    image: 'trash',
+    title: 'Delete',
+  },
+] as const;
 
 export function ConversationDrawerContent({
   activeConversationId,
   db,
   isOpen,
+  onDeleteConversation,
   onNewChat,
+  onRenameConversation,
   onSelectConversation,
+  refreshKey = 0,
 }: ConversationDrawerContentProps) {
   const theme = useNovaTheme();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -49,7 +72,7 @@ export function ConversationDrawerContent({
     return () => {
       cancelled = true;
     };
-  }, [db, isOpen, searchQuery]);
+  }, [db, isOpen, refreshKey, searchQuery]);
 
   return (
     <View style={styles.container}>
@@ -95,37 +118,52 @@ export function ConversationDrawerContent({
           const isActive = item.id === activeConversationId;
 
           return (
-            <Pressable
-              accessibilityLabel={`open ${item.title}`}
-              accessibilityRole="button"
-              accessibilityState={{ selected: isActive }}
+            <MenuView
+              actions={[...ROW_MENU_ACTIONS]}
               key={item.id}
-              onPress={() => onSelectConversation(item.id)}
-              style={({ pressed }) => [
-                styles.row,
-                {
-                  backgroundColor: isActive
-                    ? theme.colors.secondaryFill
-                    : 'transparent',
-                  borderBottomColor: theme.colors.separator,
-                  opacity: pressed ? 0.72 : 1,
-                },
-              ]}
+              onPressAction={({ nativeEvent }) => {
+                if (nativeEvent.event === 'rename') {
+                  onRenameConversation(item.id, item.title);
+                }
+
+                if (nativeEvent.event === 'delete') {
+                  onDeleteConversation(item.id, item.title);
+                }
+              }}
+              shouldOpenOnLongPress
+              testID={`actions-for-${item.id}`}
             >
-              <Text
-                numberOfLines={1}
-                style={[styles.rowTitle, { color: theme.colors.text }]}
+              <Pressable
+                accessibilityLabel={`open ${item.title}`}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isActive }}
+                onPress={() => onSelectConversation(item.id)}
+                style={({ pressed }) => [
+                  styles.row,
+                  {
+                    backgroundColor: isActive
+                      ? theme.colors.secondaryFill
+                      : 'transparent',
+                    borderBottomColor: theme.colors.separator,
+                    opacity: pressed ? 0.72 : 1,
+                  },
+                ]}
               >
-                {item.title}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={[styles.rowModel, { color: theme.colors.secondaryText }]}
-              >
+                <Text
+                  numberOfLines={1}
+                  style={[styles.rowTitle, { color: theme.colors.text }]}
+                >
+                  {item.title}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.rowModel, { color: theme.colors.secondaryText }]}
+                >
                   {item.model}
                 </Text>
               </Pressable>
-            );
+            </MenuView>
+          );
         })}
       </ScrollView>
     </View>

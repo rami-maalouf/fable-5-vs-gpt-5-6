@@ -7,6 +7,7 @@ import {
   listConversationsAsync,
   listMessagesAsync,
   migrateDatabaseAsync,
+  renameConversationAsync,
   searchConversationsAsync,
 } from '@/data';
 import type { SqlDatabase, SqlRunResult } from '@/data';
@@ -157,6 +158,40 @@ describe('sqlite repositories', () => {
     expect((await listConversationsAsync(db)).map((conversation) => conversation.id)).toEqual([
       'older',
       'newer',
+    ]);
+  });
+
+  it('renames conversations and moves them to the top', async () => {
+    await createConversationAsync(db, {
+      id: 'older',
+      title: 'Older',
+      model: 'gpt-5.6-luna',
+      createdAt: 100,
+    });
+    await createConversationAsync(db, {
+      id: 'newer',
+      title: 'Newer',
+      model: 'gpt-5.6-sol',
+      createdAt: 200,
+    });
+
+    await renameConversationAsync(db, 'older', 'Renamed thread', 300);
+
+    expect(await listConversationsAsync(db)).toEqual([
+      {
+        id: 'older',
+        title: 'Renamed thread',
+        model: 'gpt-5.6-luna',
+        createdAt: 100,
+        updatedAt: 300,
+      },
+      {
+        id: 'newer',
+        title: 'Newer',
+        model: 'gpt-5.6-sol',
+        createdAt: 200,
+        updatedAt: 200,
+      },
     ]);
   });
 

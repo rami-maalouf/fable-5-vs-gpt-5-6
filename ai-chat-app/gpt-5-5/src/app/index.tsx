@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import { SymbolView } from 'expo-symbols';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { KeyboardGestureArea, KeyboardStickyView } from 'react-native-keyboard-controller';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,7 +9,11 @@ import { CHAT_INPUT_NATIVE_ID, Composer } from '@/components/chat/Composer';
 import { MessageList } from '@/components/chat/MessageList';
 import { ConversationDrawerContent } from '@/components/drawer/ConversationDrawerContent';
 import { Drawer } from '@/components/drawer/Drawer';
-import { createExpoSqlDatabaseAdapter } from '@/data';
+import {
+  createExpoSqlDatabaseAdapter,
+  deleteConversationAsync,
+  renameConversationAsync,
+} from '@/data';
 import { useChatStream } from '@/hooks/useChatStream';
 import { useChatStore } from '@/state/chat';
 import { useDrawerStore } from '@/state/drawer';
@@ -26,6 +30,7 @@ export default function HomeScreen() {
   const { bottom } = useSafeAreaInsets();
   const sqliteDb = useSQLiteContext();
   const db = useMemo(() => createExpoSqlDatabaseAdapter(sqliteDb), [sqliteDb]);
+  const [drawerRefreshKey, setDrawerRefreshKey] = useState(0);
   const chatStream = useChatStream();
   const activeAssistantMessageId = useChatStore((state) => state.activeAssistantMessageId);
   const appendAssistantChunk = useChatStore((state) => state.appendAssistantChunk);
@@ -113,6 +118,10 @@ export default function HomeScreen() {
     chatStream.stop();
   };
 
+  const refreshDrawerConversations = () => {
+    setDrawerRefreshKey((value) => value + 1);
+  };
+
   const startNewChat = () => {
     chatStream.stop();
     resetTranscript();
@@ -130,6 +139,65 @@ export default function HomeScreen() {
       });
       setDrawerOpen(false);
     });
+  };
+
+  const renameConversation = (conversationId: string, title: string) => {
+    Alert.prompt(
+      'Rename conversation',
+      undefined,
+      [
+        {
+          style: 'cancel',
+          text: 'Cancel',
+        },
+        {
+          onPress: (nextTitle?: string) => {
+            const trimmedTitle = nextTitle?.trim();
+
+            if (trimmedTitle == null || trimmedTitle.length === 0) {
+              return;
+            }
+
+            void renameConversationAsync(
+              db,
+              conversationId,
+              trimmedTitle,
+              Date.now()
+            ).then(refreshDrawerConversations);
+          },
+          text: 'Save',
+        },
+      ],
+      'plain-text',
+      title
+    );
+  };
+
+  const deleteConversation = (conversationId: string, title: string) => {
+    Alert.alert(
+      'Delete conversation?',
+      title,
+      [
+        {
+          style: 'cancel',
+          text: 'Cancel',
+        },
+        {
+          onPress: () => {
+            void deleteConversationAsync(db, conversationId).then(() => {
+              if (conversationId === currentConversationId) {
+                resetTranscript();
+                setDrawerOpen(false);
+              }
+
+              refreshDrawerConversations();
+            });
+          },
+          style: 'destructive',
+          text: 'Delete',
+        },
+      ]
+    );
   };
 
   return (
@@ -203,8 +271,11 @@ export default function HomeScreen() {
           activeConversationId={currentConversationId}
           db={db}
           isOpen={isDrawerOpen}
+          onDeleteConversation={deleteConversation}
           onNewChat={startNewChat}
+          onRenameConversation={renameConversation}
           onSelectConversation={selectConversation}
+          refreshKey={drawerRefreshKey}
         />
       </Drawer>
     </View>
