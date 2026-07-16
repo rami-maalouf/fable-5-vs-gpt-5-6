@@ -19,6 +19,7 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="log-editor" options={{ presentation: 'formSheet' }} />
+            <Stack.Screen name="sleep-tips" options={{ presentation: 'card' }} />
           </Stack>
         </SleepAppearanceProvider>
       </ThemeProvider>

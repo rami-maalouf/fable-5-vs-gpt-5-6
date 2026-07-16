@@ -1,9 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
+import { useColorScheme } from 'react-native';
 
 import { getSessionRepository } from '@/data/session-store';
+import { settingsStore } from '@/data/settings-store';
+import { defaultSleepSettings, type SleepSettings } from '@/domain/models';
 
 import type { AppTheme } from './palettes';
-import { themes } from './palettes';
+import { selectTheme, themes } from './palettes';
 
 export const skiaGrayscaleMatrix = [
   0.2126, 0.7152, 0.0722, 0, 0,
@@ -19,9 +22,17 @@ export const desaturatedNightThemes = {
 
 type SleepAppearanceContextValue = {
   asleep: boolean;
+  settings: SleepSettings;
+  theme: AppTheme;
+  updateSettings: (patch: Partial<SleepSettings>) => Promise<SleepSettings>;
 };
 
-const SleepAppearanceContext = createContext<SleepAppearanceContextValue>({ asleep: false });
+const SleepAppearanceContext = createContext<SleepAppearanceContextValue>({
+  asleep: false,
+  settings: defaultSleepSettings,
+  theme: themes.twilight,
+  updateSettings: async () => defaultSleepSettings,
+});
 
 export function desaturateTheme(theme: AppTheme): AppTheme {
   return {
@@ -64,7 +75,27 @@ export function desaturateHexColor(hex: string) {
 }
 
 export function SleepAppearanceProvider({ children }: PropsWithChildren) {
+  const colorScheme = useColorScheme();
   const [asleep, setAsleep] = useState(false);
+  const [settings, setSettings] = useState(defaultSleepSettings);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSettings() {
+      const storedSettings = await settingsStore.getSettings();
+
+      if (!cancelled) {
+        setSettings(storedSettings);
+      }
+    }
+
+    void loadSettings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +118,26 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  const value = useMemo(() => ({ asleep }), [asleep]);
+  const theme = useMemo(
+    () =>
+      selectTheme({
+        systemColorScheme: colorScheme === 'light' ? 'light' : 'dark',
+        themeMode: settings.themeMode,
+        themePalette: settings.themePalette,
+      }),
+    [colorScheme, settings.themeMode, settings.themePalette],
+  );
+
+  const updateSettings = useMemo(
+    () => async (patch: Partial<SleepSettings>) => {
+      const nextSettings = await settingsStore.updateSettings(patch);
+      setSettings(nextSettings);
+      return nextSettings;
+    },
+    [],
+  );
+
+  const value = useMemo(() => ({ asleep, settings, theme, updateSettings }), [asleep, settings, theme, updateSettings]);
 
   return <SleepAppearanceContext.Provider value={value}>{children}</SleepAppearanceContext.Provider>;
 }
@@ -96,8 +146,22 @@ export function useIsAsleep() {
   return useContext(SleepAppearanceContext).asleep;
 }
 
-export function useSleepAppearanceTheme(theme: AppTheme) {
-  const asleep = useIsAsleep();
+export function useSleepSettings() {
+  return useContext(SleepAppearanceContext).settings;
+}
 
-  return useMemo(() => (asleep ? desaturateTheme(theme) : theme), [asleep, theme]);
+export function useUpdateSleepSettings() {
+  return useContext(SleepAppearanceContext).updateSettings;
+}
+
+export function useCurrentTheme() {
+  return useContext(SleepAppearanceContext).theme;
+}
+
+export function useSleepAppearanceTheme(theme?: AppTheme) {
+  const currentTheme = useCurrentTheme();
+  const asleep = useIsAsleep();
+  const visibleTheme = theme ?? currentTheme;
+
+  return useMemo(() => (asleep ? desaturateTheme(visibleTheme) : visibleTheme), [asleep, visibleTheme]);
 }

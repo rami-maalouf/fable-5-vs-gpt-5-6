@@ -1,11 +1,5 @@
-import { TwilightPlaceholderScreen } from '@/components/twilight-placeholder-screen';
+import { SettingsScreen as SettingsTabScreen } from '@/components/settings/SettingsScreen';
 
 export default function SettingsScreen() {
-  return (
-    <TwilightPlaceholderScreen
-      eyebrow="preferences"
-      title="Settings"
-      body="sleep goals, appearance, notifications, and community links will land here."
-    />
-  );
+  return <SettingsTabScreen />;
 }

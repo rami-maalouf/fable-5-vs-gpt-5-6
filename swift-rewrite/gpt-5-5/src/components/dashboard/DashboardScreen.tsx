@@ -26,7 +26,7 @@ import {
   minutesSinceMidnight,
   selectGreetingBank,
 } from '@/copy/greetings';
-import { themes, type AppTheme } from '@/theme';
+import type { AppTheme } from '@/theme';
 import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 import { SleepToggleCard } from './SleepToggleCard';
@@ -351,7 +351,7 @@ function MetricsExplanationSheet({
 }
 
 export function DashboardScreen() {
-  const theme = useSleepAppearanceTheme(themes.twilight);
+  const theme = useSleepAppearanceTheme();
   const [mode, setMode] = useState<DashboardMode>('Week');
   const [range, setRange] = useState<DashboardRange>('90D');
   const [now, setNow] = useState(() => new Date());

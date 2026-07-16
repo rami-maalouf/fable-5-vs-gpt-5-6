@@ -17,7 +17,6 @@ import {
   draftFromSession,
   type LogEditorDraft,
 } from '@/domain/log-editor';
-import { themes } from '@/theme';
 import type { AppTheme } from '@/theme';
 import { useIsAsleep, useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
@@ -30,7 +29,7 @@ type LogEditorScreenProps = {
 };
 
 export function LogEditorScreen({ sessionId }: LogEditorScreenProps) {
-  const theme = useSleepAppearanceTheme(themes.twilight);
+  const theme = useSleepAppearanceTheme();
   const grayscale = useIsAsleep();
   const [draft, setDraft] = useState<LogEditorDraft | null>(null);
   const [loadState, setLoadState] = useState<LoadState>('loading');

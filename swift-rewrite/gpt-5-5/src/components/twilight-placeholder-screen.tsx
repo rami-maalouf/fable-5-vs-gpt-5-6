@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CardBackground, GlowingMoonView, ScreenChrome } from '@/components/common';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-import { themes } from '@/theme';
 import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 type TwilightPlaceholderScreenProps = PropsWithChildren<{
@@ -13,7 +12,7 @@ type TwilightPlaceholderScreenProps = PropsWithChildren<{
 }>;
 
 export function TwilightPlaceholderScreen({ body, children, eyebrow, title }: TwilightPlaceholderScreenProps) {
-  const theme = useSleepAppearanceTheme(themes.twilight);
+  const theme = useSleepAppearanceTheme();
 
   return (
     <ScreenChrome theme={theme}>

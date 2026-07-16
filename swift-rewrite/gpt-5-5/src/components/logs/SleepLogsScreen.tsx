@@ -6,7 +6,7 @@ import { CardBackground, ScreenChrome } from '@/components/common';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { getSessionRepository } from '@/data/session-store';
 import type { SleepSession } from '@/domain/models';
-import { themes, type AppTheme } from '@/theme';
+import type { AppTheme } from '@/theme';
 import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 import { AddSleepLogButton, SleepLogRow } from './SleepLogRow';
@@ -16,7 +16,7 @@ import { buildSleepLogRows, type SleepLogRowModel } from './sleep-log-rows';
 type LoadState = 'loading' | 'ready' | 'error';
 
 export function SleepLogsScreen() {
-  const theme = useSleepAppearanceTheme(themes.twilight);
+  const theme = useSleepAppearanceTheme();
   const [sessions, setSessions] = useState<SleepSession[]>([]);
   const [loadState, setLoadState] = useState<LoadState>('loading');
 

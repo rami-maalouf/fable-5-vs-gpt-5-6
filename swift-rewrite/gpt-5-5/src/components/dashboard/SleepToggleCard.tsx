@@ -8,7 +8,6 @@ import type { SleepSession } from '@/domain/models';
 import { durationSeconds, formatDuration } from '@/domain/session-rules';
 import { endActiveSleepSession, startSleepSession } from '@/domain/sleep-toggle';
 import { getSessionRepository } from '@/data/session-store';
-import { themes } from '@/theme';
 import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 function currentTimeZone() {
@@ -32,7 +31,7 @@ type SleepToggleCardProps = {
 };
 
 export function SleepToggleCard({ onSessionChange }: SleepToggleCardProps) {
-  const theme = useSleepAppearanceTheme(themes.twilight);
+  const theme = useSleepAppearanceTheme();
   const [activeSession, setActiveSession] = useState<SleepSession | null>(null);
   const [now, setNow] = useState(() => new Date());
   const [feedback, setFeedback] = useState<string | null>(null);
