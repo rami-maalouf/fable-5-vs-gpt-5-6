@@ -277,12 +277,61 @@ metro 8087, real key, cold restart first (dashboard + widget both 2000):
 - ios sim CAN capture: takePictureAsync returns a black test frame on the
   iphone 17 pro max / ios 27 runtime; don't assume capture is device-only.
 
-### next: task 11 (failures, retries, cancellation), then 12-17
+- task 11 failures/retries/cancellation: `src/components/scan/ErrorCard.tsx`
+  (bottom card over the still-mounted photo, same fade+translate entrance as
+  ResultCard, reduce-motion fade only; stageScrim layer dims the photo behind
+  the card; three variants: not_food "That doesn't look like food" + "Try
+  another photo", network "Couldn't reach the analyzer" + "Check your
+  connection...", analysis "Analysis failed"; recoverable variants use
+  "Retry analysis"; all actions 52pt, accessible roles/labels,
+  accessibilityLiveRegion polite). scan.tsx: placeholder pills removed,
+  ErrorCard wired (try_another_photo / retry_analysis dispatches), analyzing
+  effect defensively aborts any leftover controller before starting a new
+  request (the reducer serializes requests, so it is belt and braces).
+  tests/components/scan-errors.test.tsx (10 tests, 144 total): not-food ->
+  try-another -> fresh pick reaches result; network retry re-sends the SAME
+  base64 (prepareImage called once); analysis variant distinct copy; rapid
+  double retry starts exactly one replacement request and accept logs
+  scan-2 (latest requestId); stale failure resolving after discard changes
+  nothing; discard from all three error cards leaves day state + publish
+  count untouched; discard/unmount during a retry abort the in-flight
+  signal. commits `73aa103` (code) + checkpoint/todo commit.
 
-distinct not-food and recoverable analysis/network failure cards over the
-prepared photo (replace the placeholder pills), "Try another photo" vs
-"Retry analysis", cancel on discard/unmount, stale-response guards already
-in the reducer.
+### task-11 REAL sim results on the Pro Max (verification evidence)
+
+- non-food: circuit board via library -> real backend not_food -> card over
+  the dimmed photo, "Try another photo" -> acquisition -> salad bowl ->
+  real result "Grilled chicken salad bowl with vegetables, edamame, corn,
+  and eggs" 650 cal / 48g P / 45g C / 29g F -> discarded, dashboard clean.
+- network failure PROVEN LIVE: killed the metro process (bundle already
+  loaded), scanned the salad bowl -> fetch failed -> "Couldn't reach the
+  analyzer" card over the same photo. restarted `bunx expo start --port
+  8087` (status 200 in 3s), tapped "Retry analysis" -> the SAME photo
+  analyzed without re-picking -> result 620 cal / 48g P / 48g C / 25g F ->
+  discarded.
+- discard-from-error isolation: fresh not_food card -> card's Discard ->
+  dashboard byte-identical (2000 left, 0g macros, no meals) and the
+  home-screen widget still shows 2000.
+- both card variants readable over a dark (circuit board) and bright
+  (salad) photo in light mode; scrim + opaque surface card hold contrast.
+
+### task-11 gotchas (hard-won)
+
+- killing metro pops the RN "Open debugger to view warnings" banner over
+  the floating scan button; dismiss it via the small circle at its right
+  edge (~0.93, 0.935) before tapping scan.
+- two fireEvent.press retries in ONE act frame re-trigger the task-9
+  poisoning (later tests in the file render empty); press retry, waitFor
+  the second analyze call, then press the stale button reference to prove
+  the reducer ignores it.
+- metro on 8087 was killed and restarted during this session (nohup,
+  detached); verify http://localhost:8087/status = 200 before relying on it.
+
+### next: task 12 (photo continuity + nutrition motion polish), then 13-17
+
+keep one prepared-image layer mounted across all overlay states, restrained
+overlay transitions, dashboard ring/bars/meal-row animate from previous
+summary after accept within 450-650 ms, slow-animation recording check.
 
 ## design identity (from spec)
 
