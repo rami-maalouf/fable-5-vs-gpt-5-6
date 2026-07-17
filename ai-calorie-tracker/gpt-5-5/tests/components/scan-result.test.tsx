@@ -215,7 +215,7 @@ describe("ScanScreen result state", () => {
     expect(screen.getByLabelText("Selected meal photo").props.source).toEqual({
       uri: "file:///prepared-network.jpg",
     });
-    expect(screen.getByLabelText("Try again")).toBeTruthy();
+    expect(screen.getByLabelText("Retry analysis")).toBeTruthy();
     expect(screen.getAllByLabelText("Close scan").length).toBeGreaterThan(0);
   });
 });

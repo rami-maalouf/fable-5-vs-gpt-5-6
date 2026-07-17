@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AcquisitionView } from "@/components/scan/AcquisitionView";
 import { AnalyzingOverlay } from "@/components/scan/AnalyzingOverlay";
 import { CameraCaptureView } from "@/components/scan/CameraCaptureView";
+import { ErrorCard } from "@/components/scan/ErrorCard";
 import { ResultCard } from "@/components/scan/ResultCard";
 import {
   INITIAL_SCAN_STATE,
@@ -170,6 +171,10 @@ export default function ScanScreen() {
   }
 
   function closeScan() {
+    if (canDiscardScanState(state)) {
+      dispatch({ type: "discard" });
+    }
+
     router.back();
   }
 
@@ -268,7 +273,7 @@ export default function ScanScreen() {
             {state.status === "analyzing" ? <AnalyzingOverlay theme={theme} /> : null}
 
             {state.status === "not_food" ? (
-              <FeedbackCard
+              <ErrorCard
                 title="No food found"
                 body="That photo does not look like a meal. Try another clear food photo."
                 primaryLabel="Try another photo"
@@ -280,10 +285,10 @@ export default function ScanScreen() {
             ) : null}
 
             {state.status === "analysis_error" ? (
-              <FeedbackCard
+              <ErrorCard
                 title="Could not analyze photo"
                 body="The estimate did not come back cleanly. Try again with the same prepared photo."
-                primaryLabel="Try again"
+                primaryLabel="Retry analysis"
                 onPrimary={retryAnalysis}
                 secondaryLabel="Close scan"
                 onSecondary={closeScan}
@@ -292,10 +297,10 @@ export default function ScanScreen() {
             ) : null}
 
             {state.status === "network_error" ? (
-              <FeedbackCard
+              <ErrorCard
                 title="Connection problem"
                 body="Nourish could not reach the analyzer. Check the connection and try again."
-                primaryLabel="Try again"
+                primaryLabel="Retry analysis"
                 onPrimary={retryAnalysis}
                 secondaryLabel="Close scan"
                 onSecondary={closeScan}
@@ -315,61 +320,6 @@ export default function ScanScreen() {
           </View>
         </SafeAreaView>
       )}
-    </View>
-  );
-}
-
-function FeedbackCard({
-  title,
-  body,
-  primaryLabel,
-  secondaryLabel,
-  theme,
-  onPrimary,
-  onSecondary,
-}: {
-  title: string;
-  body: string;
-  primaryLabel: string;
-  secondaryLabel: string;
-  theme: ReturnType<typeof getNourishTheme>;
-  onPrimary: () => void;
-  onSecondary: () => void;
-}) {
-  return (
-    <View style={[styles.feedbackCard, { backgroundColor: theme.colors.surface }]}>
-      <Text style={[styles.feedbackTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.feedbackBody, { color: theme.colors.textSecondary }]}>{body}</Text>
-
-      <View style={styles.feedbackActions}>
-        <Pressable
-          accessibilityLabel={primaryLabel}
-          accessibilityRole="button"
-          onPress={onPrimary}
-          style={[styles.feedbackPrimaryButton, { backgroundColor: theme.colors.accent }]}
-        >
-          <Text style={[styles.feedbackPrimaryText, { color: theme.colors.onAccent }]}>
-            {primaryLabel}
-          </Text>
-        </Pressable>
-
-        <Pressable
-          accessibilityLabel={secondaryLabel}
-          accessibilityRole="button"
-          onPress={onSecondary}
-          style={[
-            styles.feedbackSecondaryButton,
-            {
-              backgroundColor: theme.colors.surfaceSubtle,
-              borderColor: theme.colors.border,
-            },
-          ]}
-        >
-          <Text style={[styles.feedbackSecondaryText, { color: theme.colors.textPrimary }]}>
-            {secondaryLabel}
-          </Text>
-        </Pressable>
-      </View>
     </View>
   );
 }
@@ -410,6 +360,15 @@ function getVisiblePhotoUri(state: ScanState): string | null {
   return null;
 }
 
+function canDiscardScanState(state: ScanState): boolean {
+  return (
+    state.status === "result" ||
+    state.status === "not_food" ||
+    state.status === "analysis_error" ||
+    state.status === "network_error"
+  );
+}
+
 function createRequestId(): string {
   return `scan-${Date.now()}`;
 }
@@ -447,53 +406,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     padding: nourishSpacing.five,
-  },
-  feedbackCard: {
-    borderRadius: nourishRadii.large,
-    padding: nourishSpacing.five,
-    gap: nourishSpacing.four,
-    shadowOpacity: 0.16,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 16 },
-  },
-  feedbackTitle: {
-    fontSize: 28,
-    lineHeight: 32,
-    fontWeight: "900",
-    letterSpacing: -0.8,
-    textAlign: "center",
-  },
-  feedbackBody: {
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  feedbackActions: {
-    gap: nourishSpacing.three,
-  },
-  feedbackPrimaryButton: {
-    minHeight: nourishTouchTargets.primary,
-    borderRadius: nourishRadii.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: nourishSpacing.four,
-  },
-  feedbackPrimaryText: {
-    fontSize: 17,
-    fontWeight: "900",
-  },
-  feedbackSecondaryButton: {
-    minHeight: nourishTouchTargets.primary,
-    borderRadius: nourishRadii.pill,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: nourishSpacing.four,
-  },
-  feedbackSecondaryText: {
-    fontSize: 16,
-    fontWeight: "800",
   },
   overlayCard: {
     borderRadius: nourishRadii.large,
