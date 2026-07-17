@@ -18,6 +18,20 @@ function record(dayKey: string, durationHours: number): SleepNightRecord {
   };
 }
 
+function sequentialRecords(count: number): SleepNightRecord[] {
+  return Array.from({ length: count }, (_, index) => {
+    const dayKey = `2026-07-${String(index + 1).padStart(2, '0')}`;
+    const item = record(dayKey, 6 + index * 0.1);
+    const bedtimeOffset = 4 + (index % 4) * 0.25;
+    return {
+      ...item,
+      bedtimeOffset,
+      midpointOffset: bedtimeOffset + item.durationHours / 2,
+      wakeOffset: bedtimeOffset + item.durationHours,
+    };
+  });
+}
+
 describe('metrics screen model', () => {
   it('maps every picker range to the engine window', () => {
     expect(METRICS_RANGES).toEqual(['30D', '90D', '1Y', 'All']);
@@ -69,4 +83,51 @@ describe('metrics screen model', () => {
     expect(model.records).toEqual([]);
     expect(model.isEmpty).toBe(true);
   });
+
+  it('restores the source trend, regularity, behavior, and range summaries', () => {
+    const model = buildMetricsScreenModel({
+      allRecords: sequentialRecords(16),
+      range: '30D',
+      referenceDayKey: '2026-07-16',
+      targetDurationHours: 7,
+      targetSleepOffset: 4,
+      targetWakeOffset: 11,
+    });
+
+    expect(model.momentumSummary).toEqual({
+      medianDuration: '6h 45m',
+      recentTrend: '+11%',
+    });
+    expect(model.trends.map(({ average, change, days }) => ({ average, change, days }))).toEqual([
+      { average: '7h 24m', change: '+4%', days: 3 },
+      { average: '7h 12m', change: '+11%', days: 7 },
+      { average: '6h 51m', change: '+13%', days: 14 },
+      { average: '6h 45m', change: '-', days: 30 },
+      { average: '6h 45m', change: '-', days: 90 },
+    ]);
+    expect(model.trends[0].sparkline).toEqual([7.3, 7.4, 7.5]);
+    expect(model.regularity.stats.map((item) => item.id)).toEqual([
+      'regularityScore',
+      'bedtimeConsistency',
+      'wakeConsistency',
+      'scheduleAccuracy',
+      'socialJetlag',
+      'debtCredit',
+    ]);
+    expect(model.regularity.latest).toEqual({
+      accuracy: '88%',
+      bedtime: '89%',
+      rollingScore: '86%',
+      wake: '80%',
+    });
+    expect(model.behaviorSummary).toEqual({
+      weekdayAverage: '6h 46m',
+      weekendAverage: '6h 42m',
+    });
+    expect(model.footer).toEqual([
+      { id: 'rangeStart', label: 'Range Start', value: 'Jul 1, 2026' },
+      { id: 'totalDataRange', label: 'Total Data Range', value: '16 days' },
+    ]);
+  });
+
 });

@@ -2,6 +2,7 @@ import {
   createDebtChartModel,
   createDurationMomentumModel,
   createRegularityChartModel,
+  createRegularityComponentSummary,
   createTimingTimelineModel,
   createWeekdayAndHistogramModel,
 } from '@/components/charts/metrics-chart-models';
@@ -69,6 +70,11 @@ describe('metrics chart models', () => {
     expect(model.domain[0]).toBeGreaterThanOrEqual(0);
     expect(model.domain[1]).toBeLessThanOrEqual(100);
     expect(model.domain[1] - model.domain[0]).toBeGreaterThanOrEqual(30);
+    expect(createRegularityComponentSummary(model.data)).toEqual({
+      accuracy: { average: 86, latest: 86 },
+      bedtime: { average: 92, latest: 92 },
+      wake: { average: 77, latest: 77 },
+    });
   });
 
   it('does not fabricate rolling values before their engine windows exist', () => {

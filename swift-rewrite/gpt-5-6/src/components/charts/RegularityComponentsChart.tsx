@@ -1,8 +1,8 @@
 // ports: twilight/views/sleepmetricsview.swift
 
 import { Circle, DashPathEffect, Line, Path, vec } from '@shopify/react-native-skia';
-import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CartesianChart, useChartPressState, type PointsArray } from 'victory-native';
 
 import {
@@ -14,16 +14,20 @@ import {
 } from '@/components/charts/MetricsChartCard';
 import {
   createRegularityChartModel,
+  createRegularityComponentSummary,
   type RegularityChartPoint,
 } from '@/components/charts/metrics-chart-models';
 import { createLinearPath } from '@/components/charts/skia-chart-paths';
 import { usePersistentChartSelection } from '@/components/charts/use-persistent-chart-selection';
+import { MetricChip } from '@/components/metrics/MetricChipRow';
 import type { SleepNightRecord } from '@/domain/metrics/core';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const bedtimeColor = '#7b68ee';
 const wakeColor = '#ff9f0a';
 const accuracyColor = '#30d158';
+const filters = ['All', 'Bedtime', 'Wake', 'Accuracy'] as const;
+type RegularityFilter = (typeof filters)[number];
 
 export function RegularityComponentsChart({
   records,
@@ -35,10 +39,12 @@ export function RegularityComponentsChart({
   targetWakeOffset: number;
 }) {
   const { theme } = useTheme();
+  const [filter, setFilter] = useState<RegularityFilter>('All');
   const model = useMemo(
     () => createRegularityChartModel(records, targetSleepOffset, targetWakeOffset),
     [records, targetSleepOffset, targetWakeOffset],
   );
+  const summary = useMemo(() => createRegularityComponentSummary(model.data), [model.data]);
   const { state } = useChartPressState({
     x: model.data.at(-1)?.date ?? 0,
     y: { accuracy: 0, bedtime: 0, wake: 0 },
@@ -51,10 +57,28 @@ export function RegularityComponentsChart({
       subtitle="Bedtime, wake, and target accuracy across a rolling 14-night window."
       title="Rolling 14-Night Components"
     >
+      <View accessibilityLabel="Regularity metric" style={[styles.filter, { backgroundColor: theme.actionSecondary }]}>
+        {filters.map((option) => (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: filter === option }}
+            key={option}
+            onPress={() => setFilter(option)}
+            style={[styles.filterButton, filter === option && { backgroundColor: theme.textSecondary }]}
+          >
+            <Text style={[styles.filterText, { color: theme.textPrimary }]}>{option}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.chips}>
+        {isVisible(filter, 'Bedtime') ? <ComponentChip label="Bedtime" summary={summary.bedtime} /> : null}
+        {isVisible(filter, 'Wake') ? <ComponentChip label="Wake" summary={summary.wake} /> : null}
+        {isVisible(filter, 'Accuracy') ? <ComponentChip label="Accuracy" summary={summary.accuracy} /> : null}
+      </View>
       <View style={styles.legend}>
-        <Legend color={bedtimeColor} label="Bedtime" />
-        <Legend color={wakeColor} label="Wake" />
-        <Legend color={accuracyColor} label="Accuracy" />
+        {isVisible(filter, 'Bedtime') ? <Legend color={bedtimeColor} label="Bedtime" /> : null}
+        {isVisible(filter, 'Wake') ? <Legend color={wakeColor} label="Wake" /> : null}
+        {isVisible(filter, 'Accuracy') ? <Legend color={accuracyColor} label="Accuracy" /> : null}
       </View>
       {model.data.length === 0 ? (
         <ChartUnavailable nightsNeeded={Math.max(0, 14 - records.length)} />
@@ -73,12 +97,12 @@ export function RegularityComponentsChart({
           >
             {({ chartBounds, points, xScale }) => (
               <>
-                <ComponentLine color={bedtimeColor} points={points.bedtime} />
-                <ComponentLine color={wakeColor} points={points.wake} />
-                <ComponentLine color={accuracyColor} dashed points={points.accuracy} />
-                <PointSeries chartBottom={chartBounds.bottom} color={bedtimeColor} points={points.bedtime} />
-                <PointSeries chartBottom={chartBounds.bottom} color={wakeColor} points={points.wake} />
-                <PointSeries chartBottom={chartBounds.bottom} color={accuracyColor} points={points.accuracy} />
+                {isVisible(filter, 'Bedtime') ? <ComponentLine color={bedtimeColor} points={points.bedtime} /> : null}
+                {isVisible(filter, 'Wake') ? <ComponentLine color={wakeColor} points={points.wake} /> : null}
+                {isVisible(filter, 'Accuracy') ? <ComponentLine color={accuracyColor} dashed points={points.accuracy} /> : null}
+                {isVisible(filter, 'Bedtime') ? <PointSeries chartBottom={chartBounds.bottom} color={bedtimeColor} points={points.bedtime} /> : null}
+                {isVisible(filter, 'Wake') ? <PointSeries chartBottom={chartBounds.bottom} color={wakeColor} points={points.wake} /> : null}
+                {isVisible(filter, 'Accuracy') ? <PointSeries chartBottom={chartBounds.bottom} color={accuracyColor} points={points.accuracy} /> : null}
                 {hasSelection && selected ? (
                   <Line
                     color="rgba(255,255,255,0.45)"
@@ -104,7 +128,7 @@ export function RegularityComponentsChart({
               date={selected.date}
               lines={(
                 <Text numberOfLines={1} style={[styles.selectionText, { color: theme.textPrimary }]}>
-                  B {selected.bedtime}%  W {selected.wake}%  A {selected.accuracy}%
+                  {selectionText(filter, selected)}
                 </Text>
               )}
             />
@@ -113,6 +137,33 @@ export function RegularityComponentsChart({
       )}
     </MetricsChartCard>
   );
+}
+
+function ComponentChip({
+  label,
+  summary,
+}: {
+  label: string;
+  summary: { average: number; latest: number } | null;
+}) {
+  return (
+    <MetricChip
+      label={label}
+      value={summary ? `${summary.latest}% / avg ${summary.average}%` : '-'}
+    />
+  );
+}
+
+function isVisible(filter: RegularityFilter, component: Exclude<RegularityFilter, 'All'>): boolean {
+  return filter === 'All' || filter === component;
+}
+
+function selectionText(filter: RegularityFilter, point: RegularityChartPoint): string {
+  const values = [];
+  if (isVisible(filter, 'Bedtime')) values.push(`B ${point.bedtime}%`);
+  if (isVisible(filter, 'Wake')) values.push(`W ${point.wake}%`);
+  if (isVisible(filter, 'Accuracy')) values.push(`A ${point.accuracy}%`);
+  return values.join('  ');
 }
 
 function ComponentLine({ color, dashed = false, points }: { color: string; dashed?: boolean; points: PointsArray }) {
@@ -155,6 +206,10 @@ function ChartUnavailable({ nightsNeeded }: { nightsNeeded: number }) {
 }
 
 const styles = StyleSheet.create({
+  chips: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  filter: { borderRadius: 10, flexDirection: 'row', marginTop: 12, padding: 2 },
+  filterButton: { alignItems: 'center', borderRadius: 8, flex: 1, paddingVertical: 7 },
+  filterText: { fontSize: 12, fontWeight: '700' },
   frame: { height: METRICS_CHART_HEIGHT, overflow: 'hidden' },
   legend: { flexDirection: 'row', gap: 14, marginTop: 12 },
   legendDot: { borderRadius: 4, height: 8, width: 8 },

@@ -37,6 +37,11 @@ export interface RegularityChartModel {
   domain: [number, number];
 }
 
+export type RegularityComponentSummary = Record<
+  'accuracy' | 'bedtime' | 'wake',
+  { average: number; latest: number } | null
+>;
+
 export interface DebtChartModel {
   data: DebtChartPoint[];
   domain: [number, number];
@@ -113,6 +118,16 @@ export function createRegularityChartModel(
   return { data, domain: regularityDomain(data) };
 }
 
+export function createRegularityComponentSummary(
+  data: readonly RegularityChartPoint[],
+): RegularityComponentSummary {
+  return {
+    accuracy: summarizeRegularityValues(data.map((point) => point.accuracy)),
+    bedtime: summarizeRegularityValues(data.map((point) => point.bedtime)),
+    wake: summarizeRegularityValues(data.map((point) => point.wake)),
+  };
+}
+
 export function createDebtChartModel(
   records: readonly SleepNightRecord[],
   targetDurationHours: number,
@@ -186,4 +201,16 @@ function regularityDomain(data: readonly RegularityChartPoint[]): [number, numbe
     upper = Math.min(100, lower + 30);
   }
   return [lower, upper];
+}
+
+function summarizeRegularityValues(
+  values: readonly number[],
+): { average: number; latest: number } | null {
+  if (values.length === 0) {
+    return null;
+  }
+  return {
+    average: Math.round(values.reduce((total, value) => total + value, 0) / values.length),
+    latest: values.at(-1) ?? 0,
+  };
 }

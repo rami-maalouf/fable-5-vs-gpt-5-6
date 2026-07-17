@@ -17,9 +17,11 @@ import { RegularityComponentsChart } from '@/components/charts/RegularityCompone
 import { RollingConsistencyChart } from '@/components/charts/RollingConsistencyChart';
 import { SleepDebtChart } from '@/components/charts/SleepDebtChart';
 import { MetricsEmptyState } from '@/components/metrics/MetricsEmptyState';
+import { MetricChipRow } from '@/components/metrics/MetricChipRow';
 import { MetricsRangePicker } from '@/components/metrics/MetricsRangePicker';
 import { MultiStatCard } from '@/components/metrics/MultiStatCard';
 import { SectionTitle } from '@/components/metrics/SectionTitle';
+import { TrendsAnalysisCard } from '@/components/metrics/TrendsAnalysisCard';
 import {
   buildMetricsScreenModel,
   type MetricsRange,
@@ -75,6 +77,8 @@ export default function MetricsScreen() {
       range,
       referenceDayKey: localDayKey(new Date()),
       targetDurationHours: goalDurationHours(goals.sleepMinutes, goals.wakeMinutes),
+      targetSleepOffset: offsetForMinutes(goals.sleepMinutes),
+      targetWakeOffset: offsetForMinutes(goals.wakeMinutes),
     }),
     [allRecords, goals.sleepMinutes, goals.wakeMinutes, range],
   );
@@ -133,10 +137,29 @@ export default function MetricsScreen() {
                   records={model.records}
                   targetDurationHours={targetDurationHours}
                 />
+                <View style={styles.summaryStack}>
+                  <MetricChipRow pair={{
+                    left: { label: 'Recent 7-night trend', value: model.momentumSummary.recentTrend },
+                    right: { label: 'Median duration', value: model.momentumSummary.medianDuration },
+                  }} />
+                  <TrendsAnalysisCard
+                    lastDate={allRecords.at(-1)?.date}
+                    periods={model.trends}
+                  />
+                </View>
               </FadeInSlide>
               <FadeInSlide delay={300}>
                 <SectionTitle>Regularity</SectionTitle>
                 <View style={styles.chartStack}>
+                  <MultiStatCard stats={model.regularity.stats} />
+                  <MetricChipRow pair={{
+                    left: { label: 'Latest bedtime', value: model.regularity.latest.bedtime },
+                    right: { label: 'Latest wake', value: model.regularity.latest.wake },
+                  }} />
+                  <MetricChipRow pair={{
+                    left: { label: 'Latest accuracy', value: model.regularity.latest.accuracy },
+                    right: { label: 'Latest rolling score', value: model.regularity.latest.rollingScore },
+                  }} />
                   <RollingConsistencyChart
                     records={model.records}
                     targetSleepOffset={targetSleepOffset}
@@ -160,7 +183,12 @@ export default function MetricsScreen() {
                 <SectionTitle>Behavior Patterns</SectionTitle>
                 <View style={styles.chartStack}>
                   <WeekdayAveragesChart records={model.records} />
+                  <MetricChipRow pair={{
+                    left: { label: 'Weekday avg', value: model.behaviorSummary.weekdayAverage },
+                    right: { label: 'Weekend avg', value: model.behaviorSummary.weekendAverage },
+                  }} />
                   <DurationHistogramChart records={model.records} />
+                  <MultiStatCard stats={model.footer} />
                 </View>
               </FadeInSlide>
             </>
@@ -213,6 +241,7 @@ const styles = StyleSheet.create({
   loading: { borderRadius: 24, height: 220, opacity: 0.7 },
   pressed: { opacity: 0.62 },
   safeArea: { flex: 1 },
+  summaryStack: { gap: 16, marginTop: 16 },
   title: { fontSize: 34, fontWeight: '800', letterSpacing: -0.7 },
   toolbar: { flexDirection: 'row', gap: 5 },
   toolbarButton: { alignItems: 'center', height: 44, justifyContent: 'center', width: 44 },
