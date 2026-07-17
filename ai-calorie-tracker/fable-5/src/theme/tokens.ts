@@ -20,6 +20,11 @@ export type ColorTokens = {
   protein: string;
   carbs: string;
   fat: string;
+  // full-bleed photo stage in the scan flow: identical in both themes so the
+  // photo, scrim, and overlay text read the same day and night
+  stageBackground: string;
+  stageScrim: string;
+  onStage: string;
 };
 
 // warm off-white light theme
@@ -37,6 +42,9 @@ export const lightColors: ColorTokens = {
   protein: '#D23B68',
   carbs: '#DE9A26',
   fat: '#7A6BF5',
+  stageBackground: '#0D0B09',
+  stageScrim: 'rgba(13, 11, 9, 0.62)',
+  onStage: '#F5EFE9',
 };
 
 // near-black dark theme with the same hierarchy
@@ -54,6 +62,9 @@ export const darkColors: ColorTokens = {
   protein: '#E85D87',
   carbs: '#F0B04A',
   fat: '#9A8CFF',
+  stageBackground: '#0D0B09',
+  stageScrim: 'rgba(13, 11, 9, 0.62)',
+  onStage: '#F5EFE9',
 };
 
 // accepts any react-native color scheme name; everything except 'dark' maps

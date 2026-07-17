@@ -1,4 +1,5 @@
 // today's dashboard: rendered entirely from derived day selectors.
+import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,10 +15,11 @@ export default function DashboardScreen() {
   const { meals, summary } = useDay();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
-  // the full-screen scan modal ships in a later task; the primary action is
-  // already wired here so only the navigation target changes.
-  const handleScanPress = useCallback(() => {}, []);
+  const handleScanPress = useCallback(() => {
+    router.push('/scan');
+  }, [router]);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
