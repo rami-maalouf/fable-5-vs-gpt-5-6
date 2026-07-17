@@ -5,10 +5,12 @@
 // NFC & QR / apple health / data sections are out of scope per the spec.
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
+import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import {
   ActionSheetIOS,
+  Alert,
   Linking,
   Platform,
   Pressable,
@@ -288,9 +290,26 @@ export default function SettingsScreen() {
                 setSetting('isOnboarded', false);
                 router.push('/onboarding');
               }}>
-              <Row rowBg={rowBg}>
+              <Row rowBg={rowBg} style={styles.rowWithSeparator}>
                 <Text style={[styles.rowLabel, { color: theme.textPrimary }]}>
                   Restart Onboarding
+                </Text>
+              </Row>
+            </Pressable>
+            <Pressable
+              testID="show-scheduled"
+              onPress={async () => {
+                const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+                Alert.alert(
+                  `${scheduled.length} scheduled`,
+                  scheduled
+                    .map((n) => `${n.identifier}: ${JSON.stringify(n.trigger)}`)
+                    .join('\n') || 'none'
+                );
+              }}>
+              <Row rowBg={rowBg}>
+                <Text style={[styles.rowLabel, { color: theme.textPrimary }]}>
+                  Show Scheduled Notifications
                 </Text>
               </Row>
             </Pressable>

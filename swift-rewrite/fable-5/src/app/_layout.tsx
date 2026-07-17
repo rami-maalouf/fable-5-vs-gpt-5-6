@@ -1,8 +1,10 @@
 import { Redirect, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { settingsStore } from '@/data/app-db';
+import { updateWindDownNotification } from '@/services/notifications';
 import { useSleepStore } from '@/state/app-sleep-store';
 import { useSettings } from '@/state/settings-state';
 import { ThemeProvider } from '@/theme/ThemeProvider';
@@ -13,6 +15,17 @@ export default function RootLayout() {
   const isSleeping = useSleepStore((s) => s.activeSession != null);
   // onboarding gate: fresh installs land in the 4-step flow
   const isOnboarded = useSettings((s) => s.isOnboarded);
+
+  // wind-down reminder: (re)schedule on launch, bedtime change, and toggle
+  const windDownEnabled = useSettings((s) => s.windDownReminderEnabled);
+  const optimalSleepMinutes = useSettings((s) => s.optimalSleepMinutes);
+  useEffect(() => {
+    if (!isOnboarded) return;
+    updateWindDownNotification(windDownEnabled, optimalSleepMinutes).catch(() => {
+      // permission denied or notifications unavailable - nothing to schedule
+    });
+  }, [isOnboarded, windDownEnabled, optimalSleepMinutes]);
+
   return (
     <ThemeProvider store={settingsStore} desaturated={isSleeping}>
       <StatusBar style="light" />
