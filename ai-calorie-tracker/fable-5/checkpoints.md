@@ -134,12 +134,51 @@ never pipe jest output through head/tail directly - redirect to a scratch file, 
 - typed routes regenerated fine with metro already running on 8087; tsc green
   right after creating src/app/scan.tsx.
 
-### next: task 8 (real analysis client + result card), then 9-17
+- task 8 real analysis + result card: `src/services/analyze-photo.ts` (relative
+  fetch('/scan'), json body { image }, 200 -> parseScanResponse at the boundary,
+  invalid 200 body / non-200 -> failure 'analysis', fetch throw -> 'network',
+  AbortSignal support, never throws: returns typed AnalysisOutcome incl 'aborted';
+  never logs payloads). scan.tsx: analyzing effect starts exactly ONE request per
+  requestId (startedRequestIdRef guard), dispatches
+  analysis_succeeded/not_food/failed with that requestId; AbortController aborted
+  on discard AND unmount; 'aborted' outcome dispatches nothing.
+  `src/components/scan/AnalyzingOverlay.tsx` (scrim pill, small svg arc spinner
+  rotating via RN Animated; reduce-motion -> opacity pulse only, no transforms).
+  `src/components/scan/ResultCard.tsx` (bottom card over the same mounted photo:
+  AI ESTIMATE chip, food name 2-line, big calories + "estimated calories",
+  protein/carbs/fat cells with macro-token dots via formatGrams, Discard +
+  Accept 52pt actions above the home indicator; entrance fade+translate,
+  reduce-motion fade only; accept disabled after first press - day-state logging
+  is task 9; confidence not shown). `src/theme/use-reduced-motion.ts` hook.
+  not_food/failed render minimal readable scrim-pill placeholders (task 11 will
+  replace). 17 new tests (122 total). commit `91683b0`.
 
-typed client for POST /scan (one request per prepared photo, feed scanReducer with
-requestId), AnalyzingOverlay polish, ResultCard over the still-mounted photo with
-accept/discard. checkpoint-2 leftover: widget-snapshot-vs-selector fixture box
-still open until the scan path can log real meals (task 9).
+### task-8 REAL sim results on the Pro Max (verification evidence)
+
+both through metro 8087 + the real key, photo identical analyzing -> result,
+discard after each returned to an unchanged empty dashboard (2000 left, 0g):
+
+- salad bowl (clean dish): "Grilled chicken salad bowl with mixed vegetables,
+  corn, edamame, eggs, and greens" - 620 cal, protein 45 g, carbs 48 g, fat 25 g
+- grill platter (mixed plate): "Assorted grilled meat skewers with roasted
+  vegetables and dipping sauces" - 1800 cal, protein 130 g, carbs 75 g, fat 105 g
+
+### task-8 gotchas (hard-won)
+
+- eslint react-hooks/refs (new rule) rejects `useRef(new Animated.Value()).current`;
+  use `const [v] = useState(() => new Animated.Value(0))` like CalorieRing.
+- scan-acquisition tests must mock analyze-photo (never-resolving promise) or the
+  real client fires in jest, fails fast as 'network', and analyzing disappears.
+- RNTL v14 unmount cleanup is async: assert post-unmount effects inside waitFor.
+- picker presentation occasionally swallows the first "Choose from library" tap
+  right after the modal push animation - re-describe and tap again.
+
+### next: task 9 (accept end to end), then 10-17
+
+connect accept to day state: lock accept, create one meal with the prepared
+thumbnail, update widget snapshot, close modal, dashboard animates. checkpoint-2
+leftover: widget-snapshot-vs-selector fixture box still open until task 9 logs
+real meals.
 
 ## design identity (from spec)
 
