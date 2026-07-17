@@ -15,13 +15,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
+import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
+import { ResultCard } from '@/components/scan/ResultCard';
 import { INITIAL_SCAN_STATE, scanReducer } from '@/domain/scan-machine';
+import { analyzePhoto } from '@/services/analyze-photo';
 import { prepareImage } from '@/services/prepare-image';
 import { radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 const PREPARATION_NOTICE =
   'That photo could not be read. Try another one.';
+
+// minimal readable placeholders over the photo; the dedicated recovery ui
+// for these states arrives in a later build
+const NOT_FOOD_NOTICE = "That photo doesn't look like food.";
+const FAILURE_NOTICE: Record<'analysis' | 'network', string> = {
+  analysis: 'The analysis did not work this time.',
+  network: 'We could not reach the analyzer.',
+};
 
 export default function ScanScreen() {
   const [state, dispatch] = useReducer(scanReducer, INITIAL_SCAN_STATE);
@@ -31,6 +42,10 @@ export default function ScanScreen() {
   // presentation-only flags; the machine still owns the flow
   const [prepFailed, setPrepFailed] = useState(false);
   const pickerOpenRef = useRef(false);
+  // exactly one request per request id; the controller cancels the active
+  // request on discard and unmount
+  const startedRequestIdRef = useRef(0);
+  const controllerRef = useRef<AbortController | null>(null);
 
   const { screen } = state;
 
@@ -40,8 +55,59 @@ export default function ScanScreen() {
     }
   }, [screen.status, router]);
 
+  // entering analyzing starts one real analysis for that request id. the
+  // reducer already ignores completions whose request id is stale.
+  useEffect(() => {
+    if (screen.status !== 'analyzing') {
+      return;
+    }
+    const { photo, requestId } = screen;
+    if (startedRequestIdRef.current >= requestId) {
+      return;
+    }
+    startedRequestIdRef.current = requestId;
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    void analyzePhoto(photo.base64, controller.signal).then((outcome) => {
+      if (controllerRef.current === controller) {
+        controllerRef.current = null;
+      }
+      switch (outcome.kind) {
+        case 'success':
+          dispatch({ type: 'analysis_succeeded', requestId, result: outcome.result });
+          break;
+        case 'not_food':
+          dispatch({ type: 'analysis_not_food', requestId });
+          break;
+        case 'failure':
+          dispatch({ type: 'analysis_failed', requestId, reason: outcome.reason });
+          break;
+        case 'aborted':
+          // the caller cancelled; nothing may change the screen
+          break;
+      }
+    });
+  }, [screen]);
+
+  // abort any in-flight analysis when the modal unmounts
+  useEffect(
+    () => () => {
+      controllerRef.current?.abort();
+      controllerRef.current = null;
+    },
+    [],
+  );
+
   const handleClose = useCallback(() => {
+    controllerRef.current?.abort();
+    controllerRef.current = null;
     dispatch({ type: 'discard' });
+  }, []);
+
+  const handleAccept = useCallback(() => {
+    // logging the meal into day state arrives in a later build; the machine
+    // still locks accept after its first press
+    dispatch({ type: 'accept' });
   }, []);
 
   const handleChooseLibrary = useCallback(async () => {
@@ -102,12 +168,14 @@ export default function ScanScreen() {
   // overlays layered above it, so the image never flashes away
   const stageUri =
     screen.status === 'preparing' ? screen.displayUri : screen.photo.uri;
-  const overlayLabel =
+  const noticeLabel =
     screen.status === 'preparing'
       ? 'Preparing photo'
-      : screen.status === 'analyzing'
-        ? 'Analyzing your meal'
-        : null;
+      : screen.status === 'not_food'
+        ? NOT_FOOD_NOTICE
+        : screen.status === 'failed'
+          ? FAILURE_NOTICE[screen.reason]
+          : null;
 
   return (
     <View style={[styles.stage, { backgroundColor: colors.stageBackground }]}>
@@ -122,19 +190,30 @@ export default function ScanScreen() {
         accessibilityLabel="Selected meal photo"
         testID="scan-photo"
       />
-      {overlayLabel ? (
+      {noticeLabel ? (
         <View
           pointerEvents="none"
           accessibilityLiveRegion="polite"
           style={[styles.overlayArea, { bottom: insets.bottom + spacing.xxxl }]}
         >
           <View style={[styles.overlayPill, { backgroundColor: colors.stageScrim }]}>
-            <ActivityIndicator size="small" color={colors.onStage} />
+            {screen.status === 'preparing' ? (
+              <ActivityIndicator size="small" color={colors.onStage} />
+            ) : null}
             <Text style={[styles.overlayLabel, { color: colors.onStage }]}>
-              {overlayLabel}
+              {noticeLabel}
             </Text>
           </View>
         </View>
+      ) : null}
+      {screen.status === 'analyzing' ? <AnalyzingOverlay /> : null}
+      {screen.status === 'result' ? (
+        <ResultCard
+          result={screen.result}
+          accepted={screen.accepted}
+          onAccept={handleAccept}
+          onDiscard={handleClose}
+        />
       ) : null}
       <Pressable
         accessibilityRole="button"

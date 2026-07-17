@@ -20,6 +20,13 @@ jest.mock('../../src/services/prepare-image', () => ({
   prepareImage: (...args: unknown[]) => mockPrepareImage(...args),
 }));
 
+// analysis stays pending so this suite can assert the analyzing state;
+// completion behavior is covered by scan-result.test.tsx
+const mockAnalyzePhoto = jest.fn();
+jest.mock('../../src/services/analyze-photo', () => ({
+  analyzePhoto: (...args: unknown[]) => mockAnalyzePhoto(...args),
+}));
+
 import ScanScreen from '../../src/app/scan';
 import type { PreparedPhoto } from '../../src/domain/scan-machine';
 
@@ -52,6 +59,7 @@ async function renderScan() {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockAnalyzePhoto.mockReturnValue(new Promise(() => {}));
 });
 
 it('renders both acquisition choices and a close control', async () => {
