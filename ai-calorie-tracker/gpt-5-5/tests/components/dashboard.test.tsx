@@ -2,7 +2,7 @@ import { describe, expect, jest, test } from "@jest/globals";
 import { render, screen } from "@testing-library/react-native";
 import { StyleSheet } from "react-native";
 
-import HomeScreen from "../../app/index";
+import HomeScreen from "../../app/(tabs)/index";
 import type { Meal } from "../../src/domain/nutrition";
 import { DayProvider } from "../../src/state/day-context";
 

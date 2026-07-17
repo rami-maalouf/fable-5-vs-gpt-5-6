@@ -135,6 +135,19 @@ describe("scan state machine", () => {
     });
   });
 
+  test("returns to acquisition when image preparation fails", () => {
+    const acquiring = reduceScanState(INITIAL_SCAN_STATE, { type: "open_scan" });
+    const preparing = reduceScanState(acquiring, {
+      type: "prepare_photo",
+      source: "library",
+      uri: "file:///original.jpg",
+    });
+
+    expect(reduceScanState(preparing, { type: "preparation_failed" })).toEqual({
+      status: "acquiring",
+    });
+  });
+
   test("distinguishes network failures from provider analysis failures", () => {
     expect(
       reduceScanState(analyzing(), {

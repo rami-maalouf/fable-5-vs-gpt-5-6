@@ -1,3 +1,4 @@
+import { router, type Href } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -39,7 +40,7 @@ export default function HomeScreen() {
       <Pressable
         accessibilityLabel="Scan a meal"
         accessibilityRole="button"
-        onPress={() => undefined}
+        onPress={() => router.push("/scan" as Href)}
         style={[
           styles.scanButton,
           {

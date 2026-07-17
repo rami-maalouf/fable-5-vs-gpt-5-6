@@ -72,6 +72,9 @@ export type ScanEvent =
       requestId: string;
     }
   | {
+      type: "preparation_failed";
+    }
+  | {
       type: "analysis_succeeded";
       requestId: string;
       result: ScanAnalysisResult;
@@ -136,6 +139,13 @@ export function reduceScanState(state: ScanState, event: ScanEvent): ScanState {
         photo: event.photo,
         requestId: event.requestId,
       };
+
+    case "preparation_failed":
+      if (state.status !== "preparing") {
+        return state;
+      }
+
+      return { status: "acquiring" };
 
     case "analysis_succeeded":
       if (!isCurrentAnalysis(state, event.requestId)) {
