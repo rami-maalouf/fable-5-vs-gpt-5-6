@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from "@jest/globals";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 
 import type { PreparedScanPhoto } from "../../src/domain/scan-machine";
 import type { AnalyzePreparedPhotoResult } from "../../src/services/analyze-photo";
@@ -85,7 +85,9 @@ async function renderScanWithDashboard() {
 }
 
 async function selectPhotoAndWaitForResult() {
-  fireEvent.press(screen.getByLabelText("Choose from Photos"));
+  await act(async () => {
+    fireEvent.press(screen.getByLabelText("Choose from Photos"));
+  });
 
   await waitFor(() => {
     expect(screen.getByText("Estimated result")).toBeTruthy();
@@ -119,7 +121,9 @@ describe("scan accept and discard integration", () => {
     await renderScanWithDashboard();
     await selectPhotoAndWaitForResult();
 
-    fireEvent.press(screen.getByLabelText("Accept food estimate"));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Accept food estimate"));
+    });
 
     await waitFor(() => {
       expect(screen.getByText("1 logged")).toBeTruthy();
@@ -140,7 +144,9 @@ describe("scan accept and discard integration", () => {
     await selectPhotoAndWaitForResult();
     const widgetCallsBeforeDiscard = jest.mocked(publishRemainingCalories).mock.calls.length;
 
-    fireEvent.press(screen.getByLabelText("Discard food estimate"));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Discard food estimate"));
+    });
 
     expect(screen.getByText("No meals yet")).toBeTruthy();
     expect(screen.getByText("2000")).toBeTruthy();

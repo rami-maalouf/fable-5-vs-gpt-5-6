@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 
 import type { PreparedScanPhoto } from "../../src/domain/scan-machine";
 import { DayProvider } from "../../src/state/day-context";
@@ -79,7 +79,9 @@ describe("ScanScreen", () => {
     });
 
     await renderScanScreen();
-    await fireEvent.press(screen.getByLabelText("Choose from Photos"));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Choose from Photos"));
+    });
 
     expect(screen.getByText("Scan your meal")).toBeTruthy();
     expect(screen.getByLabelText("Choose from Photos")).toBeTruthy();
@@ -102,7 +104,9 @@ describe("ScanScreen", () => {
     mockPrepareImageForAnalysis.mockReturnValue(preparation.promise);
 
     await renderScanScreen();
-    fireEvent.press(screen.getByLabelText("Choose from Photos"));
+    await act(async () => {
+      fireEvent.press(screen.getByLabelText("Choose from Photos"));
+    });
 
     await waitFor(() => {
       expect(screen.getByLabelText("Selected meal photo").props.source).toEqual({

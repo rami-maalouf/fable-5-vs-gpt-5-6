@@ -1,21 +1,17 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useEffect, useReducer, useRef, useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AcquisitionView } from "@/components/scan/AcquisitionView";
 import { AnalyzingOverlay } from "@/components/scan/AnalyzingOverlay";
+import { CameraCaptureView } from "@/components/scan/CameraCaptureView";
 import { ResultCard } from "@/components/scan/ResultCard";
 import {
   INITIAL_SCAN_STATE,
   reduceScanState,
+  type ScanSource,
   type ScanState,
 } from "@/domain/scan-machine";
 import type { Meal } from "@/domain/nutrition";
@@ -34,11 +30,13 @@ export default function ScanScreen() {
     reduceScanState,
     reduceScanState(INITIAL_SCAN_STATE, { type: "open_scan" }),
   );
+  const [acquisitionMode, setAcquisitionMode] = useState<"choice" | "camera">("choice");
   const [preparationError, setPreparationError] = useState(false);
   const acceptedRequestIds = useRef(new Set<string>());
   const day = useDay();
   const theme = getNourishTheme(useColorScheme());
   const visiblePhotoUri = getVisiblePhotoUri(state);
+  const isCameraAcquisition = state.status === "acquiring" && acquisitionMode === "camera";
 
   useEffect(() => {
     if (state.status !== "analyzing") {
@@ -88,6 +86,7 @@ export default function ScanScreen() {
 
   async function chooseFromPhotosAsync() {
     setPreparationError(false);
+    setAcquisitionMode("choice");
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -102,17 +101,39 @@ export default function ScanScreen() {
 
     const asset = result.assets[0];
 
-    dispatch({
-      type: "prepare_photo",
+    await prepareSelectedPhoto({
       source: "library",
       uri: asset.uri,
+      width: asset.width,
+      height: asset.height,
+    });
+  }
+
+  async function prepareSelectedPhoto({
+    source,
+    uri,
+    width,
+    height,
+  }: {
+    source: ScanSource;
+    uri: string;
+    width: number;
+    height: number;
+  }) {
+    setPreparationError(false);
+    setAcquisitionMode("choice");
+
+    dispatch({
+      type: "prepare_photo",
+      source,
+      uri,
     });
 
     try {
       const photo = await prepareImageForAnalysis({
-        uri: asset.uri,
-        width: asset.width,
-        height: asset.height,
+        uri,
+        width,
+        height,
       });
 
       dispatch({
@@ -124,6 +145,28 @@ export default function ScanScreen() {
       setPreparationError(true);
       dispatch({ type: "preparation_failed" });
     }
+  }
+
+  function useCamera() {
+    setPreparationError(false);
+    setAcquisitionMode("camera");
+  }
+
+  function tryAnotherPhoto() {
+    setPreparationError(false);
+    setAcquisitionMode("choice");
+    dispatch({ type: "try_another_photo" });
+  }
+
+  function retryAnalysis() {
+    if (state.status !== "analysis_error" && state.status !== "network_error") {
+      return;
+    }
+
+    dispatch({
+      type: "retry_analysis",
+      requestId: createRequestId(),
+    });
   }
 
   function closeScan() {
@@ -170,88 +213,163 @@ export default function ScanScreen() {
         />
       ) : null}
 
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Pressable
-            accessibilityLabel="Close scan"
-            accessibilityRole="button"
-            onPress={closeScan}
-            style={[
-              styles.closeButton,
-              {
-                backgroundColor: visiblePhotoUri ? theme.colors.surface : theme.colors.surfaceSubtle,
-              },
-            ]}
-          >
-            <Text style={[styles.closeText, { color: theme.colors.textPrimary }]}>Close</Text>
-          </Pressable>
-        </View>
+      {isCameraAcquisition ? (
+        <CameraCaptureView
+          theme={theme}
+          onCapturedPhoto={(photo) => {
+            void prepareSelectedPhoto({
+              source: "camera",
+              uri: photo.uri,
+              width: photo.width,
+              height: photo.height,
+            });
+          }}
+          onChooseFromPhotos={chooseFromPhotos}
+          onClose={closeScan}
+        />
+      ) : (
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <Pressable
+              accessibilityLabel="Close scan"
+              accessibilityRole="button"
+              onPress={closeScan}
+              style={[
+                styles.closeButton,
+                {
+                  backgroundColor: visiblePhotoUri
+                    ? theme.colors.surface
+                    : theme.colors.surfaceSubtle,
+                },
+              ]}
+            >
+              <Text style={[styles.closeText, { color: theme.colors.textPrimary }]}>Close</Text>
+            </Pressable>
+          </View>
 
-        <View style={styles.content}>
-          {state.status === "acquiring" ? (
-            <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-              <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Scan your meal</Text>
-              <Text style={[styles.body, { color: theme.colors.textSecondary }]}>
-                Choose a clear food photo. Nourish will prepare it before sending it for analysis.
-              </Text>
+          <View style={styles.content}>
+            {state.status === "acquiring" && acquisitionMode === "choice" ? (
+              <AcquisitionView
+                preparationError={preparationError}
+                theme={theme}
+                onChooseFromPhotos={chooseFromPhotos}
+                onUseCamera={useCamera}
+              />
+            ) : null}
 
-              {preparationError ? (
-                <Text style={[styles.error, { color: theme.colors.danger }]}>
-                  Could not prepare that photo.
-                </Text>
-              ) : null}
+            {state.status === "preparing" ? (
+              <OverlayCard
+                title="Preparing photo"
+                body="Optimizing the JPEG for analysis."
+                theme={theme}
+              />
+            ) : null}
 
-              <View style={styles.actionStack}>
-                <Pressable
-                  accessibilityLabel="Choose from Photos"
-                  accessibilityRole="button"
-                  onPress={chooseFromPhotos}
-                  style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
-                >
-                  <Text style={[styles.primaryButtonText, { color: theme.colors.onAccent }]}>
-                    Choose from Photos
-                  </Text>
-                </Pressable>
+            {state.status === "analyzing" ? <AnalyzingOverlay theme={theme} /> : null}
 
-                <Pressable
-                  accessibilityLabel="Use camera"
-                  accessibilityRole="button"
-                  disabled
-                  style={[
-                    styles.secondaryButton,
-                    {
-                      backgroundColor: theme.colors.surfaceSubtle,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.secondaryButtonText, { color: theme.colors.textSecondary }]}>
-                    Camera next
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-          ) : null}
+            {state.status === "not_food" ? (
+              <FeedbackCard
+                title="No food found"
+                body="That photo does not look like a meal. Try another clear food photo."
+                primaryLabel="Try another photo"
+                onPrimary={tryAnotherPhoto}
+                secondaryLabel="Close scan"
+                onSecondary={closeScan}
+                theme={theme}
+              />
+            ) : null}
 
-          {state.status === "preparing" ? (
-            <OverlayCard title="Preparing photo" body="Optimizing the JPEG for analysis." theme={theme} />
-          ) : null}
+            {state.status === "analysis_error" ? (
+              <FeedbackCard
+                title="Could not analyze photo"
+                body="The estimate did not come back cleanly. Try again with the same prepared photo."
+                primaryLabel="Try again"
+                onPrimary={retryAnalysis}
+                secondaryLabel="Close scan"
+                onSecondary={closeScan}
+                theme={theme}
+              />
+            ) : null}
 
-          {state.status === "analyzing" ? (
-            <AnalyzingOverlay theme={theme} />
-          ) : null}
+            {state.status === "network_error" ? (
+              <FeedbackCard
+                title="Connection problem"
+                body="Nourish could not reach the analyzer. Check the connection and try again."
+                primaryLabel="Try again"
+                onPrimary={retryAnalysis}
+                secondaryLabel="Close scan"
+                onSecondary={closeScan}
+                theme={theme}
+              />
+            ) : null}
 
-          {state.status === "result" || state.status === "accepting" ? (
-            <ResultCard
-              isAccepting={state.status === "accepting"}
-              onAccept={acceptResult}
-              onDiscard={discardResult}
-              result={state.result}
-              theme={theme}
-            />
-          ) : null}
-        </View>
-      </SafeAreaView>
+            {state.status === "result" || state.status === "accepting" ? (
+              <ResultCard
+                isAccepting={state.status === "accepting"}
+                onAccept={acceptResult}
+                onDiscard={discardResult}
+                result={state.result}
+                theme={theme}
+              />
+            ) : null}
+          </View>
+        </SafeAreaView>
+      )}
+    </View>
+  );
+}
+
+function FeedbackCard({
+  title,
+  body,
+  primaryLabel,
+  secondaryLabel,
+  theme,
+  onPrimary,
+  onSecondary,
+}: {
+  title: string;
+  body: string;
+  primaryLabel: string;
+  secondaryLabel: string;
+  theme: ReturnType<typeof getNourishTheme>;
+  onPrimary: () => void;
+  onSecondary: () => void;
+}) {
+  return (
+    <View style={[styles.feedbackCard, { backgroundColor: theme.colors.surface }]}>
+      <Text style={[styles.feedbackTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
+      <Text style={[styles.feedbackBody, { color: theme.colors.textSecondary }]}>{body}</Text>
+
+      <View style={styles.feedbackActions}>
+        <Pressable
+          accessibilityLabel={primaryLabel}
+          accessibilityRole="button"
+          onPress={onPrimary}
+          style={[styles.feedbackPrimaryButton, { backgroundColor: theme.colors.accent }]}
+        >
+          <Text style={[styles.feedbackPrimaryText, { color: theme.colors.onAccent }]}>
+            {primaryLabel}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityLabel={secondaryLabel}
+          accessibilityRole="button"
+          onPress={onSecondary}
+          style={[
+            styles.feedbackSecondaryButton,
+            {
+              backgroundColor: theme.colors.surfaceSubtle,
+              borderColor: theme.colors.border,
+            },
+          ]}
+        >
+          <Text style={[styles.feedbackSecondaryText, { color: theme.colors.textPrimary }]}>
+            {secondaryLabel}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -311,7 +429,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "flex-end",
     paddingHorizontal: nourishSpacing.five,
-    paddingTop: nourishSpacing.three,
+    paddingTop: nourishSpacing.eight,
   },
   closeButton: {
     minWidth: nourishTouchTargets.minimum,
@@ -330,44 +448,42 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     padding: nourishSpacing.five,
   },
-  card: {
+  feedbackCard: {
     borderRadius: nourishRadii.large,
     padding: nourishSpacing.five,
     gap: nourishSpacing.four,
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 16 },
   },
-  title: {
-    fontSize: 34,
-    lineHeight: 38,
+  feedbackTitle: {
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: "900",
-    letterSpacing: -1,
+    letterSpacing: -0.8,
+    textAlign: "center",
   },
-  body: {
-    fontSize: 16,
-    lineHeight: 23,
+  feedbackBody: {
+    fontSize: 15,
+    lineHeight: 22,
     fontWeight: "600",
+    textAlign: "center",
   },
-  error: {
-    fontSize: 14,
-    fontWeight: "800",
-  },
-  actionStack: {
+  feedbackActions: {
     gap: nourishSpacing.three,
   },
-  primaryButton: {
+  feedbackPrimaryButton: {
     minHeight: nourishTouchTargets.primary,
     borderRadius: nourishRadii.pill,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: nourishSpacing.four,
   },
-  primaryButtonText: {
+  feedbackPrimaryText: {
     fontSize: 17,
     fontWeight: "900",
   },
-  secondaryButton: {
+  feedbackSecondaryButton: {
     minHeight: nourishTouchTargets.primary,
     borderRadius: nourishRadii.pill,
     borderWidth: 1,
@@ -375,7 +491,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: nourishSpacing.four,
   },
-  secondaryButtonText: {
+  feedbackSecondaryText: {
     fontSize: 16,
     fontWeight: "800",
   },

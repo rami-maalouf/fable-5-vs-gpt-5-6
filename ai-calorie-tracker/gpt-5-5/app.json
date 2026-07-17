@@ -48,6 +48,13 @@
             }
           ]
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nourish to use your camera to scan meals.",
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {
