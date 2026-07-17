@@ -131,7 +131,8 @@ describe("scan accept and discard integration", () => {
     expect(screen.getByText("fried chicken")).toBeTruthy();
     expect(screen.getByText("988 cal")).toBeTruthy();
     expect(screen.getByText("54p · 39c · 60f")).toBeTruthy();
-    expect(screen.getByLabelText("fried chicken thumbnail").props.source).toEqual({
+    expect(screen.getByLabelText("fried chicken, 988 calories, 54 grams protein, 39 grams carbs, 60 grams fat")).toBeTruthy();
+    expect(screen.getByTestId("meal-thumbnail-scan-1234").props.source).toEqual({
       uri: "file:///prepared-fried-chicken.jpg",
     });
     expect(screen.getByLabelText("calories progress: 49 percent")).toBeTruthy();

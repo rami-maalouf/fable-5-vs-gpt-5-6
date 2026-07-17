@@ -1,5 +1,13 @@
 import { router, type Href } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MealList } from "@/components/dashboard/MealList";
@@ -15,7 +23,9 @@ import {
 
 export default function HomeScreen() {
   const day = useDay();
+  const { fontScale } = useWindowDimensions();
   const theme = getNourishTheme(useColorScheme());
+  const shouldPlaceScanInFlow = fontScale >= 1.35;
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
@@ -23,6 +33,7 @@ export default function HomeScreen() {
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
+          accessibilityLabel="Today nutrition dashboard"
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
@@ -34,24 +45,39 @@ export default function HomeScreen() {
 
           <NutritionSummary summary={day.summary} theme={theme} />
           <MealList meals={day.meals} theme={theme} />
+          {shouldPlaceScanInFlow ? <ScanMealButton theme={theme} variant="inline" /> : null}
         </ScrollView>
       </SafeAreaView>
 
-      <Pressable
-        accessibilityLabel="Scan a meal"
-        accessibilityRole="button"
-        onPress={() => router.push("/scan" as Href)}
-        style={[
-          styles.scanButton,
-          {
-            backgroundColor: theme.colors.accent,
-            shadowColor: theme.colors.shadow,
-          },
-        ]}
-      >
-        <Text style={[styles.scanButtonText, { color: theme.colors.onAccent }]}>Scan meal</Text>
-      </Pressable>
+      {shouldPlaceScanInFlow ? null : <ScanMealButton theme={theme} variant="fixed" />}
     </View>
+  );
+}
+
+function ScanMealButton({
+  theme,
+  variant,
+}: {
+  theme: ReturnType<typeof getNourishTheme>;
+  variant: "fixed" | "inline";
+}) {
+  return (
+    <Pressable
+      accessibilityLabel="Scan a meal"
+      accessibilityHint="Opens camera and photo library options for meal analysis"
+      accessibilityRole="button"
+      onPress={() => router.push("/scan" as Href)}
+      style={[
+        styles.scanButton,
+        variant === "fixed" ? styles.scanButtonFixed : styles.scanButtonInline,
+        {
+          backgroundColor: theme.colors.accent,
+          shadowColor: theme.colors.shadow,
+        },
+      ]}
+    >
+      <Text style={[styles.scanButtonText, { color: theme.colors.onAccent }]}>Scan meal</Text>
+    </Pressable>
   );
 }
 
@@ -91,21 +117,30 @@ const styles = StyleSheet.create({
     letterSpacing: 1.8,
   },
   scanButton: {
-    position: "absolute",
-    right: nourishSpacing.five,
-    bottom: nourishLayout.bottomTabInset + nourishSpacing.seven + nourishSpacing.two,
-    width: 136,
+    minWidth: 136,
     minHeight: nourishTouchTargets.primary,
-    minWidth: nourishTouchTargets.minimum,
     borderRadius: nourishRadii.pill,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: nourishSpacing.five,
+    paddingVertical: nourishSpacing.three,
     shadowOpacity: 0.18,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 10 },
   },
+  scanButtonFixed: {
+    position: "absolute",
+    right: nourishSpacing.five,
+    bottom: nourishLayout.bottomTabInset + nourishSpacing.seven + nourishSpacing.two,
+  },
+  scanButtonInline: {
+    alignSelf: "flex-end",
+    marginTop: nourishSpacing.two,
+    marginBottom: nourishSpacing.three,
+  },
   scanButtonText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
 });

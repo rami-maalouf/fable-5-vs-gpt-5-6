@@ -20,6 +20,7 @@ import type { Meal } from "@/domain/nutrition";
 import { AnalyzePhotoError, analyzePreparedPhoto } from "@/services/analyze-photo";
 import { prepareImageForAnalysis } from "@/services/prepare-image";
 import { useDay } from "@/state/day-context";
+import { useReducedMotion } from "@/state/reduced-motion";
 import {
   getNourishTheme,
   nourishRadii,
@@ -340,8 +341,14 @@ function OverlayTransition({
   transitionKey: string;
 }) {
   const [progress] = useState(() => new Animated.Value(0));
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reduceMotion) {
+      progress.setValue(1);
+      return undefined;
+    }
+
     progress.setValue(0);
 
     const animation = Animated.timing(progress, {
@@ -356,11 +363,11 @@ function OverlayTransition({
     return () => {
       animation.stop();
     };
-  }, [progress, transitionKey]);
+  }, [progress, reduceMotion, transitionKey]);
 
   const translateY = progress.interpolate({
     inputRange: [0, 1],
-    outputRange: [8, 0],
+    outputRange: reduceMotion ? [0, 0] : [8, 0],
   });
 
   return (
@@ -380,7 +387,12 @@ function OverlayCard({
   theme: ReturnType<typeof getNourishTheme>;
 }) {
   return (
-    <View style={[styles.overlayCard, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`${title}. ${body}`}
+      accessibilityLiveRegion="polite"
+      accessibilityRole="summary"
+      style={[styles.overlayCard, { backgroundColor: theme.colors.surface }]}
+    >
       <Text style={[styles.overlayTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.overlayBody, { color: theme.colors.textSecondary }]}>{body}</Text>
     </View>
@@ -430,17 +442,20 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     paddingHorizontal: nourishSpacing.five,
     paddingTop: nourishSpacing.eight,
+    zIndex: 1,
   },
   closeButton: {
     minWidth: nourishTouchTargets.minimum,
     minHeight: nourishTouchTargets.minimum,
     borderRadius: nourishRadii.pill,
     paddingHorizontal: nourishSpacing.four,
+    paddingVertical: nourishSpacing.two,
     alignItems: "center",
     justifyContent: "center",
   },
   closeText: {
     fontSize: 15,
+    lineHeight: 20,
     fontWeight: "800",
   },
   content: {
@@ -459,6 +474,7 @@ const styles = StyleSheet.create({
   },
   overlayTitle: {
     fontSize: 26,
+    lineHeight: 31,
     fontWeight: "900",
     textAlign: "center",
   },

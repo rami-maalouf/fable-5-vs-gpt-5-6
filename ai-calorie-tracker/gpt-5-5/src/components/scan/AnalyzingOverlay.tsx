@@ -9,7 +9,8 @@ import {
 export function AnalyzingOverlay({ theme }: { theme: NourishTheme }) {
   return (
     <View
-      accessibilityLabel="In progress"
+      accessibilityLabel="Analyzing meal photo"
+      accessibilityLiveRegion="polite"
       accessibilityRole="progressbar"
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
@@ -34,6 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 26,
+    lineHeight: 31,
     fontWeight: "900",
     textAlign: "center",
   },

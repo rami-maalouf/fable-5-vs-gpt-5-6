@@ -27,13 +27,19 @@ export function ErrorCard({
   onSecondary,
 }: ErrorCardProps) {
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`${title}. ${body}`}
+      accessibilityLiveRegion="polite"
+      accessibilityRole="alert"
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    >
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
 
       <View style={styles.actions}>
         <Pressable
           accessibilityLabel={primaryLabel}
+          accessibilityHint="Continues from this error state"
           accessibilityRole="button"
           onPress={onPrimary}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
@@ -45,6 +51,7 @@ export function ErrorCard({
 
         <Pressable
           accessibilityLabel={secondaryLabel}
+          accessibilityHint="Closes without logging a meal"
           accessibilityRole="button"
           onPress={onSecondary}
           style={[
@@ -98,6 +105,7 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
   secondaryButton: {
@@ -110,6 +118,7 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     fontSize: 16,
+    lineHeight: 21,
     fontWeight: "800",
   },
 });

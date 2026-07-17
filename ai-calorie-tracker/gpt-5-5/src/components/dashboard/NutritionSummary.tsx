@@ -12,6 +12,7 @@ import {
   nourishSpacing,
   type NourishTheme,
 } from "@/theme/tokens";
+import { useReducedMotion } from "@/state/reduced-motion";
 
 export const NUTRITION_MOTION_MS = 550;
 
@@ -40,12 +41,21 @@ export function NutritionSummary({ summary, theme }: NutritionSummaryProps) {
   const displayRemaining = roundNutritionForDisplay(summary.remaining);
   const calorieProgress = Math.round(summary.progress.calories * 100);
   const isOverCalories = summary.remaining.calories < 0;
+  const semanticCalorieValue = isOverCalories
+    ? displayConsumed.calories
+    : Math.max(0, displayRemaining.calories);
   const calorieValue = useAnimatedDisplayValue(
-    isOverCalories ? displayConsumed.calories : Math.max(0, displayRemaining.calories),
+    semanticCalorieValue,
   );
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`nutrition summary, ${formatCalorieValue(semanticCalorieValue)} ${
+        isOverCalories ? "calories logged" : "calories left"
+      }`}
+      accessibilityRole="summary"
+      style={[styles.container, { backgroundColor: theme.colors.surface }]}
+    >
       <View style={styles.calorieRow}>
         <CalorieRing
           isOverCalories={isOverCalories}
@@ -106,6 +116,7 @@ function CalorieRing({
   return (
     <View
       accessibilityLabel={`calories progress: ${progressLabel} percent`}
+      accessibilityRole="image"
       style={styles.ring}
     >
       <Svg height={RING_SIZE} width={RING_SIZE}>
@@ -161,7 +172,13 @@ function MacroBar({
   });
 
   return (
-    <View style={styles.macroBlock}>
+    <View
+      accessibilityLabel={`${metric.label}, ${formatGramValue(consumed)} of ${formatGramValue(
+        goal,
+      )} grams, ${formatRemaining(remaining)}`}
+      accessibilityRole="summary"
+      style={styles.macroBlock}
+    >
       <View style={styles.macroHeader}>
         <Text style={[styles.macroLabel, { color: theme.colors.textPrimary }]}>{metric.label}</Text>
         <Text style={[styles.macroValue, { color: theme.colors.textSecondary }]}>
@@ -227,10 +244,16 @@ function formatGramValue(value: number): string {
 function useAnimatedScalar(target: number): Animated.Value {
   const [animatedValue] = useState(() => new Animated.Value(target));
   const hasMounted = useRef(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!hasMounted.current) {
       hasMounted.current = true;
+      animatedValue.setValue(target);
+      return undefined;
+    }
+
+    if (reduceMotion) {
       animatedValue.setValue(target);
       return undefined;
     }
@@ -247,7 +270,7 @@ function useAnimatedScalar(target: number): Animated.Value {
     return () => {
       animation.stop();
     };
-  }, [animatedValue, target]);
+  }, [animatedValue, reduceMotion, target]);
 
   return animatedValue;
 }
@@ -256,6 +279,7 @@ function useAnimatedDisplayValue(target: number): number {
   const [animatedValue] = useState(() => new Animated.Value(target));
   const [displayValue, setDisplayValue] = useState(target);
   const hasMounted = useRef(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const listenerId = animatedValue.addListener(({ value }) => {
@@ -273,6 +297,21 @@ function useAnimatedDisplayValue(target: number): number {
       animatedValue.setValue(target);
       setDisplayValue(target);
       return undefined;
+    }
+
+    if (reduceMotion) {
+      let isCancelled = false;
+
+      animatedValue.setValue(target);
+      queueMicrotask(() => {
+        if (!isCancelled) {
+          setDisplayValue(target);
+        }
+      });
+
+      return () => {
+        isCancelled = true;
+      };
     }
 
     const animation = Animated.timing(animatedValue, {
@@ -295,7 +334,7 @@ function useAnimatedDisplayValue(target: number): number {
       clearTimeout(settleTimeout);
       animation.stop();
     };
-  }, [animatedValue, target]);
+  }, [animatedValue, reduceMotion, target]);
 
   return displayValue;
 }
@@ -312,6 +351,7 @@ const styles = StyleSheet.create({
   calorieRow: {
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: nourishSpacing.four,
   },
   ring: {
@@ -322,10 +362,11 @@ const styles = StyleSheet.create({
   },
   calorieText: {
     flex: 1,
+    minWidth: 180,
   },
   calorieNumber: {
     fontSize: 42,
-    lineHeight: 44,
+    lineHeight: 48,
     fontWeight: "800",
     letterSpacing: -2,
   },
@@ -348,6 +389,7 @@ const styles = StyleSheet.create({
   macroHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    flexWrap: "wrap",
     gap: nourishSpacing.three,
   },
   macroLabel: {

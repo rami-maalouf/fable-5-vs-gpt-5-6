@@ -11,6 +11,7 @@ import {
   nourishSpacing,
   type NourishTheme,
 } from "@/theme/tokens";
+import { useReducedMotion } from "@/state/reduced-motion";
 
 type MealListProps = {
   meals: readonly Meal[];
@@ -19,7 +20,7 @@ type MealListProps = {
 
 export function MealList({ meals, theme }: MealListProps) {
   return (
-    <View style={styles.container}>
+    <View accessibilityLabel="Meals list" style={styles.container}>
       <View style={styles.headerRow}>
         <Text style={[styles.sectionLabel, { color: theme.colors.textPrimary }]}>Meals</Text>
         <Text style={[styles.sectionMeta, { color: theme.colors.textSecondary }]}>
@@ -57,8 +58,14 @@ function EmptyMeals({ theme }: { theme: NourishTheme }) {
 function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
   const displayMeal = roundNutritionForDisplay(meal);
   const [entrance] = useState(() => new Animated.Value(0));
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reduceMotion) {
+      entrance.setValue(1);
+      return undefined;
+    }
+
     const animation = Animated.timing(entrance, {
       toValue: 1,
       duration: NUTRITION_MOTION_MS,
@@ -71,7 +78,7 @@ function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
     return () => {
       animation.stop();
     };
-  }, [entrance]);
+  }, [entrance, reduceMotion]);
 
   const translateY = entrance.interpolate({
     inputRange: [0, 1],
@@ -80,6 +87,13 @@ function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
 
   return (
     <Animated.View
+      accessible
+      accessibilityLabel={`${meal.food}, ${displayMeal.calories} calories, ${formatGramValue(
+        displayMeal.protein_g,
+      )} grams protein, ${formatGramValue(displayMeal.carbs_g)} grams carbs, ${formatGramValue(
+        displayMeal.fat_g,
+      )} grams fat`}
+      accessibilityRole="summary"
       style={[
         styles.row,
         {
@@ -93,9 +107,11 @@ function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
       ]}
     >
       <Image
-        accessibilityLabel={`${meal.food} thumbnail`}
+        accessible={false}
+        importantForAccessibility="no"
         source={{ uri: meal.thumbnailUri }}
         style={[styles.thumbnail, { backgroundColor: theme.colors.surfaceSubtle }]}
+        testID={`meal-thumbnail-${meal.id}`}
       />
       <View style={styles.rowBody}>
         <Text style={[styles.mealName, { color: theme.colors.textPrimary }]}>{meal.food}</Text>
@@ -123,6 +139,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: nourishSpacing.two,
   },
   sectionLabel: {
     fontSize: 22,
@@ -156,6 +174,7 @@ const styles = StyleSheet.create({
     padding: nourishSpacing.two,
     flexDirection: "row",
     alignItems: "center",
+    flexWrap: "wrap",
     gap: nourishSpacing.two,
   },
   thumbnail: {
@@ -165,19 +184,23 @@ const styles = StyleSheet.create({
   },
   rowBody: {
     flex: 1,
+    minWidth: 150,
     gap: nourishSpacing.one,
   },
   mealName: {
     fontSize: 15,
+    lineHeight: 20,
     fontWeight: "800",
     textTransform: "lowercase",
   },
   macroLine: {
     fontSize: 12,
+    lineHeight: 16,
     fontWeight: "700",
   },
   calories: {
     fontSize: 14,
+    lineHeight: 18,
     fontWeight: "800",
   },
 });

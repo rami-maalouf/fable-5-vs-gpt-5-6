@@ -24,7 +24,15 @@ export function ResultCard({
   const confidencePercent = Math.round(result.confidence * 100);
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`Estimated result, ${result.food}, ${Math.round(
+        result.calories,
+      )} calories, ${Math.round(result.protein_g)} grams protein, ${Math.round(
+        result.carbs_g,
+      )} grams carbs, ${Math.round(result.fat_g)} grams fat, ${confidencePercent} percent confidence`}
+      accessibilityRole="summary"
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    >
       <View style={styles.header}>
         <Text style={[styles.eyebrow, { color: theme.colors.textSecondary }]}>
           Estimated result
@@ -61,6 +69,7 @@ export function ResultCard({
       <View style={styles.actions}>
         <Pressable
           accessibilityLabel="Discard food estimate"
+          accessibilityHint="Closes without logging this estimate"
           accessibilityRole="button"
           disabled={isAccepting}
           onPress={onDiscard}
@@ -76,6 +85,7 @@ export function ResultCard({
         </Pressable>
         <Pressable
           accessibilityLabel="Accept food estimate"
+          accessibilityHint="Logs this estimate and returns to the dashboard"
           accessibilityRole="button"
           disabled={isAccepting}
           onPress={onAccept}
@@ -150,10 +160,12 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: nourishSpacing.three,
   },
   primaryButton: {
     flex: 1,
+    minWidth: 132,
     minHeight: nourishTouchTargets.primary,
     borderRadius: nourishRadii.pill,
     alignItems: "center",
@@ -162,6 +174,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flex: 1,
+    minWidth: 132,
     minHeight: nourishTouchTargets.primary,
     borderRadius: nourishRadii.pill,
     borderWidth: 1,
@@ -171,10 +184,12 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
   secondaryText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
 });

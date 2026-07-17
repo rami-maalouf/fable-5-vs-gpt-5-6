@@ -92,17 +92,17 @@ describe("Nourish dashboard", () => {
 
     expect(screen.getByText("salmon rice bowl")).toBeTruthy();
     expect(screen.getByText("900 cal")).toBeTruthy();
-    expect(screen.getByLabelText("salmon rice bowl thumbnail")).toBeTruthy();
+    expect(screen.getByLabelText("salmon rice bowl, 900 calories, 60.2 grams protein, 110.1 grams carbs, 24.4 grams fat")).toBeTruthy();
     expect(screen.getByText("60.2p · 110.1c · 24.4f")).toBeTruthy();
 
     expect(screen.getByText("avocado toast")).toBeTruthy();
     expect(screen.getByText("650 cal")).toBeTruthy();
-    expect(screen.getByLabelText("avocado toast thumbnail")).toBeTruthy();
+    expect(screen.getByLabelText("avocado toast, 650 calories, 41.3 grams protein, 80.5 grams carbs, 20.3 grams fat")).toBeTruthy();
     expect(screen.getByText("41.3p · 80.5c · 20.3f")).toBeTruthy();
 
     expect(screen.getByText("berry yogurt")).toBeTruthy();
     expect(screen.getByText("700 cal")).toBeTruthy();
-    expect(screen.getByLabelText("berry yogurt thumbnail")).toBeTruthy();
+    expect(screen.getByLabelText("berry yogurt, 700 calories, 52.6 grams protein, 75.5 grams carbs, 29.6 grams fat")).toBeTruthy();
     expect(screen.getByText("52.6p · 75.5c · 29.6f")).toBeTruthy();
   });
 });

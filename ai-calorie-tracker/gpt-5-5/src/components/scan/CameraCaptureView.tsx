@@ -150,6 +150,7 @@ export function CameraCaptureView({
         <View style={styles.previewHeader}>
           <Pressable
             accessibilityLabel="Close scan"
+            accessibilityHint="Closes the camera without logging a meal"
             accessibilityRole="button"
             onPress={onClose}
             style={styles.glassButton}
@@ -169,6 +170,7 @@ export function CameraCaptureView({
           <View style={styles.cameraActions}>
             <Pressable
               accessibilityLabel="Choose from Photos"
+              accessibilityHint="Opens the photo library instead of the camera"
               accessibilityRole="button"
               onPress={onChooseFromPhotos}
               style={styles.glassButton}
@@ -178,6 +180,7 @@ export function CameraCaptureView({
 
             <Pressable
               accessibilityLabel="Capture meal photo"
+              accessibilityHint="Takes one photo and starts meal analysis"
               accessibilityRole="button"
               disabled={isCapturing}
               onPress={capturePhoto}
@@ -225,7 +228,12 @@ function StatusCard({
   theme: NourishTheme;
 }) {
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`${title}. ${body}`}
+      accessibilityLiveRegion="polite"
+      accessibilityRole="summary"
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    >
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
     </View>
@@ -252,13 +260,23 @@ function FallbackCard({
   const primaryAction = onPrimaryAction ?? onChooseFromPhotos;
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel={`${title}. ${body}`}
+      accessibilityLiveRegion="polite"
+      accessibilityRole="summary"
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    >
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
 
       <View style={styles.actionStack}>
         <Pressable
           accessibilityLabel={primaryActionLabel}
+          accessibilityHint={
+            primaryActionLabel === "Allow camera"
+              ? "Requests camera permission"
+              : "Opens the photo library"
+          }
           accessibilityRole="button"
           onPress={primaryAction}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
@@ -271,6 +289,7 @@ function FallbackCard({
         {onPrimaryAction ? (
           <Pressable
             accessibilityLabel="Choose from Photos"
+            accessibilityHint="Opens the photo library instead"
             accessibilityRole="button"
             onPress={onChooseFromPhotos}
             style={[
@@ -289,6 +308,7 @@ function FallbackCard({
 
         <Pressable
           accessibilityLabel="Close scan"
+          accessibilityHint="Closes without logging a meal"
           accessibilityRole="button"
           onPress={onClose}
           style={[
@@ -407,7 +427,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 30,
-    lineHeight: 34,
+    lineHeight: 36,
     fontWeight: "900",
     letterSpacing: -0.8,
   },
@@ -428,6 +448,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
   secondaryButton: {
@@ -440,6 +461,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 16,
+    lineHeight: 21,
     fontWeight: "800",
   },
 });

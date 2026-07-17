@@ -21,7 +21,11 @@ export function AcquisitionView({
   onUseCamera,
 }: AcquisitionViewProps) {
   return (
-    <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+    <View
+      accessibilityLabel="Scan your meal. Choose a clear food photo or capture one with the rear camera."
+      accessibilityRole="summary"
+      style={[styles.card, { backgroundColor: theme.colors.surface }]}
+    >
       <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Scan your meal</Text>
       <Text style={[styles.body, { color: theme.colors.textSecondary }]}>
         Choose a clear food photo or capture one with the rear camera. Nourish will prepare it
@@ -37,6 +41,7 @@ export function AcquisitionView({
       <View style={styles.actionStack}>
         <Pressable
           accessibilityLabel="Choose from Photos"
+          accessibilityHint="Opens the photo library"
           accessibilityRole="button"
           onPress={onChooseFromPhotos}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
@@ -48,6 +53,7 @@ export function AcquisitionView({
 
         <Pressable
           accessibilityLabel="Use camera"
+          accessibilityHint="Opens the rear camera"
           accessibilityRole="button"
           onPress={onUseCamera}
           style={[
@@ -78,7 +84,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 34,
-    lineHeight: 38,
+    lineHeight: 40,
     fontWeight: "900",
     letterSpacing: -1,
   },
@@ -103,6 +109,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: 17,
+    lineHeight: 22,
     fontWeight: "900",
   },
   secondaryButton: {
@@ -115,6 +122,7 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     fontSize: 16,
+    lineHeight: 21,
     fontWeight: "800",
   },
 });
