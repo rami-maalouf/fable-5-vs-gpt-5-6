@@ -218,12 +218,71 @@ metro 8087, real key, cold restart first (dashboard + widget both 2000):
 - accept must close via an effect, not synchronously in the press handler,
   or the dismissal is requested before the commit that contains the meal.
 
-### next: task 10 (camera acquisition), then 11-17
+- task 10 camera acquisition: `src/components/scan/CameraView.tsx` exports
+  `CameraCapture` (expo-camera CameraView rear preview, useCameraPermissions
+  requested ONLY on choosing "Take photo", 76pt shutter disabled until
+  onCameraReady, capture haptic impactAsync Medium, captureInFlightRef blocks
+  double shutter, captured frame frozen as expo-image over the live preview +
+  "Preparing photo" pill so the handoff has no blank frame, denied/unavailable
+  explanation keeps "Choose from library" + close). scan.tsx: `cameraOpen`
+  presentation flag; camera renders during acquiring AND preparing (frozen
+  frame covers prep), shared `runPreparation(source)` used by BOTH camera and
+  library -> same start_preparing/photo_prepared events, finally releases
+  cameraOpen. AcquisitionView placeholder hint removed, onChooseCamera prop.
+  app.json got the expo-camera plugin with the custom cameraPermission string.
+  8 new tests in tests/components/camera.test.tsx (134 total). commit `5bbb2ca`.
 
-full-screen expo-camera rear preview behind the existing acquisition choice:
-on-demand permission request, denied state keeps Photos + close reachable,
-capture haptic, captured uri feeds the SAME prepare -> analyze pipeline
-(no camera-specific analysis branch).
+### task-10 REAL sim results on the Pro Max (verification evidence)
+
+- granted path: Scan -> Take photo -> system camera dialog appeared ON DEMAND
+  -> Allow -> full-screen dark stage, close inside top safe area, shutter
+  centered above home indicator (enabled once onCameraReady fired - it DOES
+  fire on the ios 27 pro max sim). shutter tap CAPTURED for real: the sim's
+  test frame (black + orange timestamp) froze in place, prepared, hit the real
+  backend, and MacroLens returned not_food - full shared-pipeline round trip
+  from a camera capture. capture is NOT device-limited on this runtime.
+- denied path: settings-permissions deny + relaunch -> "Camera access needed"
+  explanation (mentions Settings, doesn't depend on it), coral "Choose from
+  library" + close reachable; library pick FROM the denied view went straight
+  into the shared pipeline (salad full screen -> analyzing).
+- library regression: salad bowl -> result card "Grilled chicken salad bowl
+  with vegetables, edamame, corn, tomatoes, cucumber, cabbage, and boiled
+  eggs" 620 cal / 48g P / 45g C / 25g F -> discard -> dashboard unchanged
+  (2000, no meals).
+- observed TWO transient analysis failures ("The analysis did not work this
+  time." over the photo) before a success on the same image; a direct curl to
+  /scan returned 200 in 2.3s, so this is provider flakiness, not the app.
+  task 11's "Retry analysis" will absorb this.
+- custom permission string: required prebuild + second rebuild (see gotcha);
+  after permission reset the dialog showed "Nourish uses the camera to
+  photograph your meal for calorie analysis." verbatim. Allow -> preview with
+  shutter; camera close -> acquisition; scan close -> unchanged dashboard.
+  sim left GRANTED for future sessions.
+
+### task-10 gotchas (hard-won)
+
+- `expo run:ios` does NOT re-sync config-plugin changes into an existing ios/
+  dir: the first rebuild shipped the DEFAULT camera-permission string. run
+  `npx expo prebuild --platform ios --no-install` after any plugin change,
+  then rebuild. prebuild also rewrites package.json ios/android scripts to
+  `expo run:*` - revert that.
+- the modal push/dismiss animation swallows the first tap on freshly revealed
+  buttons ~50% of the time; sequence taps with a describe/await between, and
+  be ready to re-tap.
+- RNTL v14 flushes press-triggered state asynchronously: after fireEvent.press
+  always waitFor the next screen before asserting (sync asserts see the OLD
+  tree). two back-to-back shutter presses in one act frame ALSO poison later
+  tests (task-9 gotcha applies to any double press): press, waitFor the mock
+  call, then press again while the controlled promise is still pending.
+- ios sim CAN capture: takePictureAsync returns a black test frame on the
+  iphone 17 pro max / ios 27 runtime; don't assume capture is device-only.
+
+### next: task 11 (failures, retries, cancellation), then 12-17
+
+distinct not-food and recoverable analysis/network failure cards over the
+prepared photo (replace the placeholder pills), "Try another photo" vs
+"Retry analysis", cancel on discard/unmount, stale-response guards already
+in the reducer.
 
 ## design identity (from spec)
 
