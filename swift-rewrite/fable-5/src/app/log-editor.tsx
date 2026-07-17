@@ -1,7 +1,7 @@
 // ports: Views/Logs/SleepSessionEditorView.swift - the log sleep / edit log sheet
 // wake-day pill + goal-match card, circular picker (size 220) with live sync,
 // bedtime/wake summary cards, pinned save bar
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { InlineDateTimePicker } from '@/components/common/InlineDateTimePicker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
 import { useMemo, useState } from 'react';
@@ -121,20 +121,17 @@ export default function LogEditorScreen() {
         <View style={styles.controlsRow}>
           <View style={[styles.compactPanel, { backgroundColor: theme.cardBackground, borderColor: hexOpacity(theme.actionPrimary, 0.22) }]}>
             <Text style={[styles.panelCaption, { color: theme.textSecondary }]}>Wake day</Text>
-            <DateTimePicker
+            <InlineDateTimePicker
               value={new Date(wakeDaySel.year, wakeDaySel.month - 1, wakeDaySel.day, 12)}
               mode="date"
-              display="compact"
               themeVariant={theme.name === 'sunset' ? 'light' : 'dark'}
               accentColor={theme.actionPrimary}
-              onValueChange={(_, date) => {
-                if (date) {
-                  setWakeDaySel({
-                    year: date.getFullYear(),
-                    month: date.getMonth() + 1,
-                    day: date.getDate(),
-                  });
-                }
+              onValueChange={(date) => {
+                setWakeDaySel({
+                  year: date.getFullYear(),
+                  month: date.getMonth() + 1,
+                  day: date.getDate(),
+                });
               }}
               style={styles.datePicker}
             />

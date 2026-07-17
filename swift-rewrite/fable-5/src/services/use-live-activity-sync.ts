@@ -1,7 +1,7 @@
 // app-side live activity lifecycle: session start/end, relaunch restore,
 // lock-screen button events (wake-up / start-sleep), wind-down window
 import { useEffect, useRef } from 'react';
-import { Alert, AppState } from 'react-native';
+import { Alert, AppState, Platform } from 'react-native';
 import { addUserInteractionListener } from 'expo-widgets';
 
 import { epochFromDayMinutes } from '../domain/editor';
@@ -15,7 +15,10 @@ import {
   startSleepActivity,
   startWindDownActivity,
 } from './live-activity';
-import { START_SLEEP_TARGET, WAKE_UP_TARGET } from '../../widgets/sleep-activity';
+import { START_SLEEP_TARGET, WAKE_UP_TARGET } from './live-activity-targets';
+
+// live activities are an ios concept; every effect below no-ops elsewhere
+const SUPPORTED = Platform.OS === 'ios';
 
 function deviceTimeZone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC';
@@ -43,6 +46,7 @@ export function useLiveActivitySync() {
 
   // lock-screen buttons -> session mutations (LiveActivityIntent -> js)
   useEffect(() => {
+    if (!SUPPORTED) return;
     const sub = addUserInteractionListener((event) => {
       const state = appSleepStore.getState();
       if (event.target === WAKE_UP_TARGET && state.activeSession) {
@@ -76,6 +80,7 @@ export function useLiveActivitySync() {
 
   // session lifecycle -> activity lifecycle (+ initial reconcile on mount)
   useEffect(() => {
+    if (!SUPPORTED) return;
     if (!mounted.current) {
       mounted.current = true;
       previousSessionId.current = activeSession?.id ?? null;
@@ -95,6 +100,7 @@ export function useLiveActivitySync() {
   }, [activeSession?.id, liveActivityEnabled]);
 
   useEffect(() => {
+    if (!SUPPORTED) return;
     const sub = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
         const state = appSleepStore.getState();

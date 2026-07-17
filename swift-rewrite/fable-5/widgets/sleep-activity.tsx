@@ -18,8 +18,9 @@ export interface SleepActivityProps {
   bedtimeMs: number;
 }
 
-export const WAKE_UP_TARGET = 'wake-up';
-export const START_SLEEP_TARGET = 'start-sleep';
+// button targets are the literal strings 'wake-up' / 'start-sleep' below;
+// js-side constants live in src/services/live-activity-targets.ts so android
+// never has to evaluate this module (createLiveActivity is ios-only)
 
 const SleepActivity = (props: SleepActivityProps, _env: LiveActivityEnvironment) => {
   'widget';

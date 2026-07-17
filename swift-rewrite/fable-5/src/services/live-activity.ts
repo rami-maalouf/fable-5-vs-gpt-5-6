@@ -2,16 +2,28 @@
 // starts the activity with the session, ends it on wake, restores after
 // relaunch via getInstances(), respects the settings toggle. adds the
 // superpower wind-down countdown state.
+import { Platform } from 'react-native';
+
 import { settingsStore } from '../data/app-db';
 import type { SleepSession } from '../domain/models';
 import { sleepGoalSeconds } from '../domain/session-rules';
-import SleepActivity, { type SleepActivityProps } from '../../widgets/sleep-activity';
+import type SleepActivityFactory from '../../widgets/sleep-activity';
+import type { SleepActivityProps } from '../../widgets/sleep-activity';
+
+// the widget module calls createLiveActivity() at load, which constructs the
+// ios-only native factory - never evaluate it on other platforms
+const SleepActivity: typeof SleepActivityFactory | null =
+  Platform.OS === 'ios'
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require('../../widgets/sleep-activity').default as typeof SleepActivityFactory)
+    : null;
 
 function isEnabled(): boolean {
   return settingsStore.get('liveActivityEnabled');
 }
 
 function instances() {
+  if (!SleepActivity) return [];
   try {
     return SleepActivity.getInstances();
   } catch {
@@ -39,7 +51,7 @@ function sleepProps(session: SleepSession): SleepActivityProps {
 }
 
 export async function startSleepActivity(session: SleepSession): Promise<void> {
-  if (!isEnabled()) return;
+  if (!isEnabled() || !SleepActivity) return;
   await endAll();
   try {
     const instance = SleepActivity.start(sleepProps(session), 'twilight://');
@@ -57,7 +69,7 @@ export async function endSleepActivity(): Promise<void> {
 // the stored id encodes the bedtime so a changed bedtime replaces the
 // countdown while an unchanged one is left alone on every foreground.
 export async function startWindDownActivity(bedtimeMs: number): Promise<void> {
-  if (!isEnabled()) return;
+  if (!isEnabled() || !SleepActivity) return;
   const id = `winddown:${bedtimeMs}`;
   if (settingsStore.get('liveActivityId') === id && instances().length > 0) return;
   await endAll();

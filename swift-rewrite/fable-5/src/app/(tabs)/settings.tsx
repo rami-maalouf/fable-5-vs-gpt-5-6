@@ -3,7 +3,7 @@
 // pill, app appearance (display mode + theme color), notifications (wind-down
 // toggle, routine link, live activity toggle), community links.
 // NFC & QR / apple health / data sections are out of scope per the spec.
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { InlineDateTimePicker } from '@/components/common/InlineDateTimePicker';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
@@ -170,13 +170,12 @@ export default function SettingsScreen() {
                   <SymbolView name="moon.fill" size={15} tintColor={fixed(INDIGO)} />
                   <Text style={[styles.goalLabel, { color: fixed(INDIGO) }]}>Bedtime</Text>
                 </View>
-                <DateTimePicker
+                <InlineDateTimePicker
                   value={minutesToDate(optimalSleepMinutes)}
                   mode="time"
-                  display="compact"
                   themeVariant={pickerVariant}
-                  onValueChange={(_, date) => {
-                    if (date) setSetting('optimalSleepMinutes', date.getHours() * 60 + date.getMinutes());
+                  onValueChange={(date) => {
+                    setSetting('optimalSleepMinutes', date.getHours() * 60 + date.getMinutes());
                   }}
                   style={styles.timePicker}
                 />
@@ -186,13 +185,12 @@ export default function SettingsScreen() {
                   <SymbolView name="sun.max.fill" size={15} tintColor={fixed(ORANGE)} />
                   <Text style={[styles.goalLabel, { color: fixed(ORANGE) }]}>Wake Up</Text>
                 </View>
-                <DateTimePicker
+                <InlineDateTimePicker
                   value={minutesToDate(optimalWakeMinutes)}
                   mode="time"
-                  display="compact"
                   themeVariant={pickerVariant}
-                  onValueChange={(_, date) => {
-                    if (date) setSetting('optimalWakeMinutes', date.getHours() * 60 + date.getMinutes());
+                  onValueChange={(date) => {
+                    setSetting('optimalWakeMinutes', date.getHours() * 60 + date.getMinutes());
                   }}
                   style={styles.timePicker}
                 />

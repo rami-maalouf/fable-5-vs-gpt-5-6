@@ -46,3 +46,10 @@ spec-sanctioned scope cuts are listed first; implementation-time deviations foll
   id encodes its bedtime so a changed bedtime replaces the activity, and an
   expired/out-of-window countdown is cleared on foreground (the original's
   ActivityKit flow has no equivalent state to leak).
+- android (task 29, boot scope only - the original is ios-only): live activities
+  are guarded to no-op off ios; the compact inline date/time picker does not
+  exist on android (a mounted picker opens its modal dialog immediately), so
+  settings and the log editor render a pressable value chip there that opens
+  the system dialog on demand - ios keeps the native compact style. the glowing
+  moon renders without its halo on android (the glow is built from ios shadow
+  layers). no further android polish, per spec.
