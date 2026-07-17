@@ -15,6 +15,11 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack }),
 }));
 
+jest.mock('expo-haptics', () => ({
+  notificationAsync: jest.fn(),
+  NotificationFeedbackType: { Success: 'success' },
+}));
+
 const mockPrepareImage = jest.fn();
 jest.mock('../../src/services/prepare-image', () => ({
   prepareImage: (...args: unknown[]) => mockPrepareImage(...args),
@@ -27,8 +32,13 @@ jest.mock('../../src/services/analyze-photo', () => ({
   analyzePhoto: (...args: unknown[]) => mockAnalyzePhoto(...args),
 }));
 
+jest.mock('../../src/services/widget', () => ({
+  publishRemainingCalories: jest.fn(),
+}));
+
 import ScanScreen from '../../src/app/scan';
 import type { PreparedPhoto } from '../../src/domain/scan-machine';
+import { DayProvider } from '../../src/state/day-context';
 
 const INITIAL_METRICS = {
   frame: { x: 0, y: 0, width: 430, height: 932 },
@@ -52,7 +62,9 @@ const PREPARED_PHOTO: PreparedPhoto = {
 async function renderScan() {
   await render(
     <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
-      <ScanScreen />
+      <DayProvider>
+        <ScanScreen />
+      </DayProvider>
     </SafeAreaProvider>,
   );
 }

@@ -20,6 +20,11 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: mockBack }),
 }));
 
+jest.mock('expo-haptics', () => ({
+  notificationAsync: jest.fn(),
+  NotificationFeedbackType: { Success: 'success' },
+}));
+
 const mockPrepareImage = jest.fn();
 jest.mock('../../src/services/prepare-image', () => ({
   prepareImage: (...args: unknown[]) => mockPrepareImage(...args),
@@ -30,10 +35,15 @@ jest.mock('../../src/services/analyze-photo', () => ({
   analyzePhoto: (...args: unknown[]) => mockAnalyzePhoto(...args),
 }));
 
+jest.mock('../../src/services/widget', () => ({
+  publishRemainingCalories: jest.fn(),
+}));
+
 import ScanScreen from '../../src/app/scan';
 import type { AnalysisOutcome } from '../../src/services/analyze-photo';
 import type { ScanSuccess } from '../../src/domain/scan-contract';
 import type { PreparedPhoto } from '../../src/domain/scan-machine';
+import { DayProvider } from '../../src/state/day-context';
 
 const INITIAL_METRICS = {
   frame: { x: 0, y: 0, width: 430, height: 932 },
@@ -65,7 +75,9 @@ const RESULT: ScanSuccess = {
 async function renderScan() {
   const utils = await render(
     <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
-      <ScanScreen />
+      <DayProvider>
+        <ScanScreen />
+      </DayProvider>
     </SafeAreaProvider>,
   );
   return utils;
@@ -150,8 +162,9 @@ it('locks accept after the first press', async () => {
       screen.getByRole('button', { name: 'Accept' }).props.accessibilityState,
     ).toEqual(expect.objectContaining({ disabled: true }));
   });
-  // the modal stays open; day-state logging arrives in a later build
-  expect(mockBack).not.toHaveBeenCalled();
+  // accepting logs the meal and requests exactly one modal dismissal;
+  // the end-to-end accept behavior lives in scan-accept.test.tsx
+  expect(mockBack).toHaveBeenCalledTimes(1);
 });
 
 it('shows a readable not-food placeholder with discard available', async () => {

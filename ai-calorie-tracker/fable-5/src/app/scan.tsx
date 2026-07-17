@@ -1,5 +1,6 @@
 // full-screen scan modal. owns the scan state machine and renders purely by
 // screen status; every transition goes through scanReducer events.
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
@@ -17,9 +18,11 @@ import Svg, { Path } from 'react-native-svg';
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
 import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
 import { ResultCard } from '@/components/scan/ResultCard';
+import { createMeal } from '@/domain/nutrition';
 import { INITIAL_SCAN_STATE, scanReducer } from '@/domain/scan-machine';
 import { analyzePhoto } from '@/services/analyze-photo';
 import { prepareImage } from '@/services/prepare-image';
+import { useDay } from '@/state/day-context';
 import { radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
@@ -39,6 +42,7 @@ export default function ScanScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const { acceptMeal } = useDay();
   // presentation-only flags; the machine still owns the flow
   const [prepFailed, setPrepFailed] = useState(false);
   const pickerOpenRef = useRef(false);
@@ -46,14 +50,23 @@ export default function ScanScreen() {
   // request on discard and unmount
   const startedRequestIdRef = useRef(0);
   const controllerRef = useRef<AbortController | null>(null);
+  // blocks same-frame double taps from repeating the accept haptic
+  const acceptHandledRef = useRef(false);
 
   const { screen } = state;
 
+  // discard closes through the machine; accept closes once the accepted
+  // meal has been committed to day state, so the dismissal is requested
+  // only after the meal is added and the widget snapshot effect runs in
+  // the same commit
+  const shouldClose =
+    screen.status === 'closed' ||
+    (screen.status === 'result' && screen.accepted);
   useEffect(() => {
-    if (screen.status === 'closed') {
+    if (shouldClose) {
       router.back();
     }
-  }, [screen.status, router]);
+  }, [shouldClose, router]);
 
   // entering analyzing starts one real analysis for that request id. the
   // reducer already ignores completions whose request id is stale.
@@ -105,10 +118,29 @@ export default function ScanScreen() {
   }, []);
 
   const handleAccept = useCallback(() => {
-    // logging the meal into day state arrives in a later build; the machine
-    // still locks accept after its first press
+    if (
+      screen.status !== 'result' ||
+      screen.accepted ||
+      acceptHandledRef.current
+    ) {
+      return;
+    }
+    acceptHandledRef.current = true;
+    // success haptic on the first accept press only
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // lock the button, then log exactly one meal keyed by the request id so
+    // duplicate accepts of the same result can never double-log; the close
+    // effect above dismisses the modal after this commit
     dispatch({ type: 'accept' });
-  }, []);
+    acceptMeal(
+      createMeal(
+        screen.result,
+        `scan-${screen.requestId}`,
+        screen.photo.uri,
+        Date.now(),
+      ),
+    );
+  }, [screen, acceptMeal]);
 
   const handleChooseLibrary = useCallback(async () => {
     // guard against double taps launching two pickers
