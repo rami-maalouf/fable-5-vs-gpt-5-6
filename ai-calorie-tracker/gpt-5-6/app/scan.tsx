@@ -15,12 +15,17 @@ import {
 } from '@/domain/scan-machine';
 import { AnalyzePhotoError, analyzePhoto } from '@/services/analyze-photo';
 import { pickLibraryImage, prepareImage } from '@/services/prepare-image';
+import { useDay } from '@/state/day-context';
 import { useNourishTheme } from '@/theme/tokens';
 
 const initialAcquisitionState = scanReducer(initialScanState, {
   type: 'open',
   source: 'library',
 });
+
+type ScanScreenProps = {
+  initialState?: ScanState;
+};
 
 function ErrorOverlay({
   onDiscard,
@@ -61,11 +66,15 @@ function getPreparedPhoto(state: ScanState): PreparedPhoto | null {
   return null;
 }
 
-export default function ScanScreen() {
-  const [state, dispatch] = useReducer(scanReducer, initialAcquisitionState);
+export function ScanScreen({
+  initialState = initialAcquisitionState,
+}: ScanScreenProps) {
+  const [state, dispatch] = useReducer(scanReducer, initialState);
   const [preparationError, setPreparationError] = useState<string>();
+  const { acceptMeal } = useDay();
   const requestSequence = useRef(0);
   const activeRequest = useRef<AbortController | null>(null);
+  const acceptLocked = useRef(false);
 
   useEffect(() => {
     return () => activeRequest.current?.abort();
@@ -133,6 +142,28 @@ export default function ScanScreen() {
     }
   }, [runAnalysis, state.status]);
 
+  const acceptResult = useCallback(() => {
+    if (state.status !== 'result' || acceptLocked.current) {
+      return;
+    }
+
+    acceptLocked.current = true;
+    dispatch({ type: 'accept' });
+    acceptMeal({
+      id: state.requestId,
+      food: state.result.food,
+      calories: state.result.calories,
+      protein_g: state.result.protein_g,
+      carbs_g: state.result.carbs_g,
+      fat_g: state.result.fat_g,
+      confidence: state.result.confidence,
+      thumbnailUri: state.photo.uri,
+      loggedAt: Date.now(),
+    });
+    dispatch({ type: 'accepted' });
+    router.back();
+  }, [acceptMeal, state]);
+
   if (state.status === 'preparing') {
     return (
       <ScanPhotoStage photoUri={state.sourceUri}>
@@ -160,7 +191,7 @@ export default function ScanScreen() {
       <ScanPhotoStage photoUri={photo.uri}>
         <ResultCard
           accepting={state.status === 'accepting'}
-          onAccept={() => dispatch({ type: 'accept' })}
+          onAccept={acceptResult}
           onDiscard={closeScanner}
           result={state.result}
         />
@@ -185,6 +216,8 @@ export default function ScanScreen() {
     />
   );
 }
+
+export default ScanScreen;
 
 const styles = StyleSheet.create({
   errorSafeArea: {
