@@ -1,12 +1,21 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  FadeInDown,
+  ReduceMotion,
+} from 'react-native-reanimated';
 
+import { NUTRITION_MOTION_DURATION } from '@/components/dashboard/NutritionSummary';
 import { formatMacro, type Meal } from '@/domain/nutrition';
 import { useNourishTheme } from '@/theme/tokens';
 
 type MealListProps = {
   meals: readonly Meal[];
 };
+
+const mealEntering = FadeInDown.duration(
+  NUTRITION_MOTION_DURATION,
+).reduceMotion(ReduceMotion.System);
 
 function EmptyPlate() {
   const theme = useNourishTheme();
@@ -42,8 +51,9 @@ export function MealList({ meals }: MealListProps) {
   return (
     <View style={styles.mealList}>
       {meals.map((meal) => (
-        <View
+        <Animated.View
           accessibilityLabel={`${meal.food}, ${meal.calories} calories`}
+          entering={mealEntering}
           key={meal.id}
           style={[
             styles.mealRow,
@@ -69,7 +79,7 @@ export function MealList({ meals }: MealListProps) {
               {formatMacro(meal.fat_g)} g
             </Text>
           </View>
-        </View>
+        </Animated.View>
       ))}
     </View>
   );

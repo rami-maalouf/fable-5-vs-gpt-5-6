@@ -31,6 +31,30 @@ const meal: Meal = {
   loggedAt: 1_700_000_000_000,
 };
 
+const rapidMeals: Meal[] = [
+  meal,
+  {
+    ...meal,
+    id: 'scan-2',
+    food: 'Chicken rice bowl',
+    calories: 780,
+    protein_g: 61.3,
+    carbs_g: 92.4,
+    fat_g: 18.7,
+    loggedAt: meal.loggedAt + 1,
+  },
+  {
+    ...meal,
+    id: 'scan-3',
+    food: 'Salmon pasta',
+    calories: 850,
+    protein_g: 64.8,
+    carbs_g: 101.6,
+    fat_g: 42.5,
+    loggedAt: meal.loggedAt + 2,
+  },
+];
+
 function wrapper({ children }: PropsWithChildren) {
   return <DayProvider>{children}</DayProvider>;
 }
@@ -78,6 +102,22 @@ describe('DayProvider', () => {
     expect(updateRemainingCaloriesWidget).toHaveBeenLastCalledWith(
       result.current.summary.remaining.calories,
     );
+  });
+
+  it('settles three rapid accepted meals on one exact derived summary', async () => {
+    const { result } = await renderHook(() => useDay(), { wrapper });
+
+    await act(() => {
+      for (const acceptedMeal of rapidMeals) {
+        expect(result.current.acceptMeal(acceptedMeal)).toBe(true);
+      }
+    });
+
+    expect(result.current.meals).toEqual(rapidMeals);
+    expect(result.current.summary).toEqual(getDaySummary(rapidMeals));
+    expect(result.current.summary.consumed.calories).toBe(2_150);
+    expect(result.current.summary.remaining.calories).toBe(-150);
+    expect(updateRemainingCaloriesWidget).toHaveBeenLastCalledWith(-150);
   });
 
   it('keeps meal-only reducer state unchanged for duplicates and discard', () => {

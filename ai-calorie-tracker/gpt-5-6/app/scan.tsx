@@ -1,12 +1,20 @@
 import { useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
 import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
 import { CameraCaptureView } from '@/components/scan/CameraView';
 import { ErrorCard } from '@/components/scan/ErrorCard';
 import { ResultCard } from '@/components/scan/ResultCard';
+import { ScanOverlayTransition } from '@/components/scan/ScanOverlayTransition';
 import { ScanPhotoStage } from '@/components/scan/ScanPhotoStage';
 import {
   initialScanState,
@@ -269,50 +277,61 @@ export function ScanScreen({
     );
   }
 
+  const photo = getPreparedPhoto(state);
+  let photoUri: string | undefined;
+  let overlay: ReactNode = null;
+  let overlayKey: string | undefined;
+
   if (state.status === 'preparing') {
-    return (
-      <ScanPhotoStage photoUri={state.sourceUri}>
-        <AnalyzingOverlay
-          onClose={closeScanner}
-          subtitle="Optimizing image quality"
-          title="Preparing your photo"
-        />
-      </ScanPhotoStage>
+    photoUri = state.sourceUri;
+    overlayKey = `${state.requestId}-preparing`;
+    overlay = (
+      <AnalyzingOverlay
+        onClose={closeScanner}
+        subtitle="Optimizing image quality"
+        title="Preparing your photo"
+      />
     );
   }
 
-  const photo = getPreparedPhoto(state);
-
   if (state.status === 'analyzing' && photo) {
-    return (
-      <ScanPhotoStage photoUri={photo.uri}>
-        <AnalyzingOverlay onClose={closeScanner} />
-      </ScanPhotoStage>
-    );
+    photoUri = photo.uri;
+    overlayKey = `${state.requestId}-analyzing`;
+    overlay = <AnalyzingOverlay onClose={closeScanner} />;
   }
 
   if ((state.status === 'result' || state.status === 'accepting') && photo) {
-    return (
-      <ScanPhotoStage photoUri={photo.uri}>
-        <ResultCard
-          accepting={state.status === 'accepting'}
-          onAccept={acceptResult}
-          onDiscard={closeScanner}
-          result={state.result}
-        />
-      </ScanPhotoStage>
+    photoUri = photo.uri;
+    overlayKey = `${state.requestId}-result`;
+    overlay = (
+      <ResultCard
+        accepting={state.status === 'accepting'}
+        onAccept={acceptResult}
+        onDiscard={closeScanner}
+        result={state.result}
+      />
     );
   }
 
   if (state.status === 'error' && photo) {
+    photoUri = photo.uri;
+    overlayKey = `${state.requestId}-${state.kind}`;
+    overlay = (
+      <ErrorCard
+        kind={state.kind}
+        onDiscard={closeScanner}
+        onRetryAnalysis={retryAnalysis}
+        onTryAnother={tryAnotherPhoto}
+      />
+    );
+  }
+
+  if (photoUri && overlayKey && overlay) {
     return (
-      <ScanPhotoStage photoUri={photo.uri}>
-        <ErrorCard
-          kind={state.kind}
-          onDiscard={closeScanner}
-          onRetryAnalysis={retryAnalysis}
-          onTryAnother={tryAnotherPhoto}
-        />
+      <ScanPhotoStage photoUri={photoUri}>
+        <ScanOverlayTransition transitionKey={overlayKey}>
+          {overlay}
+        </ScanOverlayTransition>
       </ScanPhotoStage>
     );
   }

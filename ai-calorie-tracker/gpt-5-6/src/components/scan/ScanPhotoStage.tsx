@@ -15,9 +15,11 @@ export function ScanPhotoStage({ children, photoUri }: ScanPhotoStageProps) {
     <View style={[styles.stage, { backgroundColor: theme.photoBackground }]}>
       <Image
         accessibilityLabel="Prepared meal photo"
+        cachePolicy="memory-disk"
         contentFit="cover"
         source={{ uri: photoUri }}
         style={StyleSheet.absoluteFill}
+        transition={0}
       />
       <View style={[styles.scrim, { backgroundColor: theme.photoScrim }]} />
       {children}
