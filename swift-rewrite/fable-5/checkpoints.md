@@ -210,3 +210,45 @@ original's windowing).
 code-quality review (tasks 25-26): notification service kept behind a pure
 time-math helper (testable); dev-only probe row added for scheduled
 notifications. no quality debt carried forward.
+
+## checkpoint 8: live activity (tasks 27-28) - PASS with island unverified (jul 17)
+
+the plan calls for physical-device verification of dynamic island behavior; this
+run is simulator-only, so per the kickoff the gate goes as far as the simulator
+allows and the island is reported honestly as unverified.
+
+verified on the iPhone 17e simulator (iOS 27) lock screen:
+
+- session start (in-app or via the lock-screen Start Sleep button) presents the
+  activity: moon + "Rejuvenating...", elapsed timer, progress bar toward the
+  sleep goal, remaining countdown + "left", Wake Up button
+  (evidence/task-28/start-sleep-button-started-session.png).
+- wake up button on the lock screen ends the session WITHOUT opening the app:
+  session row lands in the db with end_time set, app foregrounds to
+  "Go to Sleep", and - because bedtime was inside the 3h window at the time -
+  the wind-down countdown took the sleep activity's place
+  (evidence/task-27/*.png).
+- app kill + relaunch: reconcileLiveActivity() reuses the surviving activity
+  (timers continuous, no duplicate) - verified pre-gate on the same device.
+- wind-down superpower: with bedtime inside the 3h window the lock screen shows
+  moon.zzz + "Winding down..." + live countdown to bedtime + Start Sleep button
+  (evidence/task-28/winddown-countdown-lockscreen.png); tapping Start Sleep
+  starts a real session from the lock screen and the app opens in the sleeping
+  (grayscale) state (evidence/task-28/app-sleeping-after-start-sleep-button.png).
+- sub-5-minute wake from the button path still shows the joke alert and hides
+  the session (evidence/task-28/wake-in-app-joke-alert-color-restored.png).
+- restoring bedtime outside the window clears the countdown on next foreground
+  (evidence/task-28/lockscreen-clean-after-bedtime-restored.png).
+
+UNVERIFIED: dynamic island compact/minimal/expanded rendering and the expanded
+island wake-up button. implemented in widgets/sleep-activity.tsx but only island
+hardware renders them; no physical device was available to this run.
+
+verification: 204 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 27-28): stale wind-down countdown found during the
+gate (expired bedtime kept showing 0:00 after midnight) and fixed - the stored
+activity id now encodes its bedtime so changed bedtimes replace the countdown,
+and out-of-window foregrounds clear it; 'widget' function keeps every constant
+inline (compiler captures only the function body). no quality debt carried
+forward.
