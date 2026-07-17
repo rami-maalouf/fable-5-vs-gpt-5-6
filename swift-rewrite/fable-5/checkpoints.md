@@ -186,3 +186,27 @@ scope); reactive settings hook (useSettings) replaced direct kv reads across
 dashboard/editor so goal edits propagate live. known debt: "latest" chips and
 rolling charts legitimately show "-"/empty until 14 nights exist (mirrors the
 original's windowing).
+
+## checkpoint 7: polish (tasks 25-26) - PASS (jul 16)
+
+- animation/haptic sweep vs the spec map: fadeInSlide (spring 0.4/0.6, y30)
+  on dashboard sections + onboarding steps; glass press scale 0.96
+  spring(0.3); moon breathing 3.0s; starfield twinkle/shooting params per
+  source; picker haptics light on grab + each 5-min snap, medium on release;
+  rounded buttons light; theme pickers medium; streak indicator renders as
+  plain text (animation disabled like the original's transaction). the
+  picker's "appear pulse" is dead code in the swift source and is omitted
+  (DEVIATIONS.md). light-mode log rows fixed (previously logged debt).
+- fps: assessed qualitatively on the simulator (smooth starfield + scrub);
+  no instrumented overlay - noted honestly in DEVIATIONS.md.
+- wind-down notification verified on device: daily
+  UNCalendarNotificationTrigger at 19:00 for the 22:00 bedtime (3h before,
+  minutes preserved), rescheduled on launch/bedtime change, toggle off
+  cancels (0 scheduled) - evidence/task-26/. copy bank: title
+  "Wind Down Time 🌙" + 10 verbatim messages, unit-tested incl. the
+  past-midnight wrap.
+- verification: 204 tests green, tsc clean, lint clean.
+
+code-quality review (tasks 25-26): notification service kept behind a pure
+time-math helper (testable); dev-only probe row added for scheduled
+notifications. no quality debt carried forward.
