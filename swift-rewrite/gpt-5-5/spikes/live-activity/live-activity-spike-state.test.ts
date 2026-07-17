@@ -10,11 +10,14 @@ describe('live activity spike state', () => {
     const now = new Date('2026-07-16T08:30:00.000Z');
 
     expect(createLiveActivitySpikeProps(now, startedAt, 480)).toEqual({
-      title: 'Rejuvenating...',
-      phase: 'sleeping',
       elapsedMinutes: 150,
+      goalMinutes: 480,
+      phase: 'sleeping',
       remainingMinutes: 330,
       progress: 0.3125,
+      sessionId: 'live-activity-spike',
+      startedAtIso: '2026-07-16T06:00:00.000Z',
+      title: 'Rejuvenating...',
     });
   });
 
@@ -33,11 +36,14 @@ describe('live activity spike state', () => {
 
   it('builds wind-down props for the planned fallback state', () => {
     expect(createWindDownSpikeProps(37)).toEqual({
-      title: 'Wind-down soon',
-      phase: 'windDown',
       elapsedMinutes: 0,
+      goalMinutes: 0,
+      phase: 'windDown',
       remainingMinutes: 37,
       progress: 0,
+      sessionId: null,
+      startedAtIso: null,
+      title: 'Wind-down soon',
     });
   });
 });

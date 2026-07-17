@@ -11,12 +11,12 @@ import {
 import { createLiveActivity, type LiveActivityEnvironment } from 'expo-widgets';
 
 import {
-  liveActivitySpikeName,
-  type TwilightLiveActivitySpikeProps,
-} from '../spikes/live-activity/live-activity-spike-state';
+  twilightLiveActivityName,
+  type TwilightLiveActivityProps,
+} from '../src/services/live-activity-state';
 
-function TwilightLiveActivitySpike(
-  props: TwilightLiveActivitySpikeProps,
+function TwilightLiveActivity(
+  props: TwilightLiveActivityProps,
   environment: LiveActivityEnvironment,
 ) {
   'widget';
@@ -91,7 +91,7 @@ function TwilightLiveActivitySpike(
   };
 }
 
-export default createLiveActivity<TwilightLiveActivitySpikeProps>(
-  liveActivitySpikeName,
-  TwilightLiveActivitySpike,
+export default createLiveActivity<TwilightLiveActivityProps>(
+  twilightLiveActivityName,
+  TwilightLiveActivity,
 );

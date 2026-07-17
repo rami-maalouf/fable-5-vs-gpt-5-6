@@ -31,6 +31,7 @@ export async function startSleepSession(repository: SleepSessionToggleRepository
   const now = clock.now();
   const session: SleepSession = {
     id: clock.id(),
+    tag: 'Sleep Mode',
     startTime: now,
     endTime: null,
     startTimeZone: clock.timeZone(),

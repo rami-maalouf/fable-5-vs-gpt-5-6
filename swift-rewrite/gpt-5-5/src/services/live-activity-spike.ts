@@ -5,13 +5,14 @@ import {
   type UserInteractionEvent,
 } from 'expo-widgets';
 
-import TwilightLiveActivitySpike from '../../widgets/TwilightLiveActivitySpike';
+import TwilightLiveActivity from '../../widgets/TwilightLiveActivity';
 import {
   createLiveActivitySpikeProps,
   createWindDownSpikeProps,
   liveActivityWakeTarget,
   type TwilightLiveActivitySpikeProps,
 } from '../../spikes/live-activity/live-activity-spike-state';
+import { createEndedLiveActivityProps } from './live-activity-state';
 
 let startedAt = new Date();
 let activeInstance: LiveActivity<TwilightLiveActivitySpikeProps> | null = null;
@@ -23,7 +24,7 @@ function assertIosLiveActivity() {
 }
 
 function getInstance() {
-  const existing = activeInstance ?? TwilightLiveActivitySpike.getInstances()[0] ?? null;
+  const existing = activeInstance ?? TwilightLiveActivity.getInstances()[0] ?? null;
   activeInstance = existing;
   return existing;
 }
@@ -32,7 +33,7 @@ export function startLiveActivitySpike(now = new Date()) {
   assertIosLiveActivity();
   startedAt = now;
   const props = createLiveActivitySpikeProps(now, startedAt, 8 * 60);
-  activeInstance = TwilightLiveActivitySpike.start(props, 'twilight://live-activity-spike');
+  activeInstance = TwilightLiveActivity.start(props, 'twilight://live-activity-spike');
   return props;
 }
 
@@ -52,13 +53,13 @@ export async function updateLiveActivitySpike(now = new Date()) {
 export async function startWindDownLiveActivitySpike(minutesUntilBed = 180) {
   assertIosLiveActivity();
   const props = createWindDownSpikeProps(minutesUntilBed);
-  activeInstance = TwilightLiveActivitySpike.start(props, 'twilight://live-activity-spike');
+  activeInstance = TwilightLiveActivity.start(props, 'twilight://live-activity-spike');
   return props;
 }
 
 export async function endLiveActivitySpike(now = new Date()) {
   assertIosLiveActivity();
-  const instances = [...TwilightLiveActivitySpike.getInstances()];
+  const instances = [...TwilightLiveActivity.getInstances()];
 
   if (activeInstance && !instances.includes(activeInstance)) {
     instances.push(activeInstance);
@@ -68,13 +69,7 @@ export async function endLiveActivitySpike(now = new Date()) {
     instances.map((instance) =>
       instance.end(
         'immediate',
-        {
-          title: 'Awake',
-          phase: 'ended',
-          elapsedMinutes: Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 60000)),
-          remainingMinutes: 0,
-          progress: 1,
-        },
+        createEndedLiveActivityProps(now),
         now,
       ),
     ),

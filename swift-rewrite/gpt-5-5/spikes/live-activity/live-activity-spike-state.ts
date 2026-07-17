@@ -1,42 +1,45 @@
-export const liveActivitySpikeName = 'TwilightLiveActivitySpike';
-export const liveActivityWakeTarget = 'wake-up';
+import { defaultSleepSettings, type SleepSession } from '@/domain/models';
+import {
+  clampProgress,
+  createSleepLiveActivityProps,
+  createWindDownLiveActivityProps,
+  liveActivityWakeTarget,
+  twilightLiveActivityName,
+  type TwilightLiveActivityProps,
+} from '@/services/live-activity-state';
 
-export type TwilightLiveActivitySpikeProps = {
-  title: string;
-  phase: 'sleeping' | 'windDown' | 'ended';
-  elapsedMinutes: number;
-  remainingMinutes: number;
-  progress: number;
-};
+export { clampProgress, liveActivityWakeTarget };
 
-export function clampProgress(value: number) {
-  return Math.min(1, Math.max(0, value));
-}
+export const liveActivitySpikeName = twilightLiveActivityName;
+
+export type TwilightLiveActivitySpikeProps = TwilightLiveActivityProps;
 
 export function createLiveActivitySpikeProps(
   now: Date,
   startedAt: Date,
   goalMinutes: number,
 ): TwilightLiveActivitySpikeProps {
-  const elapsedMinutes = Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 60000));
-  const remainingMinutes = Math.max(0, goalMinutes - elapsedMinutes);
-  const progress = clampProgress(goalMinutes <= 0 ? 0 : elapsedMinutes / goalMinutes);
-
-  return {
-    title: 'Rejuvenating...',
-    phase: remainingMinutes > 0 ? 'sleeping' : 'ended',
-    elapsedMinutes,
-    remainingMinutes,
-    progress,
+  const session: SleepSession = {
+    createdAt: startedAt,
+    endTime: null,
+    endTimeZone: null,
+    id: 'live-activity-spike',
+    startTime: startedAt,
+    startTimeZone: 'UTC',
+    updatedAt: startedAt,
   };
+
+  return createSleepLiveActivityProps(
+    session,
+    {
+      ...defaultSleepSettings,
+      optimalSleepMinutes: 0,
+      optimalWakeMinutes: goalMinutes,
+    },
+    now,
+  );
 }
 
 export function createWindDownSpikeProps(minutesUntilBed: number): TwilightLiveActivitySpikeProps {
-  return {
-    title: 'Wind-down soon',
-    phase: 'windDown',
-    elapsedMinutes: 0,
-    remainingMinutes: Math.max(0, minutesUntilBed),
-    progress: 0,
-  };
+  return createWindDownLiveActivityProps(minutesUntilBed);
 }

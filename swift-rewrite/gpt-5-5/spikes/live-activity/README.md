@@ -17,7 +17,7 @@ constraints:
   Expo Go, and supports live activities through `createLiveActivity`.
 - the local debug build created the widget extension and ran the Expo widgets
   bundle build step.
-- the app can start and end a `TwilightLiveActivitySpike` from React Native.
+- the app can start and end the `TwilightLiveActivity` widget from React Native.
 - the iOS simulator lock screen rendered the live activity with Twilight copy,
   progress, and a `Wake Up` button.
 - stale broken live activities can survive code changes until explicitly ended,
@@ -31,8 +31,8 @@ The installed package has interactive-button plumbing:
 - Expo Widgets native code emits `LiveActivityUserInteraction(source, target)`.
 - React Native can subscribe through `addUserInteractionListener`.
 
-The spike includes that button path and an app-side listener that ends the
-activity when `target === 'wake-up'`.
+The spike includes that button path. The production implementation now also
+uses an app-side listener for `target === 'wake-up'`.
 
 The simulator showed the first-run system prompt, `Allow Live Activities from
 Twilight?`, over the rendered activity. Argent accessibility discovery did not

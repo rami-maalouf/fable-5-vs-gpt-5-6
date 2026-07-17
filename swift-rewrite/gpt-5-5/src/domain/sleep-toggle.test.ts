@@ -34,6 +34,7 @@ describe('sleep toggle', () => {
 
     expect(session).toMatchObject({
       id: 'sleep-1',
+      tag: 'Sleep Mode',
       startTimeZone: 'America/Edmonton',
       endTime: null,
       endTimeZone: null,

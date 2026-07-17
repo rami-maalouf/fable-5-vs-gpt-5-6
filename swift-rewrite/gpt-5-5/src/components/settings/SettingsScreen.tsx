@@ -287,6 +287,37 @@ function WindDownCard({
   );
 }
 
+function LiveActivityCard({
+  onUpdate,
+  settings,
+  theme,
+}: {
+  onUpdate: (patch: Partial<SleepSettings>) => void;
+  settings: SleepSettings;
+  theme: AppTheme;
+}) {
+  return (
+    <CardBackground active={settings.liveActivityEnabled} theme={theme} style={styles.card}>
+      <View style={styles.toggleRow}>
+        <View style={styles.toggleCopy}>
+          <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>live activity</Text>
+          <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>Lock screen sleep progress</Text>
+          <Text style={[styles.body, { color: theme.textSecondary }]}>
+            Show elapsed sleep, remaining goal time, and the wake action while sleep mode is active.
+          </Text>
+        </View>
+        <Switch
+          accessibilityLabel="toggle live activity"
+          onValueChange={(liveActivityEnabled) => onUpdate({ liveActivityEnabled })}
+          thumbColor={settings.liveActivityEnabled ? theme.textPrimary : theme.textSecondary}
+          trackColor={{ false: rgba(theme.textPrimary, 0.18), true: rgba(theme.actionPrimary, 0.64) }}
+          value={settings.liveActivityEnabled}
+        />
+      </View>
+    </CardBackground>
+  );
+}
+
 function CommunityCard({ theme }: { theme: AppTheme }) {
   const updateSettings = useUpdateSleepSettings();
 
@@ -341,6 +372,7 @@ export function SettingsScreen() {
         <SleepGoalCard onUpdate={onUpdate} settings={settings} theme={theme} />
         <AppearanceCard onUpdate={onUpdate} settings={settings} theme={theme} />
         <WindDownCard onUpdate={onUpdate} settings={settings} theme={theme} />
+        <LiveActivityCard onUpdate={onUpdate} settings={settings} theme={theme} />
         <CommunityCard theme={theme} />
       </ScrollView>
     </ScreenChrome>

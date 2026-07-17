@@ -8,6 +8,11 @@ import type { SleepSession } from '@/domain/models';
 import { durationSeconds, formatDuration } from '@/domain/session-rules';
 import { endActiveSleepSession, startSleepSession } from '@/domain/sleep-toggle';
 import { getSessionRepository } from '@/data/session-store';
+import { settingsStore } from '@/data/settings-store';
+import {
+  addSleepLiveActivityWakeListener,
+  syncSleepLiveActivity,
+} from '@/services/live-activity';
 import { useSleepAppearanceTheme } from '@/theme/sleep-appearance';
 
 function currentTimeZone() {
@@ -50,6 +55,7 @@ export function SleepToggleCard({ onSessionChange }: SleepToggleCardProps) {
       .then((session) => {
         if (!cancelled) {
           setActiveSession(session);
+          void syncLiveActivityForSession(session);
         }
       });
 
@@ -57,6 +63,37 @@ export function SleepToggleCard({ onSessionChange }: SleepToggleCardProps) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    let subscription: { remove?: () => void } | null = null;
+    let cancelled = false;
+
+    void addSleepLiveActivityWakeListener(async () => {
+      if (cancelled) {
+        return;
+      }
+
+      const repository = await getSessionRepository();
+      const result = await endActiveSleepSession(repository, makeClock());
+      await syncLiveActivityForSession(null);
+      setActiveSession(null);
+
+      if (result.status === 'ended') {
+        setFeedback(result.valid ? `Saved ${formatDuration(result.durationSeconds)}` : result.joke);
+      } else {
+        setFeedback('No active sleep session found.');
+      }
+
+      onSessionChange?.();
+    }).then((nextSubscription) => {
+      subscription = nextSubscription;
+    }).catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+      subscription?.remove?.();
+    };
+  }, [onSessionChange]);
 
   useEffect(() => {
     if (!activeSession) {
@@ -82,16 +119,19 @@ export function SleepToggleCard({ onSessionChange }: SleepToggleCardProps) {
         const result = await endActiveSleepSession(repository, makeClock());
 
         if (result.status === 'ended') {
+          await syncLiveActivityForSession(null);
           setActiveSession(null);
           setFeedback(result.valid ? `Saved ${formatDuration(result.durationSeconds)}` : result.joke);
           onSessionChange?.();
         } else {
+          await syncLiveActivityForSession(null);
           setActiveSession(null);
           setFeedback('No active sleep session found.');
           onSessionChange?.();
         }
       } else {
         const session = await startSleepSession(repository, makeClock());
+        await syncLiveActivityForSession(session);
         setActiveSession(session);
         setNow(new Date());
         setFeedback(null);
@@ -209,3 +249,16 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.96 }],
   },
 });
+
+async function syncLiveActivityForSession(session: SleepSession | null) {
+  try {
+    const settings = await settingsStore.getSettings();
+    const result = await syncSleepLiveActivity(session, settings);
+
+    if (result.liveActivityId !== settings.liveActivityId) {
+      await settingsStore.updateSettings({ liveActivityId: result.liveActivityId });
+    }
+  } catch {
+    return undefined;
+  }
+}

@@ -4,6 +4,7 @@ import { useColorScheme } from 'react-native';
 import { getSessionRepository } from '@/data/session-store';
 import { settingsStore } from '@/data/settings-store';
 import { defaultSleepSettings, type SleepSettings } from '@/domain/models';
+import { syncSleepLiveActivity } from '@/services/live-activity';
 import { syncWindDownReminder } from '@/services/notifications';
 
 import type { AppTheme } from './palettes';
@@ -93,6 +94,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
         setSettings(storedSettings);
         setSettingsReady(true);
         syncWindDownReminderQuietly(storedSettings);
+        syncLiveActivityQuietly(storedSettings);
       }
     }
 
@@ -139,6 +141,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
       const nextSettings = await settingsStore.updateSettings(patch);
       setSettings(nextSettings);
       syncWindDownReminderQuietly(nextSettings, { requestPermission: patch.windDownEnabled === true });
+      syncLiveActivityQuietly(nextSettings);
       return nextSettings;
     },
     [],
@@ -185,4 +188,18 @@ function syncWindDownReminderQuietly(
   options?: Parameters<typeof syncWindDownReminder>[1],
 ) {
   void syncWindDownReminder(settings, options).catch(() => undefined);
+}
+
+function syncLiveActivityQuietly(settings: SleepSettings) {
+  void getSessionRepository()
+    .then((repository) => repository.getActiveSession())
+    .then((activeSession) => syncSleepLiveActivity(activeSession, settings))
+    .then((result) => {
+      if (result.liveActivityId !== settings.liveActivityId) {
+        return settingsStore.updateSettings({ liveActivityId: result.liveActivityId });
+      }
+
+      return undefined;
+    })
+    .catch(() => undefined);
 }

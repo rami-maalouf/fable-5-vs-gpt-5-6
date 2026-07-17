@@ -130,3 +130,16 @@
 - the requested shortened-offset manual fire path is exposed through the service
   `offsetMinutes` injection and covered by focused tests, not by a separate dev
   settings screen.
+
+## task 27
+
+- promoted the Live Activity spike widget to the production `TwilightLiveActivity`
+  instead of keeping a parallel widget target.
+- the lock-screen Live Activity rendered on the simulator with title, elapsed and
+  remaining time, progress, wake button, and the iOS Live Activities permission
+  prompt. The prompt controls were not exposed through accessibility, so the prompt
+  was not tapped from screenshot-derived coordinates.
+- the real sleep-toggle path exposed an existing SQLite issue on the simulator:
+  older local databases had `sleep_sessions.tag` as `NOT NULL`. Sleep mode sessions
+  now use the stable `Sleep Mode` tag so the end-user start path works against that
+  installed database.
