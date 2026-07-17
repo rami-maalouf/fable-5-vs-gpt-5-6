@@ -39,14 +39,6 @@ jest.mock("../../src/services/prepare-image", () => ({
 }));
 
 jest.mock("../../src/services/analyze-photo", () => ({
-  AnalyzePhotoError: class AnalyzePhotoError extends Error {
-    readonly reason: "analysis" | "network";
-
-    constructor(reason: "analysis" | "network") {
-      super(reason);
-      this.reason = reason;
-    }
-  },
   analyzePreparedPhoto: mockAnalyzePreparedPhoto,
 }));
 
@@ -61,68 +53,70 @@ function createDeferred<T>() {
   return { promise, resolve };
 }
 
-describe("ScanScreen", () => {
+describe("ScanScreen result state", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockAnalyzePreparedPhoto.mockReturnValue(new Promise(() => undefined));
   });
 
-  test("returns to acquisition without an error when Photos is cancelled", async () => {
-    mockLaunchImageLibraryAsync.mockResolvedValue({
-      canceled: true,
-      assets: null,
-    });
-
-    await render(<ScanScreen />);
-    await fireEvent.press(screen.getByLabelText("Choose from Photos"));
-
-    expect(screen.getByText("Scan your meal")).toBeTruthy();
-    expect(screen.getByLabelText("Choose from Photos")).toBeTruthy();
-    expect(screen.queryByText("Could not prepare that photo.")).toBeNull();
-    expect(mockPrepareImageForAnalysis).not.toHaveBeenCalled();
-  });
-
-  test("keeps the selected photo visible while preparation advances to analyzing", async () => {
-    const preparation = createDeferred<Awaited<ReturnType<typeof mockPrepareImageForAnalysis>>>();
+  test("renders the validated analysis result above the unchanged prepared photo", async () => {
+    const preparedPhoto: PreparedScanPhoto = {
+      uri: "file:///prepared.jpg",
+      base64: "prepared-base64",
+      width: 1024,
+      height: 768,
+    };
+    const analysis = createDeferred<AnalyzePreparedPhotoResult>();
     mockLaunchImageLibraryAsync.mockResolvedValue({
       canceled: false,
       assets: [
         {
           uri: "file:///selected.jpg",
           width: 3024,
-          height: 4032,
+          height: 2268,
         },
       ],
     });
-    mockPrepareImageForAnalysis.mockReturnValue(preparation.promise);
+    mockPrepareImageForAnalysis.mockResolvedValue(preparedPhoto);
+    mockAnalyzePreparedPhoto.mockReturnValue(analysis.promise);
 
     await render(<ScanScreen />);
     fireEvent.press(screen.getByLabelText("Choose from Photos"));
 
     await waitFor(() => {
-      expect(screen.getByLabelText("Selected meal photo").props.source).toEqual({
-        uri: "file:///selected.jpg",
-      });
+      expect(screen.getByText("Analyzing estimate")).toBeTruthy();
     });
-    expect(screen.getByText("Preparing photo")).toBeTruthy();
-    expect(mockPrepareImageForAnalysis).toHaveBeenCalledWith({
-      uri: "file:///selected.jpg",
-      width: 3024,
-      height: 4032,
-    });
+    expect(mockAnalyzePreparedPhoto).toHaveBeenCalledWith(
+      preparedPhoto,
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
+    );
 
-    preparation.resolve({
-      uri: "file:///prepared.jpg",
-      base64: "prepared-base64",
-      width: 768,
-      height: 1024,
+    analysis.resolve({
+      type: "food",
+      result: {
+        food: "salmon rice bowl",
+        calories: 720,
+        protein_g: 42,
+        carbs_g: 83,
+        fat_g: 24,
+        confidence: 0.91,
+      },
     });
 
     await waitFor(() => {
-      expect(screen.getByText("Analyzing estimate")).toBeTruthy();
+      expect(screen.getByText("Estimated result")).toBeTruthy();
     });
     expect(screen.getByLabelText("Selected meal photo").props.source).toEqual({
       uri: "file:///prepared.jpg",
     });
+    expect(screen.getByText("salmon rice bowl")).toBeTruthy();
+    expect(screen.getByText("720 cal")).toBeTruthy();
+    expect(screen.getByText("42g protein")).toBeTruthy();
+    expect(screen.getByText("83g carbs")).toBeTruthy();
+    expect(screen.getByText("24g fat")).toBeTruthy();
+    expect(screen.getByText("91% confidence")).toBeTruthy();
+    expect(screen.getByLabelText("Accept food estimate")).toBeTruthy();
+    expect(screen.getByLabelText("Discard food estimate")).toBeTruthy();
   });
 });

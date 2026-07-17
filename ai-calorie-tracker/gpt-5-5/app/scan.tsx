@@ -1,8 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   StyleSheet,
@@ -12,11 +11,14 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AnalyzingOverlay } from "@/components/scan/AnalyzingOverlay";
+import { ResultCard } from "@/components/scan/ResultCard";
 import {
   INITIAL_SCAN_STATE,
   reduceScanState,
   type ScanState,
 } from "@/domain/scan-machine";
+import { AnalyzePhotoError, analyzePreparedPhoto } from "@/services/analyze-photo";
 import { prepareImageForAnalysis } from "@/services/prepare-image";
 import {
   getNourishTheme,
@@ -33,6 +35,48 @@ export default function ScanScreen() {
   const [preparationError, setPreparationError] = useState(false);
   const theme = getNourishTheme(useColorScheme());
   const visiblePhotoUri = getVisiblePhotoUri(state);
+
+  useEffect(() => {
+    if (state.status !== "analyzing") {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const requestId = state.requestId;
+
+    analyzePreparedPhoto(state.photo, { signal: controller.signal })
+      .then((analysis) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        if (analysis.type === "not_food") {
+          dispatch({ type: "analysis_not_food", requestId });
+          return;
+        }
+
+        dispatch({
+          type: "analysis_succeeded",
+          requestId,
+          result: analysis.result,
+        });
+      })
+      .catch((error: unknown) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        dispatch({
+          type: "analysis_failed",
+          requestId,
+          reason: error instanceof AnalyzePhotoError ? error.reason : "network",
+        });
+      });
+
+    return () => {
+      controller.abort();
+    };
+  }, [state]);
 
   function chooseFromPhotos() {
     void chooseFromPhotosAsync();
@@ -79,6 +123,11 @@ export default function ScanScreen() {
   }
 
   function closeScan() {
+    router.back();
+  }
+
+  function discardResult() {
+    dispatch({ type: "discard" });
     router.back();
   }
 
@@ -161,10 +210,15 @@ export default function ScanScreen() {
           ) : null}
 
           {state.status === "analyzing" ? (
-            <OverlayCard
-              title="Analyzing estimate"
-              body="MacroLens will estimate calories and macros in the next step."
-              isLoading
+            <AnalyzingOverlay theme={theme} />
+          ) : null}
+
+          {state.status === "result" || state.status === "accepting" ? (
+            <ResultCard
+              isAccepting={state.status === "accepting"}
+              onAccept={() => dispatch({ type: "accept_result" })}
+              onDiscard={discardResult}
+              result={state.result}
               theme={theme}
             />
           ) : null}
@@ -177,17 +231,14 @@ export default function ScanScreen() {
 function OverlayCard({
   title,
   body,
-  isLoading = false,
   theme,
 }: {
   title: string;
   body: string;
-  isLoading?: boolean;
   theme: ReturnType<typeof getNourishTheme>;
 }) {
   return (
     <View style={[styles.overlayCard, { backgroundColor: theme.colors.surface }]}>
-      {isLoading ? <ActivityIndicator color={theme.colors.accent} /> : null}
       <Text style={[styles.overlayTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
       <Text style={[styles.overlayBody, { color: theme.colors.textSecondary }]}>{body}</Text>
     </View>
