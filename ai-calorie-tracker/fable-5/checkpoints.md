@@ -173,12 +173,57 @@ discard after each returned to an unchanged empty dashboard (2000 left, 0g):
 - picker presentation occasionally swallows the first "Choose from library" tap
   right after the modal push animation - re-describe and tap again.
 
-### next: task 9 (accept end to end), then 10-17
+- task 9 accept/discard end to end: scan.tsx wires ResultCard accept into day
+  state - success haptic (expo-haptics notificationAsync) on first press only
+  (ref guards same-frame double taps), dispatch 'accept' (machine locks the
+  button), acceptMeal(createMeal(result, `scan-${requestId}`, photo.uri,
+  Date.now())) so day-state id idempotence also blocks duplicate logging, and
+  the modal close moved into an effect on `closed || (result && accepted)` so
+  dismissal is requested only in the commit that already contains the meal
+  (widget publish effect fires in the same commit). scan-acquisition and
+  scan-result suites now wrap ScanScreen in a real DayProvider (widget +
+  haptics mocked); new tests/components/scan-accept.test.tsx (4 tests, 126
+  total): accept-once with prepared thumbnail + id scan-1 under repeated
+  presses, probe summary === accepted result === widget publish value (1450
+  from a 550-cal fixture), discard changes nothing (publish count frozen at
+  the mount publish), and mockBack observed the meal already committed when
+  dismissal was requested. commit `ea40c60`.
 
-connect accept to day state: lock accept, create one meal with the prepared
-thumbnail, update widget snapshot, close modal, dashboard animates. checkpoint-2
-leftover: widget-snapshot-vs-selector fixture box still open until task 9 logs
-real meals.
+### task-9 REAL sim results on the Pro Max (verification evidence)
+
+metro 8087, real key, cold restart first (dashboard + widget both 2000):
+
+- ACCEPT flow (salad bowl): "Grilled chicken salad bowl with vegetables,
+  edamame, corn, and quail eggs" - 620 cal, protein 48 g, carbs 42 g, fat 27 g.
+  modal closed straight to the dashboard: 1380 left (2000 - 620), ring
+  partially filled, protein 48g of 150g (102g left), carbs 42g of 250g
+  (208g left), fat 27g of 70g (43g left), one meal row with the salad photo
+  thumbnail, "620 kcal", "48g P - 42g C - 27g F". home-screen widget showed
+  the identical 1380 "calories left".
+- DISCARD flow (mixed plate, same app session): "Mixed grilled meat platter
+  with vegetables, potatoes, flatbread, and sauces" - 1800 cal, protein 110 g,
+  carbs 95 g, fat 105 g. discard returned to a byte-identical dashboard
+  (still 1380 / one meal) and the widget stayed 1380.
+- arithmetic check: 2000 - 620 = 1380; 150 - 48 = 102; 250 - 42 = 208;
+  70 - 27 = 43. all displayed values match exactly.
+- checkpoint 3 complete; checkpoint-2 leftover box (widget snapshot vs day
+  selectors with real meals) now proven and ticked.
+
+### task-9 gotchas (hard-won)
+
+- three back-to-back fireEvent.press calls in one act frame leave "overlapping
+  act() calls" that poison every LATER test in the same jest file (mount
+  effects stop flushing, renders come up empty). press once, await the settled
+  assertion, then press again for lock coverage.
+- accept must close via an effect, not synchronously in the press handler,
+  or the dismissal is requested before the commit that contains the meal.
+
+### next: task 10 (camera acquisition), then 11-17
+
+full-screen expo-camera rear preview behind the existing acquisition choice:
+on-demand permission request, denied state keeps Photos + close reachable,
+capture haptic, captured uri feeds the SAME prepare -> analyze pipeline
+(no camera-specific analysis branch).
 
 ## design identity (from spec)
 
