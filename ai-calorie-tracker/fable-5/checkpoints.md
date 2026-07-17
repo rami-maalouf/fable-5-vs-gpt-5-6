@@ -102,13 +102,44 @@ never pipe jest output through head/tail directly - redirect to a scratch file, 
 - `git commit --amend -- <paths>` fails if the pathspec names files deleted in HEAD;
   amend with only the newly-changed paths instead.
 
-### next: task 7 (library acquisition + jpeg preparation), then 8-17
+- task 7 library scan input: `src/app/scan.tsx` full-screen modal (registered in
+  _layout Stack with presentation 'fullScreenModal'; ScanButton now does
+  router.push('/scan')). screen owns useReducer(scanReducer); closed -> router.back().
+  `src/components/scan/AcquisitionView.tsx` (Take photo placeholder with honest
+  "coming in a later build" hint since camera is task 10, Choose from library, 44pt
+  close, both themes). `src/services/prepare-image.ts` (SDK 57 context api:
+  ImageManipulator.manipulate(uri) -> optional resize -> renderAsync -> saveAsync
+  {format jpeg, compress 0.82, base64 true}; resize ONLY when long edge > 1024,
+  aspect preserved, raw base64 with defensive data-url strip). picker:
+  launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false,
+  quality: 1 }); cancel -> acquisition with no error; prep failure -> acquisition
+  with a readable notice (local presentation flag, machine still owns flow).
+  photo stays mounted full screen (expo-image cover) with scrim pill overlay
+  through preparing -> analyzing; analyzing does not resolve yet (client call is
+  task 8) and discard works from it. tokens gained stageBackground/stageScrim/
+  onStage (same in both themes). 17 new tests (104 total). commit `241ea6b`.
+  sim-verified on the Pro Max: scan button -> modal, picker cancel -> acquisition
+  no error, salad-bowl selection -> full-screen photo -> analyzing pill over the
+  SAME photo, discard from analyzing -> unchanged dashboard, dark-mode acquisition
+  + camera hint clean.
 
-scan.tsx full-screen modal from the dashboard (wire ScanButton's onPress to
-router.push('/scan') - typed routes will pick it up once the route file exists),
-photos-first acquisition, expo-image-manipulator prep (long edge <= 1024, jpeg 0.82,
-base64), then task 8+ per todo.md. checkpoint-2 boxes: widget-snapshot-vs-selector
-box still needs the fixture check when the scan path can log real meals.
+### task-7 gotchas (hard-won)
+
+- expo-router imports pull in `standard-navigation` (esm) - added to jest
+  transformIgnorePatterns whitelist or every suite importing expo-router breaks.
+- RNTL v14 `render` is async too - `await render(...)` or `screen.*` throws
+  "`render` function has not been called".
+- expo-image with accessible+role image reads back as AXTextField in describe;
+  target it by its accessibilityLabel/testID instead of role.
+- typed routes regenerated fine with metro already running on 8087; tsc green
+  right after creating src/app/scan.tsx.
+
+### next: task 8 (real analysis client + result card), then 9-17
+
+typed client for POST /scan (one request per prepared photo, feed scanReducer with
+requestId), AnalyzingOverlay polish, ResultCard over the still-mounted photo with
+accept/discard. checkpoint-2 leftover: widget-snapshot-vs-selector fixture box
+still open until the scan path can log real meals (task 9).
 
 ## design identity (from spec)
 
