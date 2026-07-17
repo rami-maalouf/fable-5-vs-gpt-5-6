@@ -1,15 +1,19 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useCallback, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
+import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
+import { ResultCard } from '@/components/scan/ResultCard';
+import { ScanPhotoStage } from '@/components/scan/ScanPhotoStage';
 import {
   initialScanState,
   scanReducer,
+  type PreparedPhoto,
   type ScanState,
 } from '@/domain/scan-machine';
+import { AnalyzePhotoError, analyzePhoto } from '@/services/analyze-photo';
 import { pickLibraryImage, prepareImage } from '@/services/prepare-image';
 import { useNourishTheme } from '@/theme/tokens';
 
@@ -18,71 +22,85 @@ const initialAcquisitionState = scanReducer(initialScanState, {
   source: 'library',
 });
 
-function PhotoPreparation({
-  onClose,
-  state,
+function ErrorOverlay({
+  onDiscard,
 }: {
-  onClose: () => void;
-  state: Extract<ScanState, { status: 'preparing' | 'analyzing' }>;
+  onDiscard: () => void;
 }) {
   const theme = useNourishTheme();
-  const preparing = state.status === 'preparing';
-  const photoUri = preparing ? state.sourceUri : state.photo.uri;
 
   return (
-    <View style={[styles.photoScreen, { backgroundColor: theme.photoBackground }]}>
-      <Image
-        accessibilityLabel="Selected meal photo"
-        contentFit="cover"
-        source={{ uri: photoUri }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={[styles.photoScrim, { backgroundColor: theme.photoScrim }]} />
-      <SafeAreaView style={styles.photoSafeArea}>
+    <SafeAreaView style={styles.errorSafeArea}>
+      <View style={[styles.errorCard, { backgroundColor: theme.surface }]}>
+        <Text style={[styles.errorTitle, { color: theme.text }]}>Analysis paused</Text>
+        <Text style={[styles.errorBody, { color: theme.textMuted }]}>
+          We could not finish this estimate.
+        </Text>
         <Pressable
-          accessibilityLabel="Close scanner"
+          accessibilityLabel="Discard estimate"
           accessibilityRole="button"
-          onPress={onClose}
-          style={[styles.photoClose, { backgroundColor: theme.surface }]}>
-          <View
-            style={[
-              styles.photoCloseLine,
-              styles.photoCloseLeft,
-              { backgroundColor: theme.text },
-            ]}
-          />
-          <View
-            style={[
-              styles.photoCloseLine,
-              styles.photoCloseRight,
-              { backgroundColor: theme.text },
-            ]}
-          />
+          onPress={onDiscard}
+          style={[styles.errorAction, { borderColor: theme.border }]}>
+          <Text style={[styles.errorActionLabel, { color: theme.text }]}>Discard</Text>
         </Pressable>
-        <View style={[styles.statusCard, { backgroundColor: theme.surface }]}>
-          {preparing ? (
-            <ActivityIndicator color={theme.coral} size="small" />
-          ) : (
-            <View style={[styles.readyDot, { backgroundColor: theme.coral }]} />
-          )}
-          <View style={styles.statusCopy}>
-            <Text style={[styles.statusTitle, { color: theme.text }]}>
-              {preparing ? 'Preparing your photo' : 'Photo ready'}
-            </Text>
-            <Text style={[styles.statusSubtitle, { color: theme.textMuted }]}>
-              {preparing ? 'Optimizing image quality' : 'Ready for nutrition analysis'}
-            </Text>
-          </View>
-        </View>
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
+}
+
+function getPreparedPhoto(state: ScanState): PreparedPhoto | null {
+  if (
+    state.status === 'analyzing' ||
+    state.status === 'result' ||
+    state.status === 'error' ||
+    state.status === 'accepting'
+  ) {
+    return state.photo;
+  }
+
+  return null;
 }
 
 export default function ScanScreen() {
   const [state, dispatch] = useReducer(scanReducer, initialAcquisitionState);
   const [preparationError, setPreparationError] = useState<string>();
   const requestSequence = useRef(0);
+  const activeRequest = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => activeRequest.current?.abort();
+  }, []);
+
+  const closeScanner = useCallback(() => {
+    activeRequest.current?.abort();
+    dispatch({ type: 'discard' });
+    router.back();
+  }, []);
+
+  const runAnalysis = useCallback(
+    async (photo: PreparedPhoto, requestId: string) => {
+      const controller = new AbortController();
+      activeRequest.current = controller;
+
+      try {
+        const result = await analyzePhoto(photo.base64, controller.signal);
+        dispatch({ type: 'analysis-succeeded', requestId, result });
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+
+        const kind =
+          error instanceof AnalyzePhotoError ? error.kind : 'analysis';
+        dispatch({ type: 'analysis-failed', requestId, kind });
+      } finally {
+        if (activeRequest.current === controller) {
+          activeRequest.current = null;
+        }
+      }
+    },
+    [],
+  );
 
   const choosePhoto = useCallback(async () => {
     if (state.status !== 'acquiring' && state.status !== 'idle') {
@@ -90,97 +108,113 @@ export default function ScanScreen() {
     }
 
     setPreparationError(undefined);
-    const source = await pickLibraryImage();
-    if (!source) {
-      return;
-    }
-
-    requestSequence.current += 1;
-    const requestId = `photo-${Date.now()}-${requestSequence.current}`;
-    dispatch({
-      type: 'photo-selected',
-      requestId,
-      sourceUri: source.uri,
-    });
 
     try {
+      const source = await pickLibraryImage();
+      if (!source) {
+        return;
+      }
+
+      requestSequence.current += 1;
+      const requestId = `photo-${Date.now()}-${requestSequence.current}`;
+      dispatch({
+        type: 'photo-selected',
+        requestId,
+        sourceUri: source.uri,
+      });
+
       const photo = await prepareImage(source);
       dispatch({ type: 'photo-prepared', requestId, photo });
+      void runAnalysis(photo, requestId);
     } catch {
       dispatch({ type: 'discard' });
       dispatch({ type: 'open', source: 'library' });
       setPreparationError('We could not prepare that photo. Please choose another.');
     }
-  }, [state.status]);
+  }, [runAnalysis, state.status]);
 
-  if (state.status === 'preparing' || state.status === 'analyzing') {
-    return <PhotoPreparation onClose={() => router.back()} state={state} />;
+  if (state.status === 'preparing') {
+    return (
+      <ScanPhotoStage photoUri={state.sourceUri}>
+        <AnalyzingOverlay
+          onClose={closeScanner}
+          subtitle="Optimizing image quality"
+          title="Preparing your photo"
+        />
+      </ScanPhotoStage>
+    );
+  }
+
+  const photo = getPreparedPhoto(state);
+
+  if (state.status === 'analyzing' && photo) {
+    return (
+      <ScanPhotoStage photoUri={photo.uri}>
+        <AnalyzingOverlay onClose={closeScanner} />
+      </ScanPhotoStage>
+    );
+  }
+
+  if ((state.status === 'result' || state.status === 'accepting') && photo) {
+    return (
+      <ScanPhotoStage photoUri={photo.uri}>
+        <ResultCard
+          accepting={state.status === 'accepting'}
+          onAccept={() => dispatch({ type: 'accept' })}
+          onDiscard={closeScanner}
+          result={state.result}
+        />
+      </ScanPhotoStage>
+    );
+  }
+
+  if (state.status === 'error' && photo) {
+    return (
+      <ScanPhotoStage photoUri={photo.uri}>
+        <ErrorOverlay onDiscard={closeScanner} />
+      </ScanPhotoStage>
+    );
   }
 
   return (
     <AcquisitionView
       busy={false}
       errorMessage={preparationError}
-      onClose={() => router.back()}
+      onClose={closeScanner}
       onPhotos={() => void choosePhoto()}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  photoScreen: {
+  errorSafeArea: {
     flex: 1,
-  },
-  photoScrim: {
-    ...StyleSheet.absoluteFill,
-  },
-  photoSafeArea: {
-    flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     padding: 20,
   },
-  photoClose: {
-    alignItems: 'center',
-    alignSelf: 'flex-end',
-    borderRadius: 22,
-    height: 44,
-    justifyContent: 'center',
-    width: 44,
-  },
-  photoCloseLine: {
-    borderRadius: 2,
-    height: 2,
-    position: 'absolute',
-    width: 18,
-  },
-  photoCloseLeft: {
-    transform: [{ rotate: '45deg' }],
-  },
-  photoCloseRight: {
-    transform: [{ rotate: '-45deg' }],
-  },
-  statusCard: {
-    alignItems: 'center',
+  errorCard: {
     borderRadius: 24,
-    flexDirection: 'row',
-    minHeight: 88,
-    paddingHorizontal: 20,
+    padding: 20,
   },
-  readyDot: {
-    borderRadius: 7,
-    height: 14,
-    width: 14,
-  },
-  statusCopy: {
-    flex: 1,
-    marginLeft: 15,
-  },
-  statusTitle: {
-    fontSize: 17,
+  errorTitle: {
+    fontSize: 20,
     fontWeight: '700',
   },
-  statusSubtitle: {
-    fontSize: 13,
-    marginTop: 4,
+  errorBody: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 6,
+  },
+  errorAction: {
+    alignItems: 'center',
+    borderRadius: 17,
+    borderWidth: 1,
+    justifyContent: 'center',
+    marginTop: 16,
+    minHeight: 50,
+  },
+  errorActionLabel: {
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
