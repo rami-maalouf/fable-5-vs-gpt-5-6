@@ -1,98 +1,167 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MealList } from '@/components/dashboard/MealList';
+import { NutritionSummary } from '@/components/dashboard/NutritionSummary';
+import type { DaySummary, Meal } from '@/domain/nutrition';
+import { useDay } from '@/state/day-context';
+import { useNourishTheme } from '@/theme/tokens';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+type DashboardViewProps = {
+  meals: readonly Meal[];
+  summary: DaySummary;
+  onScan: () => void;
+};
+
+export function DashboardView({ meals, summary, onScan }: DashboardViewProps) {
+  const theme = useNourishTheme();
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          contentInsetAdjustmentBehavior="never"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.header}>
+            <Text style={[styles.wordmark, { color: theme.coral }]}>NOURISH</Text>
+            <Text style={[styles.today, { color: theme.text }]}>Today</Text>
+          </View>
+
+          <NutritionSummary summary={summary} />
+
+          <View style={styles.mealsSection}>
+            <View style={styles.sectionHeading}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Meals</Text>
+              <Text style={[styles.mealCount, { color: theme.textMuted }]}>
+                {meals.length === 0
+                  ? 'No meals'
+                  : `${meals.length} ${meals.length === 1 ? 'meal' : 'meals'}`}
+              </Text>
+            </View>
+            <MealList meals={meals} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+
+      <SafeAreaView edges={['bottom']} pointerEvents="box-none" style={styles.scanDock}>
+        <Pressable
+          accessibilityLabel="Scan food"
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={onScan}
+          style={({ pressed }) => [
+            styles.scanButton,
+            {
+              backgroundColor: pressed ? theme.coralPressed : theme.coral,
+              shadowColor: theme.shadow,
+            },
+          ]}>
+          <View
+            accessibilityElementsHidden
+            style={[styles.scanGlyph, { borderColor: theme.onAccent }]}>
+            <View style={[styles.scanGlyphLine, { backgroundColor: theme.onAccent }]} />
+          </View>
+          <Text style={[styles.scanLabel, { color: theme.onAccent }]}>Scan a meal</Text>
+        </Pressable>
+      </SafeAreaView>
+    </View>
   );
 }
 
 export default function HomeScreen() {
+  const { meals, summary } = useDay();
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <DashboardView
+      meals={meals}
+      onScan={() => router.push('/scan' as never)}
+      summary={summary}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
   },
-  heroSection: {
+  scrollContent: {
+    paddingBottom: 132,
+    paddingHorizontal: 20,
+  },
+  header: {
+    marginBottom: 24,
+    marginTop: 12,
+  },
+  wordmark: {
+    fontSize: 12,
+    fontWeight: '800',
+    letterSpacing: 2.1,
+  },
+  today: {
+    fontSize: 34,
+    fontWeight: '700',
+    letterSpacing: -1.2,
+    lineHeight: 41,
+    marginTop: 3,
+  },
+  mealsSection: {
+    marginTop: 32,
+  },
+  sectionHeading: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 13,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    letterSpacing: -0.4,
+  },
+  mealCount: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  scanDock: {
+    bottom: 0,
+    left: 0,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    position: 'absolute',
+    right: 0,
+  },
+  scanButton: {
     alignItems: 'center',
+    borderRadius: 22,
+    flexDirection: 'row',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    minHeight: 58,
+    minWidth: 58,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 18,
   },
-  title: {
-    textAlign: 'center',
+  scanGlyph: {
+    alignItems: 'center',
+    borderRadius: 7,
+    borderWidth: 2,
+    height: 22,
+    justifyContent: 'center',
+    marginRight: 10,
+    width: 22,
   },
-  code: {
-    textTransform: 'uppercase',
+  scanGlyphLine: {
+    borderRadius: 2,
+    height: 6,
+    width: 6,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  scanLabel: {
+    fontSize: 17,
+    fontWeight: '700',
   },
 });
