@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   Image,
   Pressable,
@@ -18,8 +18,10 @@ import {
   reduceScanState,
   type ScanState,
 } from "@/domain/scan-machine";
+import type { Meal } from "@/domain/nutrition";
 import { AnalyzePhotoError, analyzePreparedPhoto } from "@/services/analyze-photo";
 import { prepareImageForAnalysis } from "@/services/prepare-image";
+import { useDay } from "@/state/day-context";
 import {
   getNourishTheme,
   nourishRadii,
@@ -33,6 +35,8 @@ export default function ScanScreen() {
     reduceScanState(INITIAL_SCAN_STATE, { type: "open_scan" }),
   );
   const [preparationError, setPreparationError] = useState(false);
+  const acceptedRequestIds = useRef(new Set<string>());
+  const day = useDay();
   const theme = getNourishTheme(useColorScheme());
   const visiblePhotoUri = getVisiblePhotoUri(state);
 
@@ -127,7 +131,31 @@ export default function ScanScreen() {
   }
 
   function discardResult() {
+    if (state.status === "result") {
+      day.discardResult(state.requestId);
+    }
+
     dispatch({ type: "discard" });
+    router.back();
+  }
+
+  function acceptResult() {
+    if (state.status !== "result" || acceptedRequestIds.current.has(state.requestId)) {
+      return;
+    }
+
+    acceptedRequestIds.current.add(state.requestId);
+
+    const meal: Meal = {
+      ...state.result,
+      id: state.requestId,
+      thumbnailUri: state.photo.uri,
+      loggedAt: Date.now(),
+    };
+
+    dispatch({ type: "accept_result" });
+    day.acceptMeal(meal);
+    dispatch({ type: "accept_completed" });
     router.back();
   }
 
@@ -216,7 +244,7 @@ export default function ScanScreen() {
           {state.status === "result" || state.status === "accepting" ? (
             <ResultCard
               isAccepting={state.status === "accepting"}
-              onAccept={() => dispatch({ type: "accept_result" })}
+              onAccept={acceptResult}
               onDiscard={discardResult}
               result={state.result}
               theme={theme}

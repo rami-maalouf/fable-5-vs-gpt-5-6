@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, jest, test } from "@jest/globals";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 
 import type { PreparedScanPhoto } from "../../src/domain/scan-machine";
+import { DayProvider } from "../../src/state/day-context";
 import type { AnalyzePreparedPhotoResult } from "../../src/services/analyze-photo";
 
 type MockImagePickerResult =
@@ -50,6 +51,10 @@ jest.mock("../../src/services/analyze-photo", () => ({
   analyzePreparedPhoto: mockAnalyzePreparedPhoto,
 }));
 
+jest.mock("../../src/services/widget", () => ({
+  publishRemainingCalories: jest.fn(),
+}));
+
 const { default: ScanScreen } = require("../../app/scan") as typeof import("../../app/scan");
 
 function createDeferred<T>() {
@@ -73,7 +78,7 @@ describe("ScanScreen", () => {
       assets: null,
     });
 
-    await render(<ScanScreen />);
+    await renderScanScreen();
     await fireEvent.press(screen.getByLabelText("Choose from Photos"));
 
     expect(screen.getByText("Scan your meal")).toBeTruthy();
@@ -96,7 +101,7 @@ describe("ScanScreen", () => {
     });
     mockPrepareImageForAnalysis.mockReturnValue(preparation.promise);
 
-    await render(<ScanScreen />);
+    await renderScanScreen();
     fireEvent.press(screen.getByLabelText("Choose from Photos"));
 
     await waitFor(() => {
@@ -126,3 +131,11 @@ describe("ScanScreen", () => {
     });
   });
 });
+
+async function renderScanScreen() {
+  await render(
+    <DayProvider>
+      <ScanScreen />
+    </DayProvider>,
+  );
+}
