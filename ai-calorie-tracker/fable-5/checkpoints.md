@@ -66,21 +66,17 @@ never pipe jest output through head/tail directly - redirect to a scratch file, 
   `widgets/RemainingCaloriesWidget.tsx` (spike design: Nourish mark, big number,
   "calories left"), `_layout.tsx` wraps DayProvider. commit `edae006`.
 
-### task 3 (widget proof) - IN PROGRESS
+### task 3 (widget proof) - DONE, checkpoint 1 complete
 
-- widget builds into the app (ExpoWidgetsTarget), appears in gallery, added to the
-  SHARED sim home screen showing 2000 - but that widget may belong to the other
-  "Nourish". on the Pro Max, verify cleanly: add widget from gallery (long-press
-  wallpaper -> jiggle needs Down + 5 tiny Moves at ~300ms + Up, then "Edit" button
-  top-left -> Add Widget -> search field), confirm 2000, then confirm refresh.
-- TEMPORARY SPIKE currently in working tree (NOT committed): `src/state/day-context.tsx`
-  publishes `remainingCalories - 211` (so widget shows 1789) to prove refresh +
-  ownership. REVERT this line after proof (restore `publishRemainingCalories(remainingCalories)`),
-  re-run gates, commit `feat: prove nourish widget target` with any remaining widget files.
-- pro max build was running in background (`run-ios-promax.log` in scratchpad).
-  RCT_jsLocation already set on pro max; photos already added.
+- verified on the Pro Max: widget in gallery, added to home screen, showed the spiked
+  published value 1789, then refreshed to 2000 after the spike revert + app restart.
+  updateSnapshot round trip proven in both directions. spike reverted; working tree
+  matches committed state. widget files were committed in `edae006`.
+- home-screen jiggle recipe that works: gesture-custom Down + 5 tiny Moves at ~300ms
+  + Up on empty wallpaper, then "Edit" (top-left) -> Add Widget -> search "Nourish".
+- tasks 1-5 and checkpoint 1 boxes are ticked in todo.md.
 
-### next: checkpoint 1 boxes in todo.md, then tasks 6-17
+### next: task 6 (dashboard vertical slice), then tasks 7-17
 
 after widget proof: tick checkpoint-1 boxes in todo.md, then task 6 (dashboard vertical
 slice: replace starter tabs/screens with Nourish dashboard - delete app-tabs, explore,
