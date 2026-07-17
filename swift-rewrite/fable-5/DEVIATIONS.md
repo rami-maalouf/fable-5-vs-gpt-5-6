@@ -22,3 +22,16 @@ spec-sanctioned scope cuts are listed first; implementation-time deviations foll
   churn. all other structure follows the spec (`src/domain`, `src/data`, etc.).
 - app identity: bundle id `com.rami.twilight.port` (fresh port id, not the original
   app's), scheme `twilight` kept per spec.
+
+- circular picker "appear pulse" (easeInOut 2s repeatForever): the swift source
+  sets a showPulse state that is never read by any view - dead code with no
+  visible effect. the port omits it rather than inventing a visual.
+- community link icons use sf symbols instead of the original's bundled brand
+  pngs (Discord/LinkedIn/Instagram imagesets); links and copy are verbatim.
+- support row ("Indie-built. Community-supported") is visual-only: the tip jar
+  it opened is out of scope (storekit).
+- metrics footer tile "Profile ID" is replaced by a "Tag: Sleep" tile - the
+  port has no BlockedProfiles entity (app blocking out of scope).
+- 60fps check (task 25) was assessed qualitatively on the simulator (smooth
+  starfield/scrub in captures + interaction); no instrumented fps overlay was
+  run - simulator fps is not representative of device performance anyway.
