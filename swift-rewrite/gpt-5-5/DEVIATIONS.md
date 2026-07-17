@@ -143,3 +143,15 @@
   older local databases had `sleep_sessions.tag` as `NOT NULL`. Sleep mode sessions
   now use the stable `Sleep Mode` tag so the end-user start path works against that
   installed database.
+
+## task 28
+
+- shipped the fallback path from the spike decision: the lock-screen wake button is
+  wired through Expo Widgets interaction events while the app runtime is active,
+  and physical Dynamic Island verification remains queued for checkpoint 8.
+- wind-down Live Activity state is started or updated when the app syncs during
+  the three-hour pre-bed window and there is no active sleep session. Outside that
+  window, the wind-down activity is ended.
+- simulator lock-screen verification reached the iOS Live Activities permission
+  prompt, but the prompt and lock-screen button were not exposed as accessibility
+  controls for automated tapping.

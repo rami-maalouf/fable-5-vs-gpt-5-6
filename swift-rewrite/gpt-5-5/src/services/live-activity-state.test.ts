@@ -3,6 +3,8 @@ import { defaultSleepSettings, type SleepSession } from '@/domain/models';
 import {
   createSleepLiveActivityProps,
   createWindDownLiveActivityProps,
+  getMinutesUntilBedtime,
+  shouldShowWindDownLiveActivity,
   twilightLiveActivityName,
 } from './live-activity-state';
 
@@ -57,5 +59,12 @@ describe('live activity state', () => {
       startedAtIso: null,
       title: 'Wind-down soon',
     });
+  });
+
+  it('detects the three-hour wind-down window before bedtime', () => {
+    expect(getMinutesUntilBedtime(defaultSleepSettings, new Date(2000, 0, 1, 3, 30))).toBe(1110);
+    expect(shouldShowWindDownLiveActivity(defaultSleepSettings, new Date(2000, 0, 1, 19, 0))).toBe(true);
+    expect(shouldShowWindDownLiveActivity(defaultSleepSettings, new Date(2000, 0, 1, 18, 59))).toBe(false);
+    expect(shouldShowWindDownLiveActivity(defaultSleepSettings, new Date(2000, 0, 1, 22, 1))).toBe(false);
   });
 });

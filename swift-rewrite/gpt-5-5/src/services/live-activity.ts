@@ -5,7 +5,10 @@ import type { SleepSession, SleepSettings } from '@/domain/models';
 import {
   createEndedLiveActivityProps,
   createSleepLiveActivityProps,
+  createWindDownLiveActivityProps,
+  getMinutesUntilBedtime,
   liveActivityWakeTarget,
+  shouldShowWindDownLiveActivity,
   type TwilightLiveActivityProps,
 } from './live-activity-state';
 
@@ -31,6 +34,11 @@ export type SyncSleepLiveActivityOptions = {
 
 export type SyncSleepLiveActivityResult =
   | { liveActivityId: string; status: 'started' | 'updated' }
+  | { liveActivityId: null; status: 'ended' }
+  | { liveActivityId: null; reason: 'disabled' | 'unsupported-platform'; status: 'skipped' };
+
+export type SyncWindDownLiveActivityResult =
+  | { liveActivityId: 'wind-down'; status: 'started' | 'updated' }
   | { liveActivityId: null; status: 'ended' }
   | { liveActivityId: null; reason: 'disabled' | 'unsupported-platform'; status: 'skipped' };
 
@@ -79,6 +87,42 @@ export async function endSleepLiveActivities(
 ) {
   const liveActivityFactory = factory ?? await getDefaultLiveActivityFactory();
   await endLiveActivityInstances(liveActivityFactory.getInstances(), now);
+}
+
+export async function syncWindDownLiveActivity(
+  settings: SleepSettings,
+  {
+    factory,
+    now = new Date(),
+    platform = Platform.OS,
+  }: SyncSleepLiveActivityOptions = {},
+): Promise<SyncWindDownLiveActivityResult> {
+  if (platform !== 'ios') {
+    return { liveActivityId: null, reason: 'unsupported-platform', status: 'skipped' };
+  }
+
+  const liveActivityFactory = factory ?? await getDefaultLiveActivityFactory();
+
+  if (!settings.liveActivityEnabled || !settings.windDownEnabled) {
+    await endLiveActivityInstances(liveActivityFactory.getInstances(), now);
+    return { liveActivityId: null, reason: 'disabled', status: 'skipped' };
+  }
+
+  if (!shouldShowWindDownLiveActivity(settings, now)) {
+    await endLiveActivityInstances(liveActivityFactory.getInstances(), now);
+    return { liveActivityId: null, status: 'ended' };
+  }
+
+  const props = createWindDownLiveActivityProps(getMinutesUntilBedtime(settings, now));
+  const existing = liveActivityFactory.getInstances()[0] ?? null;
+
+  if (existing) {
+    await existing.update(props);
+    return { liveActivityId: 'wind-down', status: 'updated' };
+  }
+
+  liveActivityFactory.start(props, 'twilight://wind-down');
+  return { liveActivityId: 'wind-down', status: 'started' };
 }
 
 export async function addSleepLiveActivityWakeListener(onWake: () => void | Promise<void>) {

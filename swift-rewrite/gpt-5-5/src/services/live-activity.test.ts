@@ -1,6 +1,7 @@
 import { defaultSleepSettings, type SleepSession } from '@/domain/models';
 
 import {
+  syncWindDownLiveActivity,
   syncSleepLiveActivity,
   type LiveActivityFactoryLike,
   type LiveActivityInstanceLike,
@@ -133,6 +134,42 @@ describe('live activity service', () => {
     });
 
     expect(result).toEqual({ liveActivityId: null, reason: 'disabled', status: 'skipped' });
+    expect(ended[0]).toMatchObject({ phase: 'ended', progress: 1 });
+  });
+
+  it('starts a wind-down live activity during the pre-bed window', async () => {
+    const { factory, instances, updates } = createFactory();
+
+    const result = await syncWindDownLiveActivity(defaultSleepSettings, {
+      factory,
+      now: new Date(2000, 0, 1, 19, 30),
+      platform: 'ios',
+    });
+
+    expect(result).toEqual({ liveActivityId: 'wind-down', status: 'started' });
+    expect(instances).toHaveLength(1);
+    expect(updates[0]).toMatchObject({
+      phase: 'windDown',
+      remainingMinutes: 150,
+      title: 'Wind-down soon',
+    });
+  });
+
+  it('ends wind-down live activities outside the pre-bed window', async () => {
+    const { ended, factory } = createFactory();
+
+    await syncWindDownLiveActivity(defaultSleepSettings, {
+      factory,
+      now: new Date(2000, 0, 1, 19, 30),
+      platform: 'ios',
+    });
+    const result = await syncWindDownLiveActivity(defaultSleepSettings, {
+      factory,
+      now: new Date(2000, 0, 1, 15, 30),
+      platform: 'ios',
+    });
+
+    expect(result).toEqual({ liveActivityId: null, status: 'ended' });
     expect(ended[0]).toMatchObject({ phase: 'ended', progress: 1 });
   });
 });

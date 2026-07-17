@@ -4,7 +4,7 @@ import { useColorScheme } from 'react-native';
 import { getSessionRepository } from '@/data/session-store';
 import { settingsStore } from '@/data/settings-store';
 import { defaultSleepSettings, type SleepSettings } from '@/domain/models';
-import { syncSleepLiveActivity } from '@/services/live-activity';
+import { syncSleepLiveActivity, syncWindDownLiveActivity } from '@/services/live-activity';
 import { syncWindDownReminder } from '@/services/notifications';
 
 import type { AppTheme } from './palettes';
@@ -193,7 +193,11 @@ function syncWindDownReminderQuietly(
 function syncLiveActivityQuietly(settings: SleepSettings) {
   void getSessionRepository()
     .then((repository) => repository.getActiveSession())
-    .then((activeSession) => syncSleepLiveActivity(activeSession, settings))
+    .then((activeSession) =>
+      activeSession
+        ? syncSleepLiveActivity(activeSession, settings)
+        : syncWindDownLiveActivity(settings)
+    )
     .then((result) => {
       if (result.liveActivityId !== settings.liveActivityId) {
         return settingsStore.updateSettings({ liveActivityId: result.liveActivityId });

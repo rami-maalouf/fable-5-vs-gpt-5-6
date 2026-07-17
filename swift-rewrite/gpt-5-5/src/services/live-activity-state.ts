@@ -1,6 +1,7 @@
 import type { SleepSession, SleepSettings } from '@/domain/models';
 
 const minutesPerDay = 24 * 60;
+const defaultWindDownWindowMinutes = 3 * 60;
 
 export const twilightLiveActivityName = 'TwilightLiveActivity';
 export const liveActivityWakeTarget = 'wake-up';
@@ -75,6 +76,20 @@ export function createWindDownLiveActivityProps(minutesUntilBed: number): Twilig
     startedAtIso: null,
     title: 'Wind-down soon',
   };
+}
+
+export function getMinutesUntilBedtime(settings: SleepSettings, now = new Date()) {
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  return normalizeMinutes(settings.optimalSleepMinutes - currentMinutes);
+}
+
+export function shouldShowWindDownLiveActivity(
+  settings: SleepSettings,
+  now = new Date(),
+  windowMinutes = defaultWindDownWindowMinutes,
+) {
+  const minutesUntilBed = getMinutesUntilBedtime(settings, now);
+  return minutesUntilBed > 0 && minutesUntilBed <= windowMinutes;
 }
 
 function normalizeMinutes(minutes: number) {
