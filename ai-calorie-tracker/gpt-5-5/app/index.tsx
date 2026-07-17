@@ -1,98 +1,110 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { MealList } from "@/components/dashboard/MealList";
+import { NutritionSummary } from "@/components/dashboard/NutritionSummary";
+import { useDay } from "@/state/day-context";
+import {
+  getNourishTheme,
+  nourishLayout,
+  nourishRadii,
+  nourishSpacing,
+  nourishTouchTargets,
+} from "@/theme/tokens";
 
 export default function HomeScreen() {
+  const day = useDay();
+  const theme = getNourishTheme(useColorScheme());
+
   return (
-    <ThemedView style={styles.container}>
+    <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View>
+              <Text style={[styles.wordmark, { color: theme.colors.accent }]}>Nourish</Text>
+              <Text style={[styles.today, { color: theme.colors.textSecondary }]}>Today</Text>
+            </View>
+          </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">bun run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
+          <NutritionSummary summary={day.summary} theme={theme} />
+          <MealList meals={day.meals} theme={theme} />
+        </ScrollView>
       </SafeAreaView>
-    </ThemedView>
+
+      <Pressable
+        accessibilityLabel="Scan a meal"
+        accessibilityRole="button"
+        onPress={() => undefined}
+        style={[
+          styles.scanButton,
+          {
+            backgroundColor: theme.colors.accent,
+            shadowColor: theme.colors.shadow,
+          },
+        ]}
+      >
+        <Text style={[styles.scanButtonText, { color: theme.colors.onAccent }]}>Scan meal</Text>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
   },
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    alignItems: "center",
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  scroll: {
+    width: "100%",
+    maxWidth: nourishLayout.maxContentWidth,
   },
-  title: {
-    textAlign: 'center',
+  scrollContent: {
+    paddingHorizontal: nourishSpacing.five,
+    paddingTop: nourishSpacing.three,
+    paddingBottom: nourishLayout.bottomTabInset + nourishSpacing.eight + nourishTouchTargets.primary,
+    gap: nourishSpacing.five,
   },
-  code: {
-    textTransform: 'uppercase',
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  wordmark: {
+    fontSize: 28,
+    fontWeight: "900",
+    letterSpacing: -0.8,
+  },
+  today: {
+    marginTop: nourishSpacing.one,
+    fontSize: 14,
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: 1.8,
+  },
+  scanButton: {
+    position: "absolute",
+    right: nourishSpacing.five,
+    bottom: nourishLayout.bottomTabInset + nourishSpacing.seven + nourishSpacing.two,
+    width: 136,
+    minHeight: nourishTouchTargets.primary,
+    minWidth: nourishTouchTargets.minimum,
+    borderRadius: nourishRadii.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+  },
+  scanButtonText: {
+    fontSize: 17,
+    fontWeight: "900",
   },
 });

@@ -1,12 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-  type PropsWithChildren,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 
 import { getDaySummary, type DaySummary, type Meal } from "@/domain/nutrition";
 import { publishRemainingCalories } from "@/services/widget";
@@ -34,14 +26,19 @@ type DayContextValue = {
   discardResult: (resultId: string) => void;
 };
 
+type DayProviderProps = {
+  children: React.ReactNode;
+  initialMeals?: readonly Meal[];
+};
+
 const initialDayState: DayState = {
   meals: [],
 };
 
 const DayContext = createContext<DayContextValue | null>(null);
 
-export function DayProvider({ children }: PropsWithChildren) {
-  const [state, dispatch] = useReducer(dayReducer, initialDayState);
+export function DayProvider({ children, initialMeals = initialDayState.meals }: DayProviderProps) {
+  const [state, dispatch] = useReducer(dayReducer, initialMeals, createInitialDayState);
   const summary = useMemo(() => getDaySummary(state.meals), [state.meals]);
 
   useEffect(() => {
@@ -66,6 +63,12 @@ export function DayProvider({ children }: PropsWithChildren) {
   }, [acceptMeal, discardResult, state.meals, summary]);
 
   return <DayContext.Provider value={value}>{children}</DayContext.Provider>;
+}
+
+function createInitialDayState(initialMeals: readonly Meal[]): DayState {
+  return {
+    meals: [...initialMeals],
+  };
 }
 
 export function useDay(): DayContextValue {
