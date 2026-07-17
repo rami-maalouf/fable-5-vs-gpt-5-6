@@ -134,7 +134,7 @@ describe("scan accept and discard integration", () => {
     expect(screen.getByLabelText("fried chicken thumbnail").props.source).toEqual({
       uri: "file:///prepared-fried-chicken.jpg",
     });
-    expect(screen.getByText("1012")).toBeTruthy();
+    expect(screen.getByLabelText("calories progress: 49 percent")).toBeTruthy();
     expect(publishRemainingCalories).toHaveBeenLastCalledWith(1012);
     expect(mockBack).toHaveBeenCalledTimes(1);
   });

@@ -1,9 +1,11 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { Animated, Easing, Image, StyleSheet, Text, View } from "react-native";
 
 import {
   type Meal,
   roundNutritionForDisplay,
 } from "@/domain/nutrition";
+import { NUTRITION_MOTION_MS } from "@/components/dashboard/NutritionSummary";
 import {
   nourishRadii,
   nourishSpacing,
@@ -54,14 +56,39 @@ function EmptyMeals({ theme }: { theme: NourishTheme }) {
 
 function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
   const displayMeal = roundNutritionForDisplay(meal);
+  const [entrance] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    const animation = Animated.timing(entrance, {
+      toValue: 1,
+      duration: NUTRITION_MOTION_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [entrance]);
+
+  const translateY = entrance.interpolate({
+    inputRange: [0, 1],
+    outputRange: [10, 0],
+  });
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.row,
         {
           backgroundColor: theme.colors.surface,
           borderColor: theme.colors.border,
+        },
+        {
+          opacity: entrance,
+          transform: [{ translateY }],
         },
       ]}
     >
@@ -80,7 +107,7 @@ function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
       <Text style={[styles.calories, { color: theme.colors.textPrimary }]}>
         {displayMeal.calories} cal
       </Text>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -1,13 +1,14 @@
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { useEffect, useReducer, useRef, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, useColorScheme, View } from "react-native";
+import { useEffect, useReducer, useRef, useState, type ReactNode } from "react";
+import { Animated, Easing, Pressable, StyleSheet, Text, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AcquisitionView } from "@/components/scan/AcquisitionView";
 import { AnalyzingOverlay } from "@/components/scan/AnalyzingOverlay";
 import { CameraCaptureView } from "@/components/scan/CameraCaptureView";
 import { ErrorCard } from "@/components/scan/ErrorCard";
+import { PhotoStage } from "@/components/scan/PhotoStage";
 import { ResultCard } from "@/components/scan/ResultCard";
 import {
   INITIAL_SCAN_STATE,
@@ -209,14 +210,7 @@ export default function ScanScreen() {
 
   return (
     <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
-      {visiblePhotoUri ? (
-        <Image
-          accessibilityLabel="Selected meal photo"
-          resizeMode="cover"
-          source={{ uri: visiblePhotoUri }}
-          style={styles.photo}
-        />
-      ) : null}
+      <PhotoStage uri={visiblePhotoUri} />
 
       {isCameraAcquisition ? (
         <CameraCaptureView
@@ -263,64 +257,116 @@ export default function ScanScreen() {
             ) : null}
 
             {state.status === "preparing" ? (
-              <OverlayCard
-                title="Preparing photo"
-                body="Optimizing the JPEG for analysis."
-                theme={theme}
-              />
+              <OverlayTransition transitionKey="preparing">
+                <OverlayCard
+                  title="Preparing photo"
+                  body="Optimizing the JPEG for analysis."
+                  theme={theme}
+                />
+              </OverlayTransition>
             ) : null}
 
-            {state.status === "analyzing" ? <AnalyzingOverlay theme={theme} /> : null}
+            {state.status === "analyzing" ? (
+              <OverlayTransition transitionKey="analyzing">
+                <AnalyzingOverlay theme={theme} />
+              </OverlayTransition>
+            ) : null}
 
             {state.status === "not_food" ? (
-              <ErrorCard
-                title="No food found"
-                body="That photo does not look like a meal. Try another clear food photo."
-                primaryLabel="Try another photo"
-                onPrimary={tryAnotherPhoto}
-                secondaryLabel="Close scan"
-                onSecondary={closeScan}
-                theme={theme}
-              />
+              <OverlayTransition transitionKey="not_food">
+                <ErrorCard
+                  title="No food found"
+                  body="That photo does not look like a meal. Try another clear food photo."
+                  primaryLabel="Try another photo"
+                  onPrimary={tryAnotherPhoto}
+                  secondaryLabel="Close scan"
+                  onSecondary={closeScan}
+                  theme={theme}
+                />
+              </OverlayTransition>
             ) : null}
 
             {state.status === "analysis_error" ? (
-              <ErrorCard
-                title="Could not analyze photo"
-                body="The estimate did not come back cleanly. Try again with the same prepared photo."
-                primaryLabel="Retry analysis"
-                onPrimary={retryAnalysis}
-                secondaryLabel="Close scan"
-                onSecondary={closeScan}
-                theme={theme}
-              />
+              <OverlayTransition transitionKey="analysis_error">
+                <ErrorCard
+                  title="Could not analyze photo"
+                  body="The estimate did not come back cleanly. Try again with the same prepared photo."
+                  primaryLabel="Retry analysis"
+                  onPrimary={retryAnalysis}
+                  secondaryLabel="Close scan"
+                  onSecondary={closeScan}
+                  theme={theme}
+                />
+              </OverlayTransition>
             ) : null}
 
             {state.status === "network_error" ? (
-              <ErrorCard
-                title="Connection problem"
-                body="Nourish could not reach the analyzer. Check the connection and try again."
-                primaryLabel="Retry analysis"
-                onPrimary={retryAnalysis}
-                secondaryLabel="Close scan"
-                onSecondary={closeScan}
-                theme={theme}
-              />
+              <OverlayTransition transitionKey="network_error">
+                <ErrorCard
+                  title="Connection problem"
+                  body="Nourish could not reach the analyzer. Check the connection and try again."
+                  primaryLabel="Retry analysis"
+                  onPrimary={retryAnalysis}
+                  secondaryLabel="Close scan"
+                  onSecondary={closeScan}
+                  theme={theme}
+                />
+              </OverlayTransition>
             ) : null}
 
             {state.status === "result" || state.status === "accepting" ? (
-              <ResultCard
-                isAccepting={state.status === "accepting"}
-                onAccept={acceptResult}
-                onDiscard={discardResult}
-                result={state.result}
-                theme={theme}
-              />
+              <OverlayTransition transitionKey="result">
+                <ResultCard
+                  isAccepting={state.status === "accepting"}
+                  onAccept={acceptResult}
+                  onDiscard={discardResult}
+                  result={state.result}
+                  theme={theme}
+                />
+              </OverlayTransition>
             ) : null}
           </View>
         </SafeAreaView>
       )}
     </View>
+  );
+}
+
+function OverlayTransition({
+  children,
+  transitionKey,
+}: {
+  children: ReactNode;
+  transitionKey: string;
+}) {
+  const [progress] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    progress.setValue(0);
+
+    const animation = Animated.timing(progress, {
+      toValue: 1,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [progress, transitionKey]);
+
+  const translateY = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [8, 0],
+  });
+
+  return (
+    <Animated.View style={{ opacity: progress, transform: [{ translateY }] }}>
+      {children}
+    </Animated.View>
   );
 }
 
@@ -376,11 +422,6 @@ function createRequestId(): string {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  photo: {
-    ...StyleSheet.absoluteFill,
-    width: "100%",
-    height: "100%",
   },
   safeArea: {
     flex: 1,

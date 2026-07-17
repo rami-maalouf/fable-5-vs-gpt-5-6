@@ -1,4 +1,6 @@
-import { StyleSheet, Text, View, type DimensionValue } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import Svg, { Circle } from "react-native-svg";
 
 import {
   type DaySummary,
@@ -10,6 +12,8 @@ import {
   nourishSpacing,
   type NourishTheme,
 } from "@/theme/tokens";
+
+export const NUTRITION_MOTION_MS = 550;
 
 type NutritionSummaryProps = {
   summary: DaySummary;
@@ -25,32 +29,33 @@ type MacroMetric = {
   softColor: string;
 };
 
+const RING_SIZE = 74;
+const RING_STROKE_WIDTH = 8;
+const RING_RADIUS = (RING_SIZE - RING_STROKE_WIDTH) / 2;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 export function NutritionSummary({ summary, theme }: NutritionSummaryProps) {
   const displayConsumed = roundNutritionForDisplay(summary.consumed);
   const displayRemaining = roundNutritionForDisplay(summary.remaining);
   const calorieProgress = Math.round(summary.progress.calories * 100);
   const isOverCalories = summary.remaining.calories < 0;
+  const calorieValue = useAnimatedDisplayValue(
+    isOverCalories ? displayConsumed.calories : Math.max(0, displayRemaining.calories),
+  );
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <View style={styles.calorieRow}>
-        <View
-          accessibilityLabel={`calories progress: ${calorieProgress} percent`}
-          style={[
-            styles.ring,
-            {
-              borderColor: isOverCalories ? theme.colors.danger : theme.colors.accent,
-              backgroundColor: theme.colors.accentSoft,
-            },
-          ]}
-        >
-          <View style={[styles.ringCore, { backgroundColor: theme.colors.surface }]} />
-        </View>
+        <CalorieRing
+          isOverCalories={isOverCalories}
+          progress={summary.progress.calories}
+          progressLabel={calorieProgress}
+          theme={theme}
+        />
         <View style={styles.calorieText}>
           <Text style={[styles.calorieNumber, { color: theme.colors.textPrimary }]}>
-            {isOverCalories
-              ? String(displayConsumed.calories)
-              : String(Math.max(0, displayRemaining.calories))}
+            {formatCalorieValue(calorieValue)}
           </Text>
           <Text style={[styles.calorieLabel, { color: theme.colors.textSecondary }]}>
             {isOverCalories ? "calories logged" : "calories left"}
@@ -80,6 +85,57 @@ export function NutritionSummary({ summary, theme }: NutritionSummaryProps) {
   );
 }
 
+function CalorieRing({
+  progress,
+  progressLabel,
+  isOverCalories,
+  theme,
+}: {
+  progress: number;
+  progressLabel: number;
+  isOverCalories: boolean;
+  theme: NourishTheme;
+}) {
+  const animatedProgress = useAnimatedScalar(progress);
+  const strokeDashoffset = animatedProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [RING_CIRCUMFERENCE, 0],
+    extrapolate: "clamp",
+  });
+
+  return (
+    <View
+      accessibilityLabel={`calories progress: ${progressLabel} percent`}
+      style={styles.ring}
+    >
+      <Svg height={RING_SIZE} width={RING_SIZE}>
+        <Circle
+          cx={RING_SIZE / 2}
+          cy={RING_SIZE / 2}
+          fill={theme.colors.surface}
+          r={RING_RADIUS}
+          stroke={theme.colors.accentSoft}
+          strokeWidth={RING_STROKE_WIDTH}
+        />
+        <AnimatedCircle
+          cx={RING_SIZE / 2}
+          cy={RING_SIZE / 2}
+          fill="transparent"
+          r={RING_RADIUS}
+          rotation="-90"
+          originX={RING_SIZE / 2}
+          originY={RING_SIZE / 2}
+          stroke={isOverCalories ? theme.colors.danger : theme.colors.accent}
+          strokeDasharray={`${RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          strokeWidth={RING_STROKE_WIDTH}
+        />
+      </Svg>
+    </View>
+  );
+}
+
 function MacroBar({
   metric,
   consumed,
@@ -95,26 +151,33 @@ function MacroBar({
   progress: number;
   theme: NourishTheme;
 }) {
-  const width = `${Math.round(progress * 100)}%` as DimensionValue;
+  const animatedProgress = useAnimatedScalar(progress);
+  const animatedConsumed = useAnimatedDisplayValue(consumed);
+  const animatedRemaining = useAnimatedDisplayValue(remaining);
+  const width = animatedProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0%", "100%"],
+    extrapolate: "clamp",
+  });
 
   return (
     <View style={styles.macroBlock}>
       <View style={styles.macroHeader}>
         <Text style={[styles.macroLabel, { color: theme.colors.textPrimary }]}>{metric.label}</Text>
         <Text style={[styles.macroValue, { color: theme.colors.textSecondary }]}>
-          {formatGramValue(consumed)} / {formatGramValue(goal)} g
+          {formatGramValue(animatedConsumed)} / {formatGramValue(goal)} g
         </Text>
       </View>
       <View style={[styles.track, { backgroundColor: metric.softColor }]}>
-        <View style={[styles.fill, { width, backgroundColor: metric.color }]} />
+        <Animated.View style={[styles.fill, { width, backgroundColor: metric.color }]} />
       </View>
       <Text
         style={[
           styles.remaining,
-          { color: remaining < 0 ? theme.colors.danger : theme.colors.textTertiary },
+          { color: animatedRemaining < 0 ? theme.colors.danger : theme.colors.textTertiary },
         ]}
       >
-        {formatRemaining(remaining)}
+        {formatRemaining(animatedRemaining)}
       </Text>
     </View>
   );
@@ -151,8 +214,90 @@ function formatRemaining(value: number): string {
   return `${formatGramValue(value)} g left`;
 }
 
+function formatCalorieValue(value: number): string {
+  return String(Math.round(value));
+}
+
 function formatGramValue(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+  const roundedValue = Math.round(value * 10) / 10;
+
+  return Number.isInteger(roundedValue) ? String(roundedValue) : roundedValue.toFixed(1);
+}
+
+function useAnimatedScalar(target: number): Animated.Value {
+  const [animatedValue] = useState(() => new Animated.Value(target));
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      animatedValue.setValue(target);
+      return undefined;
+    }
+
+    const animation = Animated.timing(animatedValue, {
+      toValue: target,
+      duration: NUTRITION_MOTION_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    });
+
+    animation.start();
+
+    return () => {
+      animation.stop();
+    };
+  }, [animatedValue, target]);
+
+  return animatedValue;
+}
+
+function useAnimatedDisplayValue(target: number): number {
+  const [animatedValue] = useState(() => new Animated.Value(target));
+  const [displayValue, setDisplayValue] = useState(target);
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    const listenerId = animatedValue.addListener(({ value }) => {
+      setDisplayValue(value);
+    });
+
+    return () => {
+      animatedValue.removeListener(listenerId);
+    };
+  }, [animatedValue]);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      animatedValue.setValue(target);
+      setDisplayValue(target);
+      return undefined;
+    }
+
+    const animation = Animated.timing(animatedValue, {
+      toValue: target,
+      duration: NUTRITION_MOTION_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    });
+
+    animation.start(({ finished }) => {
+      if (finished) {
+        setDisplayValue(target);
+      }
+    });
+    const settleTimeout = setTimeout(() => {
+      setDisplayValue(target);
+    }, NUTRITION_MOTION_MS);
+
+    return () => {
+      clearTimeout(settleTimeout);
+      animation.stop();
+    };
+  }, [animatedValue, target]);
+
+  return displayValue;
 }
 
 const styles = StyleSheet.create({
@@ -172,15 +317,8 @@ const styles = StyleSheet.create({
   ring: {
     width: 74,
     height: 74,
-    borderRadius: 37,
-    borderWidth: 8,
     alignItems: "center",
     justifyContent: "center",
-  },
-  ringCore: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
   },
   calorieText: {
     flex: 1,

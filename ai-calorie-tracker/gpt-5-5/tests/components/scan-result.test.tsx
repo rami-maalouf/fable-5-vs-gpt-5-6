@@ -126,6 +126,7 @@ describe("ScanScreen result state", () => {
     await waitFor(() => {
       expect(screen.getByText("Estimated result")).toBeTruthy();
     });
+    expect(screen.getByTestId("scan-photo-stage-image").props.resizeMode).toBe("cover");
     expect(screen.getByLabelText("Selected meal photo").props.source).toEqual({
       uri: "file:///prepared.jpg",
     });
