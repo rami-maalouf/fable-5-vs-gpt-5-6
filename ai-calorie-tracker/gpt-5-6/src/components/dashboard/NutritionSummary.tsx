@@ -1,15 +1,16 @@
-import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   Easing,
   FadeIn,
   ReduceMotion,
   useAnimatedProps,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
-} from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
+} from "react-native-reanimated";
+import Svg, { Circle } from "react-native-svg";
 
 import {
   DAILY_GOALS,
@@ -18,8 +19,8 @@ import {
   getProgress,
   type DaySummary,
   type Nutrition,
-} from '@/domain/nutrition';
-import { useNourishTheme, type NourishTheme } from '@/theme/tokens';
+} from "@/domain/nutrition";
+import { useNourishTheme, type NourishTheme } from "@/theme/tokens";
 
 const ringSize = 184;
 const ringStroke = 13;
@@ -39,19 +40,20 @@ const valueEntering = FadeIn.duration(NUTRITION_MOTION_DURATION).reduceMotion(
   ReduceMotion.System,
 );
 type NutritionSummaryProps = {
+  reduceMotionOverride?: boolean;
   summary: DaySummary;
 };
 
-type MacroKey = Exclude<keyof Nutrition, 'calories'>;
+type MacroKey = Exclude<keyof Nutrition, "calories">;
 
 const macroRows: {
   key: MacroKey;
   label: string;
-  color: keyof Pick<NourishTheme, 'protein' | 'carbs' | 'fat'>;
+  color: keyof Pick<NourishTheme, "protein" | "carbs" | "fat">;
 }[] = [
-  { key: 'protein_g', label: 'Protein', color: 'protein' },
-  { key: 'carbs_g', label: 'Carbs', color: 'carbs' },
-  { key: 'fat_g', label: 'Fat', color: 'fat' },
+  { key: "protein_g", label: "Protein", color: "protein" },
+  { key: "carbs_g", label: "Carbs", color: "carbs" },
+  { key: "fat_g", label: "Fat", color: "fat" },
 ];
 
 function remainingLabel(value: number) {
@@ -71,6 +73,7 @@ type AnimatedMacroRowProps = {
   consumed: number;
   goal: number;
   label: string;
+  reduceMotion: boolean;
   remaining: number;
   testID: string;
   theme: NourishTheme;
@@ -81,6 +84,7 @@ function AnimatedMacroRow({
   consumed,
   goal,
   label,
+  reduceMotion,
   remaining,
   testID,
   theme,
@@ -101,26 +105,33 @@ function AnimatedMacroRow({
 
   return (
     <View
+      accessible
       accessibilityLabel={`${label}: ${formatMacro(consumed)} grams consumed, ${remainingText}`}
-      style={styles.macroRow}>
+      accessibilityRole="summary"
+      style={styles.macroRow}
+    >
       <View style={styles.macroHeader}>
         <Text style={[styles.macroLabel, { color: theme.text }]}>{label}</Text>
         <View style={styles.macroNumbers}>
           <Animated.Text
-            entering={valueEntering}
+            entering={reduceMotion ? undefined : valueEntering}
             key={consumedLabel}
-            style={[styles.macroConsumed, { color: theme.text }]}>
+            maxFontSizeMultiplier={1.35}
+            style={[styles.macroConsumed, { color: theme.text }]}
+          >
             {consumedLabel}
           </Animated.Text>
           <Animated.Text
-            entering={valueEntering}
+            entering={reduceMotion ? undefined : valueEntering}
             key={remainingText}
+            maxFontSizeMultiplier={1.35}
             style={[
               styles.macroRemaining,
               {
                 color: remaining < 0 ? theme.overGoal : theme.textMuted,
               },
-            ]}>
+            ]}
+          >
             {remainingText}
           </Animated.Text>
         </View>
@@ -135,8 +146,13 @@ function AnimatedMacroRow({
   );
 }
 
-export function NutritionSummary({ summary }: NutritionSummaryProps) {
+export function NutritionSummary({
+  reduceMotionOverride,
+  summary,
+}: NutritionSummaryProps) {
   const theme = useNourishTheme();
+  const systemReduceMotion = useReducedMotion();
+  const reduceMotion = reduceMotionOverride ?? systemReduceMotion;
   const calorieProgress = getProgress(
     summary.consumed.calories,
     DAILY_GOALS.calories,
@@ -151,8 +167,7 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
   }, [animatedCalorieProgress, calorieProgress]);
 
   const animatedRingProps = useAnimatedProps(() => ({
-    strokeDashoffset:
-      ringCircumference * (1 - animatedCalorieProgress.value),
+    strokeDashoffset: ringCircumference * (1 - animatedCalorieProgress.value),
   }));
 
   const remainingCalories = formatCalories(summary.remaining.calories);
@@ -161,7 +176,9 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
   return (
     <>
       <View
+        accessible
         accessibilityLabel={`Calories: ${formatCalories(summary.consumed.calories)} of ${DAILY_GOALS.calories} consumed, ${formatCalories(summary.remaining.calories)} remaining`}
+        accessibilityRole="summary"
         style={[
           styles.calorieCard,
           {
@@ -169,13 +186,15 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
             borderColor: theme.border,
             shadowColor: theme.shadow,
           },
-        ]}>
+        ]}
+      >
         <View style={styles.ringWrap}>
           <Svg
             accessibilityElementsHidden
             width={ringSize}
             height={ringSize}
-            style={styles.ring}>
+            style={styles.ring}
+          >
             <Circle
               cx={ringSize / 2}
               cy={ringSize / 2}
@@ -201,8 +220,9 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
           </Svg>
           <View style={styles.ringContent}>
             <Animated.Text
-              entering={valueEntering}
+              entering={reduceMotion ? undefined : valueEntering}
               key={remainingCalories}
+              maxFontSizeMultiplier={1.25}
               numberOfLines={1}
               style={[
                 styles.remainingCalories,
@@ -212,18 +232,24 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
                       ? theme.overGoal
                       : theme.text,
                 },
-              ]}>
+              ]}
+            >
               {remainingCalories}
             </Animated.Text>
-            <Text style={[styles.calorieLabel, { color: theme.textMuted }]}>
+            <Text
+              maxFontSizeMultiplier={1.4}
+              style={[styles.calorieLabel, { color: theme.textMuted }]}
+            >
               calories left
             </Text>
           </View>
         </View>
         <Animated.Text
-          entering={valueEntering}
+          entering={reduceMotion ? undefined : valueEntering}
           key={consumedCalories}
-          style={[styles.calorieConsumed, { color: theme.textMuted }]}>
+          maxFontSizeMultiplier={1.4}
+          style={[styles.calorieConsumed, { color: theme.textMuted }]}
+        >
           {consumedCalories}
         </Animated.Text>
       </View>
@@ -241,6 +267,7 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
               goal={DAILY_GOALS[macro.key]}
               key={macro.key}
               label={macro.label}
+              reduceMotion={reduceMotion}
               remaining={remaining}
               testID={`${macro.label.toLowerCase()}-progress`}
               theme={theme}
@@ -254,7 +281,7 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
 
 const styles = StyleSheet.create({
   calorieCard: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 28,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 24,
@@ -268,34 +295,34 @@ const styles = StyleSheet.create({
     width: ringSize,
   },
   ring: {
-    position: 'absolute',
+    position: "absolute",
   },
   ringContent: {
-    alignItems: 'center',
+    alignItems: "center",
     bottom: 0,
-    justifyContent: 'center',
+    justifyContent: "center",
     left: 0,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     top: 0,
   },
   remainingCalories: {
     fontSize: 48,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '700',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "700",
     letterSpacing: -2.2,
     lineHeight: 52,
     maxWidth: 148,
   },
   calorieLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 1,
   },
   calorieConsumed: {
     fontSize: 13,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '600',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "600",
     marginTop: 12,
   },
   macroList: {
@@ -306,33 +333,33 @@ const styles = StyleSheet.create({
     gap: 9,
   },
   macroHeader: {
-    alignItems: 'flex-end',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   macroLabel: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   macroNumbers: {
-    alignItems: 'baseline',
-    flexDirection: 'row',
+    alignItems: "baseline",
+    flexDirection: "row",
     gap: 9,
   },
   macroConsumed: {
     fontSize: 14,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '700',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "700",
   },
   macroRemaining: {
     fontSize: 12,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '600',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "600",
   },
   macroTrack: {
     borderRadius: 6,
     height: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   macroFill: {
     borderRadius: 6,

@@ -1,12 +1,12 @@
-import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { MealList } from '@/components/dashboard/MealList';
-import { NutritionSummary } from '@/components/dashboard/NutritionSummary';
-import type { DaySummary, Meal } from '@/domain/nutrition';
-import { useDay } from '@/state/day-context';
-import { useNourishTheme } from '@/theme/tokens';
+import { MealList } from "@/components/dashboard/MealList";
+import { NutritionSummary } from "@/components/dashboard/NutritionSummary";
+import type { DaySummary, Meal } from "@/domain/nutrition";
+import { useDay } from "@/state/day-context";
+import { useNourishTheme } from "@/theme/tokens";
 
 type DashboardViewProps = {
   meals: readonly Meal[];
@@ -19,25 +19,40 @@ export function DashboardView({ meals, summary, onScan }: DashboardViewProps) {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
+      <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           contentInsetAdjustmentBehavior="never"
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.header}>
-            <Text style={[styles.wordmark, { color: theme.coral }]}>NOURISH</Text>
-            <Text style={[styles.today, { color: theme.text }]}>Today</Text>
+            <Text style={[styles.wordmark, { color: theme.coral }]}>
+              NOURISH
+            </Text>
+            <Text
+              accessibilityRole="header"
+              maxFontSizeMultiplier={1.6}
+              style={[styles.today, { color: theme.text }]}
+            >
+              Today
+            </Text>
           </View>
 
           <NutritionSummary summary={summary} />
 
           <View style={styles.mealsSection}>
             <View style={styles.sectionHeading}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>Meals</Text>
+              <Text
+                accessibilityRole="header"
+                maxFontSizeMultiplier={1.6}
+                style={[styles.sectionTitle, { color: theme.text }]}
+              >
+                Meals
+              </Text>
               <Text style={[styles.mealCount, { color: theme.textMuted }]}>
                 {meals.length === 0
-                  ? 'No meals'
-                  : `${meals.length} ${meals.length === 1 ? 'meal' : 'meals'}`}
+                  ? "No meals"
+                  : `${meals.length} ${meals.length === 1 ? "meal" : "meals"}`}
               </Text>
             </View>
             <MealList meals={meals} />
@@ -45,7 +60,11 @@ export function DashboardView({ meals, summary, onScan }: DashboardViewProps) {
         </ScrollView>
       </SafeAreaView>
 
-      <SafeAreaView edges={['bottom']} pointerEvents="box-none" style={styles.scanDock}>
+      <SafeAreaView
+        edges={["bottom"]}
+        pointerEvents="box-none"
+        style={styles.scanDock}
+      >
         <Pressable
           accessibilityLabel="Scan food"
           accessibilityRole="button"
@@ -54,16 +73,28 @@ export function DashboardView({ meals, summary, onScan }: DashboardViewProps) {
           style={({ pressed }) => [
             styles.scanButton,
             {
-              backgroundColor: pressed ? theme.coralPressed : theme.coral,
+              backgroundColor: pressed ? theme.primaryPressed : theme.primary,
               shadowColor: theme.shadow,
             },
-          ]}>
+          ]}
+        >
           <View
             accessibilityElementsHidden
-            style={[styles.scanGlyph, { borderColor: theme.onAccent }]}>
-            <View style={[styles.scanGlyphLine, { backgroundColor: theme.onAccent }]} />
+            style={[styles.scanGlyph, { borderColor: theme.onAccent }]}
+          >
+            <View
+              style={[
+                styles.scanGlyphLine,
+                { backgroundColor: theme.onAccent },
+              ]}
+            />
           </View>
-          <Text style={[styles.scanLabel, { color: theme.onAccent }]}>Scan a meal</Text>
+          <Text
+            maxFontSizeMultiplier={1.5}
+            style={[styles.scanLabel, { color: theme.onAccent }]}
+          >
+            Scan a meal
+          </Text>
         </Pressable>
       </SafeAreaView>
     </View>
@@ -76,7 +107,7 @@ export default function HomeScreen() {
   return (
     <DashboardView
       meals={meals}
-      onScan={() => router.push('/scan')}
+      onScan={() => router.push("/scan")}
       summary={summary}
     />
   );
@@ -99,12 +130,12 @@ const styles = StyleSheet.create({
   },
   wordmark: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: "800",
     letterSpacing: 2.1,
   },
   today: {
     fontSize: 34,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -1.2,
     lineHeight: 41,
     marginTop: 3,
@@ -113,33 +144,33 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   sectionHeading: {
-    alignItems: 'baseline',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "baseline",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 13,
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: -0.4,
   },
   mealCount: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   scanDock: {
     bottom: 0,
     left: 0,
     paddingHorizontal: 20,
     paddingTop: 10,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
   },
   scanButton: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 22,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     minHeight: 58,
     minWidth: 58,
     shadowOffset: { width: 0, height: 10 },
@@ -147,11 +178,11 @@ const styles = StyleSheet.create({
     shadowRadius: 18,
   },
   scanGlyph: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 7,
     borderWidth: 2,
     height: 22,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginRight: 10,
     width: 22,
   },
@@ -162,6 +193,6 @@ const styles = StyleSheet.create({
   },
   scanLabel: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

@@ -1,11 +1,11 @@
-import { CameraView as ExpoCameraView } from 'expo-camera';
-import * as Haptics from 'expo-haptics';
-import { useCallback, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { CameraView as ExpoCameraView } from "expo-camera";
+import { StatusBar } from "expo-status-bar";
+import { useCallback, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import type { ImageSource } from '@/services/prepare-image';
-import { useNourishTheme } from '@/theme/tokens';
+import type { ImageSource } from "@/services/prepare-image";
+import { useNourishTheme } from "@/theme/tokens";
 
 type CameraCaptureViewProps = {
   onCapture: (source: ImageSource) => void;
@@ -46,14 +46,13 @@ export function CameraCaptureView({
     setCapturing(true);
 
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       const picture = await camera.current.takePictureAsync({
         quality: 1,
         skipProcessing: false,
       });
 
       if (!picture) {
-        throw new Error('camera returned no photo');
+        throw new Error("camera returned no photo");
       }
 
       onCapture({
@@ -70,6 +69,7 @@ export function CameraCaptureView({
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.photoBackground }]}>
+      <StatusBar animated style="light" />
       <ExpoCameraView
         facing="back"
         onCameraReady={() => setReady(true)}
@@ -79,9 +79,10 @@ export function CameraCaptureView({
       />
 
       <SafeAreaView
-        edges={['top', 'bottom', 'left', 'right']}
+        edges={["top", "bottom", "left", "right"]}
         pointerEvents="box-none"
-        style={styles.controls}>
+        style={styles.controls}
+      >
         <View style={styles.topBar}>
           <Pressable
             accessibilityLabel="Close camera"
@@ -95,14 +96,23 @@ export function CameraCaptureView({
                 borderColor: theme.onAccent,
                 opacity: pressed ? 0.68 : 1,
               },
-            ]}>
+            ]}
+          >
             <View
               accessibilityElementsHidden
-              style={[styles.closeLine, styles.closeLineLeft, { backgroundColor: theme.onAccent }]}
+              style={[
+                styles.closeLine,
+                styles.closeLineLeft,
+                { backgroundColor: theme.onAccent },
+              ]}
             />
             <View
               accessibilityElementsHidden
-              style={[styles.closeLine, styles.closeLineRight, { backgroundColor: theme.onAccent }]}
+              style={[
+                styles.closeLine,
+                styles.closeLineRight,
+                { backgroundColor: theme.onAccent },
+              ]}
             />
           </Pressable>
         </View>
@@ -120,8 +130,11 @@ export function CameraCaptureView({
                 borderColor: theme.onAccent,
                 opacity: pressed || capturing ? 0.66 : 1,
               },
-            ]}>
-            <Text style={[styles.photosLabel, { color: theme.onAccent }]}>Photos</Text>
+            ]}
+          >
+            <Text style={[styles.photosLabel, { color: theme.onAccent }]}>
+              Photos
+            </Text>
           </Pressable>
 
           <Pressable
@@ -136,8 +149,11 @@ export function CameraCaptureView({
                 borderColor: theme.onAccent,
                 opacity: !ready || capturing ? 0.56 : pressed ? 0.76 : 1,
               },
-            ]}>
-            <View style={[styles.shutterInner, { backgroundColor: theme.onAccent }]} />
+            ]}
+          >
+            <View
+              style={[styles.shutterInner, { backgroundColor: theme.onAccent }]}
+            />
           </Pressable>
 
           <View accessibilityElementsHidden style={styles.controlSpacer} />
@@ -156,61 +172,61 @@ const styles = StyleSheet.create({
   },
   controls: {
     bottom: 0,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     left: 0,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     top: 0,
   },
   topBar: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   closeButton: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 24,
     borderWidth: StyleSheet.hairlineWidth,
     height: 48,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 48,
   },
   closeLine: {
     borderRadius: 2,
     height: 2,
-    position: 'absolute',
+    position: "absolute",
     width: 19,
   },
   closeLineLeft: {
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: "45deg" }],
   },
   closeLineRight: {
-    transform: [{ rotate: '-45deg' }],
+    transform: [{ rotate: "-45deg" }],
   },
   bottomBar: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   photosButton: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    justifyContent: 'center',
+    justifyContent: "center",
     minHeight: 48,
     minWidth: 84,
     paddingHorizontal: 16,
   },
   photosLabel: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   shutterOuter: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 40,
     borderWidth: 4,
     height: 80,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 80,
   },
   shutterInner: {

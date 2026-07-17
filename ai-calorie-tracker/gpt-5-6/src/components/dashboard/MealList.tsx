@@ -1,16 +1,18 @@
-import { Image } from 'expo-image';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image } from "expo-image";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, {
   FadeInDown,
   ReduceMotion,
-} from 'react-native-reanimated';
+  useReducedMotion,
+} from "react-native-reanimated";
 
-import { NUTRITION_MOTION_DURATION } from '@/components/dashboard/NutritionSummary';
-import { formatMacro, type Meal } from '@/domain/nutrition';
-import { useNourishTheme } from '@/theme/tokens';
+import { NUTRITION_MOTION_DURATION } from "@/components/dashboard/NutritionSummary";
+import { formatMacro, type Meal } from "@/domain/nutrition";
+import { useNourishTheme } from "@/theme/tokens";
 
 type MealListProps = {
   meals: readonly Meal[];
+  reduceMotionOverride?: boolean;
 };
 
 const mealEntering = FadeInDown.duration(
@@ -27,8 +29,10 @@ function EmptyPlate() {
   );
 }
 
-export function MealList({ meals }: MealListProps) {
+export function MealList({ meals, reduceMotionOverride }: MealListProps) {
   const theme = useNourishTheme();
+  const systemReduceMotion = useReducedMotion();
+  const reduceMotion = reduceMotionOverride ?? systemReduceMotion;
 
   if (meals.length === 0) {
     return (
@@ -36,10 +40,13 @@ export function MealList({ meals }: MealListProps) {
         style={[
           styles.emptyState,
           { backgroundColor: theme.surface, borderColor: theme.border },
-        ]}>
+        ]}
+      >
         <EmptyPlate />
         <View style={styles.emptyCopy}>
-          <Text style={[styles.emptyTitle, { color: theme.text }]}>Nothing logged yet</Text>
+          <Text style={[styles.emptyTitle, { color: theme.text }]}>
+            Nothing logged yet
+          </Text>
           <Text style={[styles.emptyBody, { color: theme.textMuted }]}>
             Scan a meal and your nutrition will land here.
           </Text>
@@ -52,13 +59,16 @@ export function MealList({ meals }: MealListProps) {
     <View style={styles.mealList}>
       {meals.map((meal) => (
         <Animated.View
+          accessible
           accessibilityLabel={`${meal.food}, ${meal.calories} calories`}
-          entering={mealEntering}
+          accessibilityRole="text"
+          entering={reduceMotion ? undefined : mealEntering}
           key={meal.id}
           style={[
             styles.mealRow,
             { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}>
+          ]}
+        >
           <Image
             accessibilityLabel={`${meal.food} thumbnail`}
             contentFit="cover"
@@ -67,16 +77,27 @@ export function MealList({ meals }: MealListProps) {
           />
           <View style={styles.mealCopy}>
             <View style={styles.mealHeading}>
-              <Text numberOfLines={1} style={[styles.mealName, { color: theme.text }]}>
+              <Text
+                maxFontSizeMultiplier={1.4}
+                numberOfLines={1}
+                style={[styles.mealName, { color: theme.text }]}
+              >
                 {meal.food}
               </Text>
-              <Text style={[styles.mealCalories, { color: theme.text }]}>
+              <Text
+                maxFontSizeMultiplier={1.3}
+                style={[styles.mealCalories, { color: theme.text }]}
+              >
                 {meal.calories} kcal
               </Text>
             </View>
-            <Text numberOfLines={1} style={[styles.mealMacros, { color: theme.textMuted }]}>
-              P {formatMacro(meal.protein_g)} · C {formatMacro(meal.carbs_g)} · F{' '}
-              {formatMacro(meal.fat_g)} g
+            <Text
+              maxFontSizeMultiplier={1.3}
+              numberOfLines={1}
+              style={[styles.mealMacros, { color: theme.textMuted }]}
+            >
+              P {formatMacro(meal.protein_g)} · C {formatMacro(meal.carbs_g)} ·
+              F {formatMacro(meal.fat_g)} g
             </Text>
           </View>
         </Animated.View>
@@ -87,11 +108,11 @@ export function MealList({ meals }: MealListProps) {
 
 const styles = StyleSheet.create({
   plate: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 27,
     borderWidth: 2,
     height: 54,
-    justifyContent: 'center',
+    justifyContent: "center",
     width: 54,
   },
   plateInner: {
@@ -101,10 +122,10 @@ const styles = StyleSheet.create({
     width: 36,
   },
   emptyState: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 24,
     borderWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
     minHeight: 104,
     paddingHorizontal: 20,
@@ -115,7 +136,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 17,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   emptyBody: {
     fontSize: 13,
@@ -126,10 +147,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   mealRow: {
-    alignItems: 'center',
+    alignItems: "center",
     borderRadius: 20,
     borderWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 14,
     padding: 10,
   },
@@ -145,24 +166,24 @@ const styles = StyleSheet.create({
     paddingRight: 4,
   },
   mealHeading: {
-    alignItems: 'baseline',
-    flexDirection: 'row',
+    alignItems: "baseline",
+    flexDirection: "row",
     gap: 8,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   mealName: {
     flex: 1,
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   mealCalories: {
     fontSize: 14,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '700',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "700",
   },
   mealMacros: {
     fontSize: 12,
-    fontVariant: ['tabular-nums'],
-    fontWeight: '600',
+    fontVariant: ["tabular-nums"],
+    fontWeight: "600",
   },
 });

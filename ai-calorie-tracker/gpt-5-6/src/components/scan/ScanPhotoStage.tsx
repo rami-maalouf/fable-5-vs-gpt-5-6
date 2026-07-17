@@ -1,8 +1,9 @@
-import { Image } from 'expo-image';
-import type { PropsWithChildren } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image } from "expo-image";
+import { StatusBar } from "expo-status-bar";
+import type { PropsWithChildren } from "react";
+import { StyleSheet, View } from "react-native";
 
-import { useNourishTheme } from '@/theme/tokens';
+import { useNourishTheme } from "@/theme/tokens";
 
 type ScanPhotoStageProps = PropsWithChildren<{
   photoUri: string;
@@ -13,12 +14,15 @@ export function ScanPhotoStage({ children, photoUri }: ScanPhotoStageProps) {
 
   return (
     <View style={[styles.stage, { backgroundColor: theme.photoBackground }]}>
+      <StatusBar animated style="light" />
       <Image
-        accessibilityLabel="Prepared meal photo"
+        accessibilityElementsHidden
+        accessible={false}
         cachePolicy="memory-disk"
         contentFit="cover"
         source={{ uri: photoUri }}
         style={StyleSheet.absoluteFill}
+        testID="prepared-meal-photo"
         transition={0}
       />
       <View style={[styles.scrim, { backgroundColor: theme.photoScrim }]} />

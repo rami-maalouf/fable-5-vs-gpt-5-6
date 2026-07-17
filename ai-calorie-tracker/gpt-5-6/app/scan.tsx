@@ -1,5 +1,6 @@
-import { useCameraPermissions } from 'expo-camera';
-import { router } from 'expo-router';
+import { useCameraPermissions } from "expo-camera";
+import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import {
   type ReactNode,
   useCallback,
@@ -7,32 +8,32 @@ import {
   useReducer,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
-import { AcquisitionView } from '@/components/scan/AcquisitionView';
-import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
-import { CameraCaptureView } from '@/components/scan/CameraView';
-import { ErrorCard } from '@/components/scan/ErrorCard';
-import { ResultCard } from '@/components/scan/ResultCard';
-import { ScanOverlayTransition } from '@/components/scan/ScanOverlayTransition';
-import { ScanPhotoStage } from '@/components/scan/ScanPhotoStage';
+import { AcquisitionView } from "@/components/scan/AcquisitionView";
+import { AnalyzingOverlay } from "@/components/scan/AnalyzingOverlay";
+import { CameraCaptureView } from "@/components/scan/CameraView";
+import { ErrorCard } from "@/components/scan/ErrorCard";
+import { ResultCard } from "@/components/scan/ResultCard";
+import { ScanOverlayTransition } from "@/components/scan/ScanOverlayTransition";
+import { ScanPhotoStage } from "@/components/scan/ScanPhotoStage";
 import {
   initialScanState,
   scanReducer,
   type PreparedPhoto,
   type ScanState,
-} from '@/domain/scan-machine';
-import { AnalyzePhotoError, analyzePhoto } from '@/services/analyze-photo';
+} from "@/domain/scan-machine";
+import { AnalyzePhotoError, analyzePhoto } from "@/services/analyze-photo";
 import {
   pickLibraryImage,
   prepareImage,
   type ImageSource,
-} from '@/services/prepare-image';
-import { useDay } from '@/state/day-context';
+} from "@/services/prepare-image";
+import { useDay } from "@/state/day-context";
 
 const initialAcquisitionState = scanReducer(initialScanState, {
-  type: 'open',
-  source: 'library',
+  type: "open",
+  source: "library",
 });
 
 type ScanScreenProps = {
@@ -41,10 +42,10 @@ type ScanScreenProps = {
 
 function getPreparedPhoto(state: ScanState): PreparedPhoto | null {
   if (
-    state.status === 'analyzing' ||
-    state.status === 'result' ||
-    state.status === 'error' ||
-    state.status === 'accepting'
+    state.status === "analyzing" ||
+    state.status === "result" ||
+    state.status === "error" ||
+    state.status === "accepting"
   ) {
     return state.photo;
   }
@@ -66,6 +67,7 @@ export function ScanScreen({
   const activeRequest = useRef<AbortController | null>(null);
   const acceptLocked = useRef(false);
   const cameraRequestLocked = useRef(false);
+  const captureFeedbackPending = useRef(false);
   const retryLocked = useRef(false);
   const mounted = useRef(true);
 
@@ -78,9 +80,18 @@ export function ScanScreen({
     };
   }, []);
 
+  useEffect(() => {
+    if (!cameraVisible && captureFeedbackPending.current) {
+      captureFeedbackPending.current = false;
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(
+        () => undefined,
+      );
+    }
+  }, [cameraVisible]);
+
   const closeScanner = useCallback(() => {
     activeRequest.current?.abort();
-    dispatch({ type: 'discard' });
+    dispatch({ type: "discard" });
     router.back();
   }, []);
 
@@ -95,9 +106,9 @@ export function ScanScreen({
         if (controller.signal.aborted || !mounted.current) {
           return;
         }
-        dispatch({ type: 'analysis-succeeded', requestId, result });
+        dispatch({ type: "analysis-succeeded", requestId, result });
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           return;
         }
         if (controller.signal.aborted || !mounted.current) {
@@ -105,8 +116,8 @@ export function ScanScreen({
         }
 
         const kind =
-          error instanceof AnalyzePhotoError ? error.kind : 'analysis';
-        dispatch({ type: 'analysis-failed', requestId, kind });
+          error instanceof AnalyzePhotoError ? error.kind : "analysis";
+        dispatch({ type: "analysis-failed", requestId, kind });
       } finally {
         if (activeRequest.current === controller) {
           activeRequest.current = null;
@@ -117,34 +128,39 @@ export function ScanScreen({
     [],
   );
 
-  const processImageSource = useCallback(async (source: ImageSource) => {
-    try {
-      requestSequence.current += 1;
-      const requestId = `photo-${Date.now()}-${requestSequence.current}`;
-      dispatch({
-        type: 'photo-selected',
-        requestId,
-        sourceUri: source.uri,
-      });
+  const processImageSource = useCallback(
+    async (source: ImageSource) => {
+      try {
+        requestSequence.current += 1;
+        const requestId = `photo-${Date.now()}-${requestSequence.current}`;
+        dispatch({
+          type: "photo-selected",
+          requestId,
+          sourceUri: source.uri,
+        });
 
-      const photo = await prepareImage(source);
-      if (!mounted.current) {
-        return;
+        const photo = await prepareImage(source);
+        if (!mounted.current) {
+          return;
+        }
+        dispatch({ type: "photo-prepared", requestId, photo });
+        void runAnalysis(photo, requestId);
+      } catch {
+        if (!mounted.current) {
+          return;
+        }
+        dispatch({ type: "discard" });
+        dispatch({ type: "open", source: "library" });
+        setPreparationError(
+          "We could not prepare that photo. Please choose another.",
+        );
       }
-      dispatch({ type: 'photo-prepared', requestId, photo });
-      void runAnalysis(photo, requestId);
-    } catch {
-      if (!mounted.current) {
-        return;
-      }
-      dispatch({ type: 'discard' });
-      dispatch({ type: 'open', source: 'library' });
-      setPreparationError('We could not prepare that photo. Please choose another.');
-    }
-  }, [runAnalysis]);
+    },
+    [runAnalysis],
+  );
 
   const choosePhoto = useCallback(async () => {
-    if (state.status !== 'acquiring' && state.status !== 'idle') {
+    if (state.status !== "acquiring" && state.status !== "idle") {
       return;
     }
 
@@ -158,13 +174,13 @@ export function ScanScreen({
         await processImageSource(source);
       }
     } catch {
-      setPreparationError('We could not open Photos. Please try again.');
+      setPreparationError("We could not open Photos. Please try again.");
     }
   }, [processImageSource, state.status]);
 
   const openCamera = useCallback(async () => {
     if (
-      (state.status !== 'acquiring' && state.status !== 'idle') ||
+      (state.status !== "acquiring" && state.status !== "idle") ||
       cameraRequestLocked.current
     ) {
       return;
@@ -182,7 +198,7 @@ export function ScanScreen({
         !cameraPermission.canAskAgain
       ) {
         setCameraMessage(
-          'Camera access is off. You can still choose a meal from Photos.',
+          "Camera access is off. You can still choose a meal from Photos.",
         );
         return;
       }
@@ -195,12 +211,12 @@ export function ScanScreen({
         setCameraVisible(true);
       } else {
         setCameraMessage(
-          'Camera access is off. You can still choose a meal from Photos.',
+          "Camera access is off. You can still choose a meal from Photos.",
         );
       }
     } catch {
       setCameraMessage(
-        'Camera is unavailable on this device. Choose a meal from Photos instead.',
+        "Camera is unavailable on this device. Choose a meal from Photos instead.",
       );
     } finally {
       cameraRequestLocked.current = false;
@@ -211,24 +227,24 @@ export function ScanScreen({
   const cameraUnavailable = useCallback(() => {
     setCameraVisible(false);
     setCameraMessage(
-      'Camera is unavailable on this device. Choose a meal from Photos instead.',
+      "Camera is unavailable on this device. Choose a meal from Photos instead.",
     );
   }, []);
 
   const tryAnotherPhoto = useCallback(() => {
-    if (state.status !== 'error' || state.kind !== 'not-food') {
+    if (state.status !== "error" || state.kind !== "not-food") {
       return;
     }
 
     activeRequest.current?.abort();
     retryLocked.current = false;
-    dispatch({ type: 'try-another', source: 'library' });
+    dispatch({ type: "try-another", source: "library" });
   }, [state]);
 
   const retryAnalysis = useCallback(() => {
     if (
-      state.status !== 'error' ||
-      state.kind === 'not-food' ||
+      state.status !== "error" ||
+      state.kind === "not-food" ||
       retryLocked.current
     ) {
       return;
@@ -237,17 +253,17 @@ export function ScanScreen({
     retryLocked.current = true;
     requestSequence.current += 1;
     const requestId = `retry-${Date.now()}-${requestSequence.current}`;
-    dispatch({ type: 'retry-analysis', requestId });
+    dispatch({ type: "retry-analysis", requestId });
     void runAnalysis(state.photo, requestId);
   }, [runAnalysis, state]);
 
   const acceptResult = useCallback(() => {
-    if (state.status !== 'result' || acceptLocked.current) {
+    if (state.status !== "result" || acceptLocked.current) {
       return;
     }
 
     acceptLocked.current = true;
-    dispatch({ type: 'accept' });
+    dispatch({ type: "accept" });
     acceptMeal({
       id: state.requestId,
       food: state.result.food,
@@ -259,14 +275,21 @@ export function ScanScreen({
       thumbnailUri: state.photo.uri,
       loggedAt: Date.now(),
     });
-    dispatch({ type: 'accepted' });
+    void Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success,
+    ).catch(() => undefined);
+    dispatch({ type: "accepted" });
     router.back();
   }, [acceptMeal, state]);
 
-  if (cameraVisible && (state.status === 'acquiring' || state.status === 'idle')) {
+  if (
+    cameraVisible &&
+    (state.status === "acquiring" || state.status === "idle")
+  ) {
     return (
       <CameraCaptureView
         onCapture={(source) => {
+          captureFeedbackPending.current = true;
           setCameraVisible(false);
           void processImageSource(source);
         }}
@@ -282,7 +305,7 @@ export function ScanScreen({
   let overlay: ReactNode = null;
   let overlayKey: string | undefined;
 
-  if (state.status === 'preparing') {
+  if (state.status === "preparing") {
     photoUri = state.sourceUri;
     overlayKey = `${state.requestId}-preparing`;
     overlay = (
@@ -294,18 +317,18 @@ export function ScanScreen({
     );
   }
 
-  if (state.status === 'analyzing' && photo) {
+  if (state.status === "analyzing" && photo) {
     photoUri = photo.uri;
     overlayKey = `${state.requestId}-analyzing`;
     overlay = <AnalyzingOverlay onClose={closeScanner} />;
   }
 
-  if ((state.status === 'result' || state.status === 'accepting') && photo) {
+  if ((state.status === "result" || state.status === "accepting") && photo) {
     photoUri = photo.uri;
     overlayKey = `${state.requestId}-result`;
     overlay = (
       <ResultCard
-        accepting={state.status === 'accepting'}
+        accepting={state.status === "accepting"}
         onAccept={acceptResult}
         onDiscard={closeScanner}
         result={state.result}
@@ -313,7 +336,7 @@ export function ScanScreen({
     );
   }
 
-  if (state.status === 'error' && photo) {
+  if (state.status === "error" && photo) {
     photoUri = photo.uri;
     overlayKey = `${state.requestId}-${state.kind}`;
     overlay = (
