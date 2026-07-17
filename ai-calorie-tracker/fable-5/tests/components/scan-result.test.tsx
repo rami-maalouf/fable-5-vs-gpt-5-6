@@ -1,6 +1,8 @@
 // scan analysis and result behavior: analyzing starts exactly one request
-// with the prepared base64, every result field renders, not-food and failure
-// placeholders appear, stale responses change nothing, and unmount aborts.
+// with the prepared base64, every result field renders, error cards keep the
+// photo mounted, stale responses change nothing, and unmount aborts.
+// recovery-path behavior (retry, try another photo, races) lives in
+// scan-errors.test.tsx.
 import {
   fireEvent,
   render,
@@ -167,7 +169,7 @@ it('locks accept after the first press', async () => {
   expect(mockBack).toHaveBeenCalledTimes(1);
 });
 
-it('shows a readable not-food placeholder with discard available', async () => {
+it('keeps the photo mounted under the not-food card with discard available', async () => {
   mockAnalyzePhoto.mockResolvedValue({
     kind: 'not_food',
   } satisfies AnalysisOutcome);
@@ -186,7 +188,7 @@ it('shows a readable not-food placeholder with discard available', async () => {
   ).toBeTruthy();
 });
 
-it('shows a readable failure placeholder with discard available', async () => {
+it('keeps the photo mounted under the failure card with discard available', async () => {
   mockAnalyzePhoto.mockResolvedValue({
     kind: 'failure',
     reason: 'network',
@@ -196,8 +198,11 @@ it('shows a readable failure placeholder with discard available', async () => {
   await reachAnalyzing();
 
   await waitFor(() => {
-    expect(screen.getByText(/could not reach/i)).toBeTruthy();
+    expect(screen.getByTestId('error-card')).toBeTruthy();
   });
+  expect(screen.getByTestId('scan-photo').props.source).toEqual([
+    { uri: PREPARED_PHOTO.uri },
+  ]);
   expect(
     screen.getByRole('button', { name: 'Discard photo and close' }),
   ).toBeTruthy();

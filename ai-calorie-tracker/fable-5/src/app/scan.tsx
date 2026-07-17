@@ -18,6 +18,7 @@ import Svg, { Path } from 'react-native-svg';
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
 import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
 import { CameraCapture } from '@/components/scan/CameraView';
+import { ErrorCard } from '@/components/scan/ErrorCard';
 import { ResultCard } from '@/components/scan/ResultCard';
 import { createMeal } from '@/domain/nutrition';
 import { INITIAL_SCAN_STATE, scanReducer } from '@/domain/scan-machine';
@@ -30,14 +31,6 @@ import { useThemeColors } from '@/theme/use-theme-colors';
 
 const PREPARATION_NOTICE =
   'That photo could not be read. Try another one.';
-
-// minimal readable placeholders over the photo; the dedicated recovery ui
-// for these states arrives in a later build
-const NOT_FOOD_NOTICE = "That photo doesn't look like food.";
-const FAILURE_NOTICE: Record<'analysis' | 'network', string> = {
-  analysis: 'The analysis did not work this time.',
-  network: 'We could not reach the analyzer.',
-};
 
 export default function ScanScreen() {
   const [state, dispatch] = useReducer(scanReducer, INITIAL_SCAN_STATE);
@@ -82,6 +75,10 @@ export default function ScanScreen() {
       return;
     }
     startedRequestIdRef.current = requestId;
+    // defensively cancel anything still in flight before the replacement
+    // starts; the reducer serializes requests, so this only fires if an old
+    // controller was somehow left behind
+    controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
     void analyzePhoto(photo.base64, controller.signal).then((outcome) => {
@@ -240,14 +237,7 @@ export default function ScanScreen() {
   // overlays layered above it, so the image never flashes away
   const stageUri =
     screen.status === 'preparing' ? screen.displayUri : screen.photo.uri;
-  const noticeLabel =
-    screen.status === 'preparing'
-      ? 'Preparing photo'
-      : screen.status === 'not_food'
-        ? NOT_FOOD_NOTICE
-        : screen.status === 'failed'
-          ? FAILURE_NOTICE[screen.reason]
-          : null;
+  const noticeLabel = screen.status === 'preparing' ? 'Preparing photo' : null;
 
   return (
     <View style={[styles.stage, { backgroundColor: colors.stageBackground }]}>
@@ -279,6 +269,20 @@ export default function ScanScreen() {
         </View>
       ) : null}
       {screen.status === 'analyzing' ? <AnalyzingOverlay /> : null}
+      {screen.status === 'not_food' ? (
+        <ErrorCard
+          variant="not_food"
+          onPrimaryAction={() => dispatch({ type: 'try_another_photo' })}
+          onDiscard={handleClose}
+        />
+      ) : null}
+      {screen.status === 'failed' ? (
+        <ErrorCard
+          variant={screen.reason}
+          onPrimaryAction={() => dispatch({ type: 'retry_analysis' })}
+          onDiscard={handleClose}
+        />
+      ) : null}
       {screen.status === 'result' ? (
         <ResultCard
           result={screen.result}
