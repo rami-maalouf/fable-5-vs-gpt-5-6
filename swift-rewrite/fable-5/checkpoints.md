@@ -252,3 +252,54 @@ activity id now encodes its bedtime so changed bedtimes replace the countdown,
 and out-of-window foregrounds clear it; 'widget' function keeps every constant
 inline (compiler captures only the function body). no quality debt carried
 forward.
+
+## checkpoint 9 (final): android boot (task 29) + spec success criteria (jul 17)
+
+task 29 verified on a dedicated emulator (AVD fable5_api_36, android 36,
+serial emulator-5556; created for this run to avoid contending with a parallel
+run's emulator-5554):
+
+- `bunx expo run:android` builds and installs (openjdk 21 via JAVA_HOME; the
+  machine had no default java runtime).
+- boot bug found and fixed: android has no "compact" inline date/time picker -
+  every mounted picker opened its modal dialog immediately (all of them at
+  launch, since native tabs mount tabs eagerly). settings + log editor now use
+  a platform-guarded InlineDateTimePicker: ios keeps the native compact
+  control, android renders a value chip that opens the system dialog on demand
+  (evidence/task-29/android-settings-time-dialog-on-demand.png).
+- live activity guarded ios-only: the widget module (whose createLiveActivity
+  requires the ios native factory) is required lazily behind Platform.OS, and
+  every sync effect no-ops off ios. android boots with no crash.
+- acceptance walked end to end: onboarding (welcome -> schedule with the skia
+  circular picker -> notifications incl. the system POST_NOTIFICATIONS dialog
+  -> Notifications Enabled) -> dashboard; all 4 tabs navigate; a session
+  toggles on and off incl. the grayscale-while-asleep palette and the sub-5-min
+  joke alert (evidence/task-29/*.png).
+- honesty note: the first `expo run:android` auto-launched this app on the
+  shared emulator-5554 and stole foreground from a parallel run before the
+  dedicated AVD was created. nothing of theirs was modified; all verification
+  ran on emulator-5556.
+- ios regression check after the picker refactor: settings still renders the
+  native compact pickers; dashboard normal; 204 tests, tsc, lint all clean.
+
+spec success criteria (final):
+
+- [x] port builds and runs on ios simulator + boots on android
+- [x] priorities 1-7 done; 8 attempted (and passing its acceptance)
+- [x] golden-fixture metric tests pass against the real swift engine (50/50)
+- [x] side-by-side visual review per screen - self-verified against the
+      reference screenshots per the kickoff's autonomous-gate rule
+      (evidence/task-17..24, checkpoint-05)
+- [~] live activity: lock-screen parity + both interactive buttons + wind-down
+      state verified on the SIMULATOR; physical-device dynamic island remains
+      UNVERIFIED (no device available) - reported, not claimed
+- [x] all 3 themes verified live (twilight, amethyst, sunset via light mode)
+- [x] timezone edges pass (midnight crossing, dst, travel fixtures)
+- [x] DEVIATIONS.md complete
+- [x] design tokens matched by the theme module (palette tests pin the spec hex
+      tables)
+
+code-quality review (task 29): picker fallback extracted as one shared
+component instead of per-screen forks; live-activity platform guard placed at
+the module boundary (single require site) rather than sprinkled through call
+sites. no quality debt carried forward.
