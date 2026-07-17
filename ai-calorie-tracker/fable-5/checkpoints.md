@@ -76,13 +76,39 @@ never pipe jest output through head/tail directly - redirect to a scratch file, 
   + Up on empty wallpaper, then "Edit" (top-left) -> Add Widget -> search "Nourish".
 - tasks 1-5 and checkpoint 1 boxes are ticked in todo.md.
 
-### next: task 6 (dashboard vertical slice), then tasks 7-17
+- task 6 dashboard: `src/theme/tokens.ts` (semantic light/dark colors, spacing, radius,
+  type scale, motion; `getColorTokens` accepts any scheme string because RN 0.86
+  ColorSchemeName includes 'unspecified') + `src/theme/use-theme-colors.ts` hook.
+  dashboard components in `src/components/dashboard/`: CalorieRing (svg ring, RN
+  Animated strokeDashoffset, accessible progressbar role + accessibilityValue),
+  MacroBar (animated fill, consumed/remaining labels, over-goal color treatment),
+  NutritionSummary (calorie card + 3 macro bars), MealList (designed empty state,
+  image-led rows with per-meal a11y labels + thumbnail testIDs), ScanButton (floating
+  pill, svg camera glyph, 56pt, inert until /scan exists in task 7). `src/app/index.tsx`
+  renders only from useDay() selectors; status-bar scrim stops scrolled content
+  colliding with the clock. `_layout.tsx` = expo-router Stack in ThemeProvider (nav
+  theme from tokens) + DayProvider, StatusBar auto. deleted ALL starter screens/
+  components (explore, app-tabs*, animated-icon*, web-badge, hint-row, external-link,
+  themed-*, collapsible, use-theme, constants/theme, global.css; kept
+  use-color-scheme*). 5 new RNTL tests (87 total). commit `6eff8f6`.
+  visually verified on the Pro Max: empty light + dark modes clean; fixture-populated
+  layout reviewed via a temporary seeding spike (3 meals, unsplash thumbs) then spike
+  reverted - populated arithmetic, bars, rows, and scroll clearance all correct.
 
-after widget proof: tick checkpoint-1 boxes in todo.md, then task 6 (dashboard vertical
-slice: replace starter tabs/screens with Nourish dashboard - delete app-tabs, explore,
-welcome starter components; build src/theme/tokens.ts semantic tokens light+dark, warm
-coral accent; NutritionSummary ring via react-native-svg + reanimated; MealList;
-empty state; Scan meal floating button), task 7+ per todo.md.
+### task-6 test/tooling gotchas (hard-won)
+
+- RNTL `getByRole` only matches Views that set `accessible` explicitly.
+- expo-image normalizes `source={{ uri }}` to an ARRAY: assert `[{ uri }]`.
+- `git commit --amend -- <paths>` fails if the pathspec names files deleted in HEAD;
+  amend with only the newly-changed paths instead.
+
+### next: task 7 (library acquisition + jpeg preparation), then 8-17
+
+scan.tsx full-screen modal from the dashboard (wire ScanButton's onPress to
+router.push('/scan') - typed routes will pick it up once the route file exists),
+photos-first acquisition, expo-image-manipulator prep (long edge <= 1024, jpeg 0.82,
+base64), then task 8+ per todo.md. checkpoint-2 boxes: widget-snapshot-vs-selector
+box still needs the fixture check when the scan path can log real meals.
 
 ## design identity (from spec)
 
