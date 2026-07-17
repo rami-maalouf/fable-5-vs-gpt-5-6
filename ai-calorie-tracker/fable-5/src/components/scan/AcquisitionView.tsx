@@ -1,6 +1,5 @@
 // acquisition state of the scan flow: pick a source for the meal photo.
 // pure presentation - the screen owns the machine and supplies callbacks.
-import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
@@ -10,6 +9,7 @@ import { useThemeColors } from '@/theme/use-theme-colors';
 import type { ColorTokens } from '@/theme/tokens';
 
 type AcquisitionViewProps = {
+  onChooseCamera: () => void;
   onChooseLibrary: () => void;
   onClose: () => void;
   // set after a preparation failure so the user knows why they are back here
@@ -113,14 +113,13 @@ function OptionCard({ title, caption, glyph, colors, onPress }: OptionCardProps)
 }
 
 export function AcquisitionView({
+  onChooseCamera,
   onChooseLibrary,
   onClose,
   notice,
 }: AcquisitionViewProps) {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
-  // camera capture ships in a later build; keep the choice visible and honest
-  const [cameraHintVisible, setCameraHintVisible] = useState(false);
 
   return (
     <View
@@ -175,17 +174,8 @@ export function AcquisitionView({
           caption="Point the camera at your plate"
           glyph="camera"
           colors={colors}
-          onPress={() => setCameraHintVisible(true)}
+          onPress={onChooseCamera}
         />
-        {cameraHintVisible ? (
-          <Text
-            accessibilityLiveRegion="polite"
-            style={[styles.hint, { color: colors.textSecondary }]}
-          >
-            Camera capture is coming in a later build. Choose from your library
-            for now.
-          </Text>
-        ) : null}
         <OptionCard
           title="Choose from library"
           caption="Pick an existing photo"

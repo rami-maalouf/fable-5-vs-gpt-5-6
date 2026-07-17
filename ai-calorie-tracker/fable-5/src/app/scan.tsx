@@ -17,11 +17,13 @@ import Svg, { Path } from 'react-native-svg';
 
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
 import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
+import { CameraCapture } from '@/components/scan/CameraView';
 import { ResultCard } from '@/components/scan/ResultCard';
 import { createMeal } from '@/domain/nutrition';
 import { INITIAL_SCAN_STATE, scanReducer } from '@/domain/scan-machine';
 import { analyzePhoto } from '@/services/analyze-photo';
 import { prepareImage } from '@/services/prepare-image';
+import type { SourceImage } from '@/services/prepare-image';
 import { useDay } from '@/state/day-context';
 import { radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
@@ -45,6 +47,7 @@ export default function ScanScreen() {
   const { acceptMeal } = useDay();
   // presentation-only flags; the machine still owns the flow
   const [prepFailed, setPrepFailed] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const pickerOpenRef = useRef(false);
   // exactly one request per request id; the controller cancels the active
   // request on discard and unmount
@@ -142,6 +145,31 @@ export default function ScanScreen() {
     );
   }, [screen, acceptMeal]);
 
+  // one shared preparation path: captured and selected photos dispatch the
+  // same events and use the same downstream analysis and result logic
+  const runPreparation = useCallback(async (source: SourceImage) => {
+    setPrepFailed(false);
+    dispatch({ type: 'start_preparing', displayUri: source.uri });
+    try {
+      const photo = await prepareImage(source);
+      dispatch({ type: 'photo_prepared', photo });
+    } catch {
+      setPrepFailed(true);
+      dispatch({ type: 'preparation_failed' });
+    } finally {
+      // the camera stays mounted through preparing so its frozen frame
+      // covers the handoff; release it once the machine has moved on
+      setCameraOpen(false);
+    }
+  }, []);
+
+  const handleCameraCapture = useCallback(
+    (source: SourceImage) => {
+      void runPreparation(source);
+    },
+    [runPreparation],
+  );
+
   const handleChooseLibrary = useCallback(async () => {
     // guard against double taps launching two pickers
     if (pickerOpenRef.current) {
@@ -159,27 +187,39 @@ export default function ScanScreen() {
         return;
       }
       const asset = picked.assets[0];
-      setPrepFailed(false);
-      dispatch({ type: 'start_preparing', displayUri: asset.uri });
-      try {
-        const photo = await prepareImage({
-          uri: asset.uri,
-          width: asset.width,
-          height: asset.height,
-        });
-        dispatch({ type: 'photo_prepared', photo });
-      } catch {
-        setPrepFailed(true);
-        dispatch({ type: 'preparation_failed' });
-      }
+      // a library pick may come from the camera's denied fallback; the
+      // library photo should show the regular preparing stage, not the camera
+      setCameraOpen(false);
+      await runPreparation({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+      });
     } finally {
       pickerOpenRef.current = false;
     }
-  }, []);
+  }, [runPreparation]);
+
+  // the camera renders while acquiring and keeps rendering through preparing
+  // a captured photo, so the frozen frame stays over the preview with no
+  // blank frame before the prepared-photo stage takes over at analyzing
+  if (
+    cameraOpen &&
+    (screen.status === 'acquiring' || screen.status === 'preparing')
+  ) {
+    return (
+      <CameraCapture
+        onCapture={handleCameraCapture}
+        onChooseLibrary={handleChooseLibrary}
+        onClose={() => setCameraOpen(false)}
+      />
+    );
+  }
 
   if (screen.status === 'acquiring') {
     return (
       <AcquisitionView
+        onChooseCamera={() => setCameraOpen(true)}
         onChooseLibrary={handleChooseLibrary}
         onClose={handleClose}
         notice={prepFailed ? PREPARATION_NOTICE : null}
