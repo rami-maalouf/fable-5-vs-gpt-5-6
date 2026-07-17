@@ -290,3 +290,50 @@ known gaps:
   were manually verified; metric chart models are unit-tested.
 - task 24 timeline is implemented as the Metrics toolbar modal rather than a
   separate `timeline-sheet` route. This is logged in `DEVIATIONS.md`.
+
+## checkpoint 7 - polish gate
+
+covered tasks:
+
+- task 25: animation and haptics pass.
+- task 26: wind-down notification scheduling and edge cases.
+
+verification:
+
+- `bun run test -- notifications`: passed, 1 suite and 6 tests.
+- `bun run test`: passed, 29 suites and 114 tests.
+- `bunx tsc --noEmit`: passed.
+- `bun run lint`: passed.
+- `git diff --check -- .`: passed for app files.
+- em-dash and selected emoji scan over `src`, `DEVIATIONS.md`, `app.json`, and
+  `package.json`: no matches.
+
+visual qa:
+
+- iOS simulator dev build launched successfully on iPhone Air
+  `7547AFAC-A35A-46C9-9924-488E2F2530CC`.
+- Settings rendered the updated wind-down scheduling copy:
+  `/var/folders/k0/qs1dydf540z0559w7544mhh00000gn/T/simserver-dMyn0f/media/995511000-1784271866995.png`.
+- Dashboard and Settings remained walkable after the notification provider sync
+  was added.
+
+code quality gate:
+
+- moved `expo-notifications` loading behind the default runtime path so importing
+  the service and theme provider does not emit test warnings when the notification
+  API is mocked.
+- kept scheduling behavior in `src/services/notifications.ts` with an injected
+  API boundary so trigger math, stale cancellation, permission denial, and
+  no-prompt launch resync are unit-tested.
+- centralized launch, bedtime-change, and toggle-change resync in
+  `SleepAppearanceProvider` so settings persistence and notification scheduling
+  cannot drift.
+
+known gaps:
+
+- FPS overlay was still not available through the current simulator automation
+  path. Task 25 runtime verification was a smoke test, not a numeric FPS trace.
+- the shortened-offset notification fire path is verified through the service
+  `offsetMinutes` injection rather than a separate in-app dev screen.
+- the notification title omits the spec's moon emoji to satisfy the repo-wide
+  no-emoji rule.
