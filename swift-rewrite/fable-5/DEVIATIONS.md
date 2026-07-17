@@ -35,3 +35,14 @@ spec-sanctioned scope cuts are listed first; implementation-time deviations foll
 - 60fps check (task 25) was assessed qualitatively on the simulator (smooth
   starfield/scrub in captures + interaction); no instrumented fps overlay was
   run - simulator fps is not representative of device performance anyway.
+- live activity (tasks 27/28): lock-screen behavior fully verified on the
+  simulator (start on session start, elapsed/progress/remaining timers, wake up
+  button ends the session from the lock screen, start sleep button starts one,
+  relaunch restore, wind-down countdown within 3h of bedtime). dynamic island
+  compact/minimal/expanded layouts are implemented but UNVERIFIED: they render
+  only on island hardware and this run had no physical device. reported as
+  unverified per the kickoff rather than claimed.
+- wind-down live activity lifecycle hardening beyond the original: the countdown
+  id encodes its bedtime so a changed bedtime replaces the activity, and an
+  expired/out-of-window countdown is cleared on foreground (the original's
+  ActivityKit flow has no equivalent state to leak).

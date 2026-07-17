@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { settingsStore } from '@/data/app-db';
 import { updateWindDownNotification } from '@/services/notifications';
+import { useLiveActivitySync } from '@/services/use-live-activity-sync';
 import { useSleepStore } from '@/state/app-sleep-store';
 import { useSettings } from '@/state/settings-state';
 import { ThemeProvider } from '@/theme/ThemeProvider';
@@ -15,6 +16,9 @@ export default function RootLayout() {
   const isSleeping = useSleepStore((s) => s.activeSession != null);
   // onboarding gate: fresh installs land in the 4-step flow
   const isOnboarded = useSettings((s) => s.isOnboarded);
+
+  // live activity lifecycle (parity + superpower wiring)
+  useLiveActivitySync();
 
   // wind-down reminder: (re)schedule on launch, bedtime change, and toggle
   const windDownEnabled = useSettings((s) => s.windDownReminderEnabled);

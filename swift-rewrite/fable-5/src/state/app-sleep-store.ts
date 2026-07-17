@@ -6,7 +6,7 @@ import { useStore } from 'zustand';
 import { sessionRepo } from '../data/app-db';
 import { createSleepStore, type SleepState } from './sleep-store';
 
-const appSleepStore = createSleepStore(sessionRepo);
+export const appSleepStore = createSleepStore(sessionRepo);
 
 export function useSleepStore<T>(selector: (state: SleepState) => T): T {
   return useStore(appSleepStore, selector);
