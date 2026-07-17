@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "_starter",
-    "slug": "_starter",
+    "name": "Nourish",
+    "slug": "nourish",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "starter",
+    "scheme": "nourish",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "bundleIdentifier": "com.rami.nourish",
       "icon": "./assets/expo.icon"
     },
     "android": {
@@ -20,7 +21,7 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "output": "static",
+      "output": "server",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
@@ -33,7 +34,21 @@
           "imageWidth": 76
         }
       ],
-      "expo-widgets"
+      [
+        "expo-widgets",
+        {
+          "widgets": [
+            {
+              "name": "RemainingCaloriesWidget",
+              "displayName": "Nourish",
+              "description": "Shows today's remaining calories.",
+              "supportedFamilies": [
+                "systemSmall"
+              ]
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

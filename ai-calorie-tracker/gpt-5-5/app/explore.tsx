@@ -61,11 +61,11 @@ export default function TabTwoScreen() {
         <ThemedView style={styles.sectionsWrapper}>
           <Collapsible title="File-based routing">
             <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
+              This app has two screens: <ThemedText type="code">app/index.tsx</ThemedText> and{' '}
+              <ThemedText type="code">app/explore.tsx</ThemedText>
             </ThemedText>
             <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
+              The layout file in <ThemedText type="code">app/_layout.tsx</ThemedText> sets up
               the tab navigator.
             </ThemedText>
             <ExternalLink href="https://docs.expo.dev/router/introduction">
