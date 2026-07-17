@@ -76,7 +76,7 @@ export default function HomeScreen() {
   return (
     <DashboardView
       meals={meals}
-      onScan={() => router.push('/scan' as never)}
+      onScan={() => router.push('/scan')}
       summary={summary}
     />
   );

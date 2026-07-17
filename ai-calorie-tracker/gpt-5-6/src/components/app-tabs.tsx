@@ -12,6 +12,14 @@ export default function AppTabs() {
         headerShown: false,
       }}>
       <Stack.Screen name="index" />
+      <Stack.Screen
+        name="scan"
+        options={{
+          animation: 'slide_from_bottom',
+          gestureEnabled: false,
+          presentation: 'fullScreenModal',
+        }}
+      />
     </Stack>
   );
 }
