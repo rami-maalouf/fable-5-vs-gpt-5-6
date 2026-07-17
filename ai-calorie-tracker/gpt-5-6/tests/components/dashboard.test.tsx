@@ -66,6 +66,10 @@ describe("Nourish dashboard", () => {
     expect(screen.getByText("Protein")).toBeOnTheScreen();
     expect(screen.getByText("Carbs")).toBeOnTheScreen();
     expect(screen.getByText("Fat")).toBeOnTheScreen();
+    expect(screen.getByTestId("dashboard-layout")).toHaveProp(
+      "nativeID",
+      "dashboard-font-scale-2",
+    );
 
     expect(screen.getByText("Today")).toHaveProp("accessibilityRole", "header");
     expect(screen.getByText("Meals")).toHaveProp("accessibilityRole", "header");

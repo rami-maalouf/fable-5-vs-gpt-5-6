@@ -1,5 +1,12 @@
 import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MealList } from "@/components/dashboard/MealList";
@@ -16,9 +23,16 @@ type DashboardViewProps = {
 
 export function DashboardView({ meals, summary, onScan }: DashboardViewProps) {
   const theme = useNourishTheme();
+  const { fontScale } = useWindowDimensions();
+  const layoutKey = `dashboard-font-scale-${fontScale}`;
 
   return (
-    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+    <View
+      key={layoutKey}
+      nativeID={layoutKey}
+      style={[styles.screen, { backgroundColor: theme.background }]}
+      testID="dashboard-layout"
+    >
       <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}

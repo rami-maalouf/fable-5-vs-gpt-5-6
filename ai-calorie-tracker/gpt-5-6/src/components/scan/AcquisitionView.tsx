@@ -6,7 +6,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaView,
+} from "react-native-safe-area-context";
 import { useReducedMotion } from "react-native-reanimated";
 
 import { useNourishTheme } from "@/theme/tokens";
@@ -32,10 +35,19 @@ export function AcquisitionView({
 }: AcquisitionViewProps) {
   const theme = useNourishTheme();
   const reduceMotion = useReducedMotion();
+  const topInset = Math.max(initialWindowMetrics?.insets.top ?? 0, 52);
 
   return (
     <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: theme.background }]}
+      edges={["bottom", "left", "right"]}
+      style={[
+        styles.safeArea,
+        {
+          backgroundColor: theme.background,
+          paddingTop: topInset,
+        },
+      ]}
+      testID="scanner-safe-area"
     >
       <View style={styles.topBar}>
         <Pressable
