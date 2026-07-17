@@ -333,6 +333,24 @@ keep one prepared-image layer mounted across all overlay states, restrained
 overlay transitions, dashboard ring/bars/meal-row animate from previous
 summary after accept within 450-650 ms, slow-animation recording check.
 
+### task 11 (resilience) - DONE, checkpoint 4 complete
+
+- the task-11 subagent died on an api-credits error AFTER committing `73aa103`
+  (ErrorCard.tsx with distinct not-food vs network/analysis variants, scan.tsx wiring,
+  scan-errors tests). the orchestrator then verified everything: gates green
+  (144 tests / 14 suites, tsc, lint), and full sim verification on the pro max:
+  1. circuit board -> real not_food -> "That doesn't look like food" card ->
+     "Try another photo" -> salad bowl -> real result (620 cal / 48P / 45C / 27F).
+  2. metro killed mid-day -> scan salad -> "Couldn't reach the analyzer" network card
+     over the same photo -> metro restarted -> "Retry analysis" -> SAME image succeeded
+     (620 cal / 42P / 48C / 28F, ~1.7s). note: killing metro pops a dev banner
+     ("Open debugger to view warnings") that blocks the scan button - dismiss via the
+     gray circle at (0.93, 0.936) before tapping.
+  3. discard from result and from error cards left dashboard + widget at 2000/no meals.
+- task 11 + checkpoint 4 boxes ticked in todo.md.
+- SUBAGENT CREDITS HAZARD: spawned subagents can die mid-task on "out of usage
+  credits" api errors. check `git log` for partial commits before redoing work.
+
 ## design identity (from spec)
 
 warm off-white light bg / near-black dark bg; coral primary #E8654A-ish; raspberry
