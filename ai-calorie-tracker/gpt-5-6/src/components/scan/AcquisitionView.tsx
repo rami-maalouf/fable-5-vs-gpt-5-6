@@ -5,14 +5,20 @@ import { useNourishTheme } from '@/theme/tokens';
 
 type AcquisitionViewProps = {
   busy: boolean;
+  cameraBusy?: boolean;
+  cameraMessage?: string;
   errorMessage?: string;
+  onCamera: () => void;
   onClose: () => void;
   onPhotos: () => void;
 };
 
 export function AcquisitionView({
   busy,
+  cameraBusy = false,
+  cameraMessage,
   errorMessage,
+  onCamera,
   onClose,
   onPhotos,
 }: AcquisitionViewProps) {
@@ -79,24 +85,38 @@ export function AcquisitionView({
           {busy && <ActivityIndicator color={theme.onAccent} />}
         </Pressable>
 
-        <View
-          accessibilityLabel="Camera, available next"
-          accessibilityState={{ disabled: true }}
+        <Pressable
+          accessibilityLabel="Use camera"
+          accessibilityRole="button"
+          disabled={busy || cameraBusy}
+          onPress={onCamera}
           style={[
             styles.choice,
             styles.cameraChoice,
-            { backgroundColor: theme.surface, borderColor: theme.border },
+            {
+              backgroundColor: theme.surface,
+              borderColor: theme.border,
+              opacity: busy || cameraBusy ? 0.65 : 1,
+            },
           ]}>
           <View style={[styles.cameraIcon, { borderColor: theme.textMuted }]}>
             <View style={[styles.cameraLens, { borderColor: theme.textMuted }]} />
           </View>
           <View style={styles.choiceCopy}>
             <Text style={[styles.choiceTitle, { color: theme.text }]}>Camera</Text>
-            <Text style={[styles.choiceSubtitle, { color: theme.textMuted }]}>Available next</Text>
+            <Text style={[styles.choiceSubtitle, { color: theme.textMuted }]}>
+              {cameraBusy ? 'Requesting access' : 'Open rear camera'}
+            </Text>
           </View>
-        </View>
+          {cameraBusy && <ActivityIndicator color={theme.coral} />}
+        </Pressable>
       </View>
 
+      {!!cameraMessage && (
+        <Text accessibilityLiveRegion="polite" style={[styles.error, { color: theme.text }]}>
+          {cameraMessage}
+        </Text>
+      )}
       {!!errorMessage && (
         <Text accessibilityLiveRegion="polite" style={[styles.error, { color: theme.overGoal }]}>
           {errorMessage}

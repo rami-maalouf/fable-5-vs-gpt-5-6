@@ -1,3 +1,4 @@
+import { useCameraPermissions } from 'expo-camera';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -5,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AcquisitionView } from '@/components/scan/AcquisitionView';
 import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
+import { CameraCaptureView } from '@/components/scan/CameraView';
 import { ResultCard } from '@/components/scan/ResultCard';
 import { ScanPhotoStage } from '@/components/scan/ScanPhotoStage';
 import {
@@ -14,7 +16,11 @@ import {
   type ScanState,
 } from '@/domain/scan-machine';
 import { AnalyzePhotoError, analyzePhoto } from '@/services/analyze-photo';
-import { pickLibraryImage, prepareImage } from '@/services/prepare-image';
+import {
+  pickLibraryImage,
+  prepareImage,
+  type ImageSource,
+} from '@/services/prepare-image';
 import { useDay } from '@/state/day-context';
 import { useNourishTheme } from '@/theme/tokens';
 
@@ -71,10 +77,15 @@ export function ScanScreen({
 }: ScanScreenProps) {
   const [state, dispatch] = useReducer(scanReducer, initialState);
   const [preparationError, setPreparationError] = useState<string>();
+  const [cameraMessage, setCameraMessage] = useState<string>();
+  const [cameraVisible, setCameraVisible] = useState(false);
+  const [cameraBusy, setCameraBusy] = useState(false);
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const { acceptMeal } = useDay();
   const requestSequence = useRef(0);
   const activeRequest = useRef<AbortController | null>(null);
   const acceptLocked = useRef(false);
+  const cameraRequestLocked = useRef(false);
 
   useEffect(() => {
     return () => activeRequest.current?.abort();
@@ -111,19 +122,8 @@ export function ScanScreen({
     [],
   );
 
-  const choosePhoto = useCallback(async () => {
-    if (state.status !== 'acquiring' && state.status !== 'idle') {
-      return;
-    }
-
-    setPreparationError(undefined);
-
+  const processImageSource = useCallback(async (source: ImageSource) => {
     try {
-      const source = await pickLibraryImage();
-      if (!source) {
-        return;
-      }
-
       requestSequence.current += 1;
       const requestId = `photo-${Date.now()}-${requestSequence.current}`;
       dispatch({
@@ -140,7 +140,79 @@ export function ScanScreen({
       dispatch({ type: 'open', source: 'library' });
       setPreparationError('We could not prepare that photo. Please choose another.');
     }
-  }, [runAnalysis, state.status]);
+  }, [runAnalysis]);
+
+  const choosePhoto = useCallback(async () => {
+    if (state.status !== 'acquiring' && state.status !== 'idle') {
+      return;
+    }
+
+    setPreparationError(undefined);
+    setCameraMessage(undefined);
+    setCameraVisible(false);
+
+    try {
+      const source = await pickLibraryImage();
+      if (source) {
+        await processImageSource(source);
+      }
+    } catch {
+      setPreparationError('We could not open Photos. Please try again.');
+    }
+  }, [processImageSource, state.status]);
+
+  const openCamera = useCallback(async () => {
+    if (
+      (state.status !== 'acquiring' && state.status !== 'idle') ||
+      cameraRequestLocked.current
+    ) {
+      return;
+    }
+
+    cameraRequestLocked.current = true;
+    setCameraBusy(true);
+    setCameraMessage(undefined);
+    setPreparationError(undefined);
+
+    try {
+      if (
+        cameraPermission &&
+        !cameraPermission.granted &&
+        !cameraPermission.canAskAgain
+      ) {
+        setCameraMessage(
+          'Camera access is off. You can still choose a meal from Photos.',
+        );
+        return;
+      }
+
+      const permission = cameraPermission?.granted
+        ? cameraPermission
+        : await requestCameraPermission();
+
+      if (permission.granted) {
+        setCameraVisible(true);
+      } else {
+        setCameraMessage(
+          'Camera access is off. You can still choose a meal from Photos.',
+        );
+      }
+    } catch {
+      setCameraMessage(
+        'Camera is unavailable on this device. Choose a meal from Photos instead.',
+      );
+    } finally {
+      cameraRequestLocked.current = false;
+      setCameraBusy(false);
+    }
+  }, [cameraPermission, requestCameraPermission, state.status]);
+
+  const cameraUnavailable = useCallback(() => {
+    setCameraVisible(false);
+    setCameraMessage(
+      'Camera is unavailable on this device. Choose a meal from Photos instead.',
+    );
+  }, []);
 
   const acceptResult = useCallback(() => {
     if (state.status !== 'result' || acceptLocked.current) {
@@ -163,6 +235,20 @@ export function ScanScreen({
     dispatch({ type: 'accepted' });
     router.back();
   }, [acceptMeal, state]);
+
+  if (cameraVisible && (state.status === 'acquiring' || state.status === 'idle')) {
+    return (
+      <CameraCaptureView
+        onCapture={(source) => {
+          setCameraVisible(false);
+          void processImageSource(source);
+        }}
+        onClose={closeScanner}
+        onPhotos={() => void choosePhoto()}
+        onUnavailable={cameraUnavailable}
+      />
+    );
+  }
 
   if (state.status === 'preparing') {
     return (
@@ -210,7 +296,10 @@ export function ScanScreen({
   return (
     <AcquisitionView
       busy={false}
+      cameraBusy={cameraBusy}
+      cameraMessage={cameraMessage}
       errorMessage={preparationError}
+      onCamera={() => void openCamera()}
       onClose={closeScanner}
       onPhotos={() => void choosePhoto()}
     />
