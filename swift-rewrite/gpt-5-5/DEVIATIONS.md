@@ -119,3 +119,14 @@
 - FPS overlay was not available through the current simulator automation path.
   Starfield and chart interactions were manually smoke-tested for runtime
   stability, not measured with a numeric FPS trace.
+
+## task 26
+
+- the spec title includes a moon emoji. The app uses `Wind Down Time` without the
+  emoji to satisfy the repo-wide no-emoji rule.
+- notification resync is centralized in the settings provider so app launch,
+  bedtime edits, and toggle changes share one scheduling path. Launch resync does
+  not prompt for permission; toggling reminders on can request permission.
+- the requested shortened-offset manual fire path is exposed through the service
+  `offsetMinutes` injection and covered by focused tests, not by a separate dev
+  settings screen.

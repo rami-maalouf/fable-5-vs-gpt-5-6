@@ -4,6 +4,7 @@ import { useColorScheme } from 'react-native';
 import { getSessionRepository } from '@/data/session-store';
 import { settingsStore } from '@/data/settings-store';
 import { defaultSleepSettings, type SleepSettings } from '@/domain/models';
+import { syncWindDownReminder } from '@/services/notifications';
 
 import type { AppTheme } from './palettes';
 import { selectTheme, themes } from './palettes';
@@ -91,6 +92,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
       if (!cancelled) {
         setSettings(storedSettings);
         setSettingsReady(true);
+        syncWindDownReminderQuietly(storedSettings);
       }
     }
 
@@ -136,6 +138,7 @@ export function SleepAppearanceProvider({ children }: PropsWithChildren) {
     () => async (patch: Partial<SleepSettings>) => {
       const nextSettings = await settingsStore.updateSettings(patch);
       setSettings(nextSettings);
+      syncWindDownReminderQuietly(nextSettings, { requestPermission: patch.windDownEnabled === true });
       return nextSettings;
     },
     [],
@@ -175,4 +178,11 @@ export function useSleepAppearanceTheme(theme?: AppTheme) {
   const visibleTheme = theme ?? currentTheme;
 
   return useMemo(() => (asleep ? desaturateTheme(visibleTheme) : visibleTheme), [asleep, visibleTheme]);
+}
+
+function syncWindDownReminderQuietly(
+  settings: SleepSettings,
+  options?: Parameters<typeof syncWindDownReminder>[1],
+) {
+  void syncWindDownReminder(settings, options).catch(() => undefined);
 }

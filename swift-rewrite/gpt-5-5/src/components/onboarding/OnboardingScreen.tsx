@@ -145,7 +145,7 @@ function NotificationsStep({
   return (
     <StepShell eyebrow="reminders" theme={theme} title="Prepare before bedtime">
       <Text style={[styles.body, { color: theme.textSecondary }]}>
-        Twilight can remind you three hours before your target bedtime. Scheduling lands in the notification pass.
+        Twilight can remind you three hours before your target bedtime and will keep the reminder aligned with your settings.
       </Text>
       <View style={[styles.permissionCard, { backgroundColor: rgba(theme.textPrimary, 0.07), borderColor: rgba(theme.textPrimary, 0.12) }]}>
         <Text style={[styles.permissionTitle, { color: theme.textPrimary }]}>Notification permission</Text>

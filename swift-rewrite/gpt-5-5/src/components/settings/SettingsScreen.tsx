@@ -261,7 +261,7 @@ function WindDownCard({
           <Text style={[styles.eyebrow, { color: theme.textSecondary }]}>wind-down reminder</Text>
           <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>Prepare for rest</Text>
           <Text style={[styles.body, { color: theme.textSecondary }]}>
-            A daily reminder can be scheduled three hours before bedtime in the notification pass.
+            A daily reminder can be scheduled three hours before bedtime and rescheduled when your goal changes.
           </Text>
         </View>
         <Switch
