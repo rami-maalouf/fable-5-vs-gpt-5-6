@@ -36,3 +36,13 @@ during implementation, an external process (another contestant session sharing
 this git repo) repeatedly restored tracked files to HEAD and cleaned untracked
 files. mitigation: commit immediately after each verified change so restores
 become no-ops. some baseline work had to be recreated once.
+
+## 6. widget tinted rendering not custom-handled
+
+the final small widget adapts its colors to `environment.colorScheme` (light and
+dark verified on the simulator). ios 18+ tinted home screens are left to the
+system's automatic accented recoloring: `expo-widgets` exposes
+`environment.widgetRenderingMode`, but the spec's widget layout section only
+requires semantic light/dark colors, and a tinted home screen cannot be enabled
+reliably through automation on the target simulator. no custom accented branch
+was added, and tinted rendering was not visually verified.

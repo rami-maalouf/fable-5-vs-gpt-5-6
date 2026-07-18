@@ -397,10 +397,14 @@ metro 8087, real key, cold restart (2000/no meals), full flow recorded to
   17384c6); unticked tasks 13-17 + checkpoint 5 + final checkpoint to
   restore honesty. tasks 1-12 + checkpoints 1-4 remain ticked.
 
-### next: task 13 (themes/accessibility/native audit), then 14-17
+### next: tasks 15-17 (evidence capture + final audit)
 
-live light/dark sweep, VoiceOver labels and order, dynamic type, contrast,
-44pt targets, reduce-motion manual sweep, haptics, loading announcements.
+capture happy-path screenshots/recording, resilience + theme evidence, widget
+before/after evidence, verification.md, and the full final audit (tests, lint,
+tsc, web export, secret scan). checkpoint 5 status: motion recordings (task 12),
+theme/a11y/reduce-motion sweeps (task 13), and final widget vs dashboard values
+(task 14) all verified; the remaining box is the full-gate pass incl
+`bunx expo export --platform web --no-ssg` from the final tree - run it in task 17.
 
 ### task 11 (resilience) - DONE, checkpoint 4 complete
 
@@ -435,6 +439,40 @@ live light/dark sweep, VoiceOver labels and order, dynamic type, contrast,
   off, appearance light. committed `8a21555` (156 tests / 16 suites, tsc, lint green).
 - lesson: never write `transform: cond ? undefined : [...]` inside an animated style
   object - always conditionally include the whole object.
+
+### task 14 (final widget design + snapshot consistency) - DONE
+
+- `widgets/RemainingCaloriesWidget.tsx` final design: coral "Nourish" wordmark +
+  compact progress ring top row (HStack + Spacer), big bold remaining number
+  (42pt, monospacedDigit, minimumScaleFactor 0.6), "calories left" secondary
+  label. the ring is `@expo/ui` `Gauge` with `gaugeStyle('circularCapacity')`
+  (maps to SwiftUI `.accessoryCircularCapacity` per
+  node_modules/@expo/ui/ios/Modifiers/GaugeStyleModifier.swift) + `tint(accent)`
+  + `scaleEffect(0.6)` + `frame(32x32)` - a TRUE partial-arc capacity ring, no
+  approximation needed. literal colors mirror tokens.ts light/dark (widget code
+  cannot use rn hooks); `environment.colorScheme` switches them.
+- adapter: `publishRemainingCalories(remaining, progress)`; day-context is the
+  only caller and derives progress via `clampProgress(consumed, DAILY_GOALS.calories)`.
+- tests: new tests/components/widget-sync.test.tsx (6 tests: mount 2000+0,
+  sequential exact values incl over-goal clamp to 1, duplicate-accept publishes
+  nothing, rounding, ios-only guard via jest.replaceProperty). day-context +
+  scan-accept assertions updated to the 2-arg signature. 161 tests / 17 suites,
+  tsc + lint green. commits `ed2644a` (code) + `0e5d81d` (new test file - NOTE:
+  untracked files need `git add` before a pathspec commit).
+- sim-verified on the pro max after native rebuild (~2.5 min, Build Succeeded):
+  cold launch -> widget 2000 + empty ring (light AND dark); real scan+accept
+  salad bowl ("Grilled chicken salad bowl with mixed vegetables, beans, eggs,
+  and pasta" 620 cal / 42P / 48C / 27F) -> dashboard 1380 -> widget 1380 with
+  ~31% coral arc (light AND dark, legible both); restart-app -> dashboard AND
+  widget reset to 2000, empty ring, no stale value. two transient "Analysis
+  failed" cards before success (provider flakiness again; direct curl to /scan
+  returned 200 in 1.7s). tinted rendering NOT custom-handled or verified -
+  DEVIATIONS.md #6.
+- gotcha: the photo picker can open LATE - a first "Choose from library" tap
+  that looks swallowed may still present the picker seconds later, so a blind
+  re-tap at the same coords lands on the picker GRID (accidentally scanned the
+  circuit board; its not_food card doubled as a live regression pass). after a
+  seemingly dead tap, describe/await before tapping again.
 
 ## design identity (from spec)
 
