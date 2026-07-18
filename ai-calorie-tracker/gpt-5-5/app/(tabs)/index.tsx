@@ -15,6 +15,7 @@ import { NutritionSummary } from "@/components/dashboard/NutritionSummary";
 import { useDay } from "@/state/day-context";
 import {
   getNourishTheme,
+  nourishFontScale,
   nourishLayout,
   nourishRadii,
   nourishSpacing,
@@ -38,8 +39,18 @@ export default function HomeScreen() {
         >
           <View style={styles.header}>
             <View>
-              <Text style={[styles.wordmark, { color: theme.colors.accent }]}>Nourish</Text>
-              <Text style={[styles.today, { color: theme.colors.textSecondary }]}>Today</Text>
+              <Text
+                maxFontSizeMultiplier={nourishFontScale.dense}
+                style={[styles.wordmark, { color: theme.colors.accent }]}
+              >
+                Nourish
+              </Text>
+              <Text
+                maxFontSizeMultiplier={nourishFontScale.dense}
+                style={[styles.today, { color: theme.colors.textSecondary }]}
+              >
+                Today
+              </Text>
             </View>
           </View>
 
@@ -76,7 +87,12 @@ function ScanMealButton({
         },
       ]}
     >
-      <Text style={[styles.scanButtonText, { color: theme.colors.onAccent }]}>Scan meal</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.scanButtonText, { color: theme.colors.onAccent }]}
+      >
+        Scan meal
+      </Text>
     </Pressable>
   );
 }

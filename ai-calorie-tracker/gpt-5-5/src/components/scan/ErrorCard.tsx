@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
   getNourishTheme,
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   nourishTouchTargets,
@@ -33,8 +34,18 @@ export function ErrorCard({
       accessibilityRole="alert"
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.title, { color: theme.colors.textPrimary }]}
+      >
+        {title}
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.body, { color: theme.colors.textSecondary }]}
+      >
+        {body}
+      </Text>
 
       <View style={styles.actions}>
         <Pressable
@@ -44,7 +55,10 @@ export function ErrorCard({
           onPress={onPrimary}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
         >
-          <Text style={[styles.primaryText, { color: theme.colors.onAccent }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.primaryText, { color: theme.colors.onAccent }]}
+          >
             {primaryLabel}
           </Text>
         </Pressable>
@@ -62,7 +76,10 @@ export function ErrorCard({
             },
           ]}
         >
-          <Text style={[styles.secondaryText, { color: theme.colors.textPrimary }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.secondaryText, { color: theme.colors.textPrimary }]}
+          >
             {secondaryLabel}
           </Text>
         </Pressable>

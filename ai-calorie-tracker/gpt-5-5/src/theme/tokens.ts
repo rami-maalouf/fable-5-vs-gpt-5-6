@@ -53,6 +53,10 @@ export const nourishLayout = {
   maxContentWidth: 800,
 } as const;
 
+export const nourishFontScale = {
+  dense: 1.25,
+} as const;
+
 const lightTheme: NourishTheme = {
   colors: {
     background: "#FFF8F2",

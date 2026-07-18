@@ -23,6 +23,7 @@ import { useDay } from "@/state/day-context";
 import { useReducedMotion } from "@/state/reduced-motion";
 import {
   getNourishTheme,
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   nourishTouchTargets,
@@ -243,7 +244,12 @@ export default function ScanScreen() {
                 },
               ]}
             >
-              <Text style={[styles.closeText, { color: theme.colors.textPrimary }]}>Close</Text>
+              <Text
+                maxFontSizeMultiplier={nourishFontScale.dense}
+                style={[styles.closeText, { color: theme.colors.textPrimary }]}
+              >
+                Close
+              </Text>
             </Pressable>
           </View>
 
@@ -393,8 +399,18 @@ function OverlayCard({
       accessibilityRole="summary"
       style={[styles.overlayCard, { backgroundColor: theme.colors.surface }]}
     >
-      <Text style={[styles.overlayTitle, { color: theme.colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.overlayBody, { color: theme.colors.textSecondary }]}>{body}</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.overlayTitle, { color: theme.colors.textPrimary }]}
+      >
+        {title}
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.overlayBody, { color: theme.colors.textSecondary }]}
+      >
+        {body}
+      </Text>
     </View>
   );
 }

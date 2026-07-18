@@ -8,6 +8,7 @@ import {
   roundNutritionForDisplay,
 } from "@/domain/nutrition";
 import {
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   type NourishTheme,
@@ -64,14 +65,23 @@ export function NutritionSummary({ summary, theme }: NutritionSummaryProps) {
           theme={theme}
         />
         <View style={styles.calorieText}>
-          <Text style={[styles.calorieNumber, { color: theme.colors.textPrimary }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.calorieNumber, { color: theme.colors.textPrimary }]}
+          >
             {formatCalorieValue(calorieValue)}
           </Text>
-          <Text style={[styles.calorieLabel, { color: theme.colors.textSecondary }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.calorieLabel, { color: theme.colors.textSecondary }]}
+          >
             {isOverCalories ? "calories logged" : "calories left"}
           </Text>
           {isOverCalories ? (
-            <Text style={[styles.overTarget, { color: theme.colors.danger }]}>
+            <Text
+              maxFontSizeMultiplier={nourishFontScale.dense}
+              style={[styles.overTarget, { color: theme.colors.danger }]}
+            >
               {Math.abs(displayRemaining.calories)} over target
             </Text>
           ) : null}
@@ -180,8 +190,16 @@ function MacroBar({
       style={styles.macroBlock}
     >
       <View style={styles.macroHeader}>
-        <Text style={[styles.macroLabel, { color: theme.colors.textPrimary }]}>{metric.label}</Text>
-        <Text style={[styles.macroValue, { color: theme.colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.macroLabel, { color: theme.colors.textPrimary }]}
+        >
+          {metric.label}
+        </Text>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.macroValue, { color: theme.colors.textSecondary }]}
+        >
           {formatGramValue(animatedConsumed)} / {formatGramValue(goal)} g
         </Text>
       </View>
@@ -189,6 +207,7 @@ function MacroBar({
         <Animated.View style={[styles.fill, { width, backgroundColor: metric.color }]} />
       </View>
       <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
         style={[
           styles.remaining,
           { color: animatedRemaining < 0 ? theme.colors.danger : theme.colors.textTertiary },

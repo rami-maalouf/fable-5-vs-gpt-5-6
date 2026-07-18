@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   nourishTouchTargets,
@@ -155,14 +156,18 @@ export function CameraCaptureView({
             onPress={onClose}
             style={styles.glassButton}
           >
-            <Text style={styles.glassButtonText}>Close</Text>
+            <Text maxFontSizeMultiplier={nourishFontScale.dense} style={styles.glassButtonText}>
+              Close
+            </Text>
           </Pressable>
         </View>
 
         <View style={styles.previewFooter}>
           <View style={styles.guidance}>
-            <Text style={styles.guidanceTitle}>Frame the meal</Text>
-            <Text style={styles.guidanceBody}>
+            <Text maxFontSizeMultiplier={nourishFontScale.dense} style={styles.guidanceTitle}>
+              Frame the meal
+            </Text>
+            <Text maxFontSizeMultiplier={nourishFontScale.dense} style={styles.guidanceBody}>
               Keep the plate centered and avoid hard shadows for the best estimate.
             </Text>
           </View>
@@ -175,7 +180,9 @@ export function CameraCaptureView({
               onPress={onChooseFromPhotos}
               style={styles.glassButton}
             >
-              <Text style={styles.glassButtonText}>Photos</Text>
+              <Text maxFontSizeMultiplier={nourishFontScale.dense} style={styles.glassButtonText}>
+                Photos
+              </Text>
             </Pressable>
 
             <Pressable
@@ -234,8 +241,18 @@ function StatusCard({
       accessibilityRole="summary"
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.title, { color: theme.colors.textPrimary }]}
+      >
+        {title}
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.body, { color: theme.colors.textSecondary }]}
+      >
+        {body}
+      </Text>
     </View>
   );
 }
@@ -266,8 +283,18 @@ function FallbackCard({
       accessibilityRole="summary"
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>{title}</Text>
-      <Text style={[styles.body, { color: theme.colors.textSecondary }]}>{body}</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.title, { color: theme.colors.textPrimary }]}
+      >
+        {title}
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.body, { color: theme.colors.textSecondary }]}
+      >
+        {body}
+      </Text>
 
       <View style={styles.actionStack}>
         <Pressable
@@ -281,7 +308,10 @@ function FallbackCard({
           onPress={primaryAction}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
         >
-          <Text style={[styles.primaryButtonText, { color: theme.colors.onAccent }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.primaryButtonText, { color: theme.colors.onAccent }]}
+          >
             {primaryActionLabel}
           </Text>
         </Pressable>
@@ -300,7 +330,10 @@ function FallbackCard({
               },
             ]}
           >
-            <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+            <Text
+              maxFontSizeMultiplier={nourishFontScale.dense}
+              style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}
+            >
               Choose from Photos
             </Text>
           </Pressable>
@@ -319,7 +352,10 @@ function FallbackCard({
             },
           ]}
         >
-          <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}
+          >
             Close scan
           </Text>
         </Pressable>

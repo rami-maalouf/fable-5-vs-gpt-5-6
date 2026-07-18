@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import {
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   nourishTouchTargets,
@@ -26,14 +27,25 @@ export function AcquisitionView({
       accessibilityRole="summary"
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Scan your meal</Text>
-      <Text style={[styles.body, { color: theme.colors.textSecondary }]}>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.title, { color: theme.colors.textPrimary }]}
+      >
+        Scan your meal
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.body, { color: theme.colors.textSecondary }]}
+      >
         Choose a clear food photo or capture one with the rear camera. Nourish will prepare it
         before sending it for analysis.
       </Text>
 
       {preparationError ? (
-        <Text style={[styles.error, { color: theme.colors.danger }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.error, { color: theme.colors.danger }]}
+        >
           Could not prepare that photo.
         </Text>
       ) : null}
@@ -46,7 +58,10 @@ export function AcquisitionView({
           onPress={onChooseFromPhotos}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
         >
-          <Text style={[styles.primaryButtonText, { color: theme.colors.onAccent }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.primaryButtonText, { color: theme.colors.onAccent }]}
+          >
             Choose from Photos
           </Text>
         </Pressable>
@@ -64,7 +79,10 @@ export function AcquisitionView({
             },
           ]}
         >
-          <Text style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.secondaryButtonText, { color: theme.colors.textPrimary }]}
+          >
             Use camera
           </Text>
         </Pressable>

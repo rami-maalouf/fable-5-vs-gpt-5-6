@@ -6,11 +6,12 @@ import { MealList } from "../../src/components/dashboard/MealList";
 import { NutritionSummary } from "../../src/components/dashboard/NutritionSummary";
 import { AnalyzingOverlay } from "../../src/components/scan/AnalyzingOverlay";
 import { ErrorCard } from "../../src/components/scan/ErrorCard";
+import { ResultCard } from "../../src/components/scan/ResultCard";
 import { NourishStatusBar } from "../../src/components/system/NourishStatusBar";
 import type { Meal } from "../../src/domain/nutrition";
 import { getDaySummary } from "../../src/domain/nutrition";
 import { ReducedMotionProvider } from "../../src/state/reduced-motion";
-import { getNourishTheme } from "../../src/theme/tokens";
+import { getNourishTheme, nourishFontScale } from "../../src/theme/tokens";
 
 jest.mock("expo-status-bar", () => ({
   StatusBar: (props: { animated?: boolean; style?: string }) => {
@@ -101,6 +102,53 @@ describe("native accessibility polish", () => {
     expect(screen.getByLabelText("Retry analysis").props.accessibilityHint).toBe(
       "Continues from this error state",
     );
+  });
+
+  test("caps dense visual text scaling without removing semantic labels", async () => {
+    await render(
+      <>
+        <ReducedMotionProvider initialPreference>
+          <NutritionSummary summary={getDaySummary([meal])} theme={lightTheme} />
+          <MealList meals={[meal]} theme={lightTheme} />
+        </ReducedMotionProvider>
+        <ResultCard
+          result={meal}
+          theme={lightTheme}
+          onAccept={jest.fn()}
+          onDiscard={jest.fn()}
+        />
+        <ErrorCard
+          title="No food found"
+          body="That photo does not look like a meal."
+          primaryLabel="Try another photo"
+          secondaryLabel="Close scan"
+          theme={lightTheme}
+          onPrimary={jest.fn()}
+          onSecondary={jest.fn()}
+        />
+      </>,
+    );
+
+    expect(screen.getByText("1100").props.maxFontSizeMultiplier).toBe(nourishFontScale.dense);
+    expect(screen.getByText("Protein").props.maxFontSizeMultiplier).toBe(nourishFontScale.dense);
+    expect(screen.getByText("Meals").props.maxFontSizeMultiplier).toBe(nourishFontScale.dense);
+    expect(
+      screen.getAllByText("salmon rice bowl").every(
+        (node) => node.props.maxFontSizeMultiplier === nourishFontScale.dense,
+      ),
+    ).toBe(true);
+    expect(screen.getByText("Estimated result").props.maxFontSizeMultiplier).toBe(
+      nourishFontScale.dense,
+    );
+    expect(screen.getByText("No food found").props.maxFontSizeMultiplier).toBe(
+      nourishFontScale.dense,
+    );
+    expect(screen.getByLabelText("nutrition summary, 1100 calories left")).toBeTruthy();
+    expect(
+      screen.getByLabelText(
+        "Estimated result, salmon rice bowl, 900 calories, 60 grams protein, 110 grams carbs, 24 grams fat, 92 percent confidence",
+      ),
+    ).toBeTruthy();
   });
 
   test("honors reduced motion by landing animated nutrition and rows without timing", async () => {

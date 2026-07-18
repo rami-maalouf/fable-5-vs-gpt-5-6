@@ -7,6 +7,7 @@ import {
 } from "@/domain/nutrition";
 import { NUTRITION_MOTION_MS } from "@/components/dashboard/NutritionSummary";
 import {
+  nourishFontScale,
   nourishRadii,
   nourishSpacing,
   type NourishTheme,
@@ -22,8 +23,16 @@ export function MealList({ meals, theme }: MealListProps) {
   return (
     <View accessibilityLabel="Meals list" style={styles.container}>
       <View style={styles.headerRow}>
-        <Text style={[styles.sectionLabel, { color: theme.colors.textPrimary }]}>Meals</Text>
-        <Text style={[styles.sectionMeta, { color: theme.colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.sectionLabel, { color: theme.colors.textPrimary }]}
+        >
+          Meals
+        </Text>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.sectionMeta, { color: theme.colors.textSecondary }]}
+        >
           {meals.length === 0 ? "No meals yet" : `${meals.length} logged`}
         </Text>
       </View>
@@ -47,8 +56,16 @@ function EmptyMeals({ theme }: { theme: NourishTheme }) {
         },
       ]}
     >
-      <Text style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}>Your day is ready</Text>
-      <Text style={[styles.emptyBody, { color: theme.colors.textSecondary }]}>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.emptyTitle, { color: theme.colors.textPrimary }]}
+      >
+        Your day is ready
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.emptyBody, { color: theme.colors.textSecondary }]}
+      >
         Scan a meal to start tracking today without manual entry.
       </Text>
     </View>
@@ -114,13 +131,24 @@ function MealRow({ meal, theme }: { meal: Meal; theme: NourishTheme }) {
         testID={`meal-thumbnail-${meal.id}`}
       />
       <View style={styles.rowBody}>
-        <Text style={[styles.mealName, { color: theme.colors.textPrimary }]}>{meal.food}</Text>
-        <Text style={[styles.macroLine, { color: theme.colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.mealName, { color: theme.colors.textPrimary }]}
+        >
+          {meal.food}
+        </Text>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.macroLine, { color: theme.colors.textSecondary }]}
+        >
           {formatGramValue(displayMeal.protein_g)}p · {formatGramValue(displayMeal.carbs_g)}c ·{" "}
           {formatGramValue(displayMeal.fat_g)}f
         </Text>
       </View>
-      <Text style={[styles.calories, { color: theme.colors.textPrimary }]}>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.calories, { color: theme.colors.textPrimary }]}
+      >
         {displayMeal.calories} cal
       </Text>
     </Animated.View>

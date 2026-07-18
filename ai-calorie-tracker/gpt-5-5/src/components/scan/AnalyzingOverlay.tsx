@@ -1,6 +1,7 @@
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import {
+  nourishFontScale,
   type NourishTheme,
   nourishRadii,
   nourishSpacing,
@@ -15,8 +16,16 @@ export function AnalyzingOverlay({ theme }: { theme: NourishTheme }) {
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
       <ActivityIndicator color={theme.colors.accent} />
-      <Text style={[styles.title, { color: theme.colors.textPrimary }]}>Analyzing estimate</Text>
-      <Text style={[styles.body, { color: theme.colors.textSecondary }]}>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.title, { color: theme.colors.textPrimary }]}
+      >
+        Analyzing estimate
+      </Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.body, { color: theme.colors.textSecondary }]}
+      >
         MacroLens is estimating calories and macros from this photo.
       </Text>
     </View>

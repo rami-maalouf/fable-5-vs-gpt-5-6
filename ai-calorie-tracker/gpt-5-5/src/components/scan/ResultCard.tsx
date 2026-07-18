@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import type { NutritionAnalysisSuccess } from "@/domain/nutrition";
 import {
+  nourishFontScale,
   type NourishTheme,
   nourishRadii,
   nourishSpacing,
@@ -34,11 +35,22 @@ export function ResultCard({
       style={[styles.card, { backgroundColor: theme.colors.surface }]}
     >
       <View style={styles.header}>
-        <Text style={[styles.eyebrow, { color: theme.colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.eyebrow, { color: theme.colors.textSecondary }]}
+        >
           Estimated result
         </Text>
-        <Text style={[styles.food, { color: theme.colors.textPrimary }]}>{result.food}</Text>
-        <Text style={[styles.confidence, { color: theme.colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.food, { color: theme.colors.textPrimary }]}
+        >
+          {result.food}
+        </Text>
+        <Text
+          maxFontSizeMultiplier={nourishFontScale.dense}
+          style={[styles.confidence, { color: theme.colors.textSecondary }]}
+        >
           {confidencePercent}% confidence
         </Text>
       </View>
@@ -81,7 +93,12 @@ export function ResultCard({
             },
           ]}
         >
-          <Text style={[styles.secondaryText, { color: theme.colors.textPrimary }]}>Discard</Text>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.secondaryText, { color: theme.colors.textPrimary }]}
+          >
+            Discard
+          </Text>
         </Pressable>
         <Pressable
           accessibilityLabel="Accept food estimate"
@@ -91,7 +108,10 @@ export function ResultCard({
           onPress={onAccept}
           style={[styles.primaryButton, { backgroundColor: theme.colors.accent }]}
         >
-          <Text style={[styles.primaryText, { color: theme.colors.onAccent }]}>
+          <Text
+            maxFontSizeMultiplier={nourishFontScale.dense}
+            style={[styles.primaryText, { color: theme.colors.onAccent }]}
+          >
             {isAccepting ? "Logging..." : "Accept"}
           </Text>
         </Pressable>
@@ -111,7 +131,12 @@ function NutritionPill({
 }) {
   return (
     <View style={[styles.pill, { backgroundColor: tone }]}>
-      <Text style={[styles.pillText, { color: theme.colors.textPrimary }]}>{label}</Text>
+      <Text
+        maxFontSizeMultiplier={nourishFontScale.dense}
+        style={[styles.pillText, { color: theme.colors.textPrimary }]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
