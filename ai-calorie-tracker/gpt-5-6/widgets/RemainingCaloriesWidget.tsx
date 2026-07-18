@@ -34,6 +34,7 @@ type WidgetTextColor =
 type RemainingCaloriesWidgetModel = {
   caloriesRemaining: number;
   progress: number;
+  headerSpacing: 12;
   brandLabel: "NOURISH";
   valueLabel: string;
   caption: "calories left";
@@ -94,7 +95,7 @@ const RemainingCalories = (
         accessibilityValue(accessibilityValueText),
       ]}
     >
-      <HStack alignment="center" spacing={7}>
+      <HStack alignment="center" spacing={12}>
         <Gauge
           max={1}
           min={0}
@@ -160,6 +161,7 @@ export function getRemainingCaloriesWidgetModel(
   return {
     caloriesRemaining,
     progress,
+    headerSpacing: 12,
     brandLabel: "NOURISH",
     valueLabel: String(caloriesRemaining),
     caption: "calories left",

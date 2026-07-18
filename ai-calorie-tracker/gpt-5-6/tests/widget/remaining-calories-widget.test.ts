@@ -116,6 +116,7 @@ describe("RemainingCaloriesWidget", () => {
     expect(light).toMatchObject({
       caloriesRemaining: 1_480,
       progress: 0.26,
+      headerSpacing: 12,
       brandLabel: "NOURISH",
       valueLabel: "1480",
       caption: "calories left",
