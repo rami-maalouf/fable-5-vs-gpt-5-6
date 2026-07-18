@@ -485,6 +485,26 @@ theme/a11y/reduce-motion sweeps (task 13), and final widget vs dashboard values
 - recording frame-extraction confirmed photo carry-through with no blank frame.
 - APP IS IN A 3-MEAL STATE right now (task 16 can reuse it for the dark dashboard shot).
 
+### task 16 (resilience + theme evidence) - DONE
+
+- committed `d787290`: 05-not-food-error, 06-network-error, 07-dashboard-dark,
+  08-result-card-dark, notes-task16.md. all real backend, pro max.
+- not-food new-photo retry succeeded (via a transient 502 -> analysis-failed -> retry
+  -> 620). offline same-photo retry: killed metro -> network card -> restarted metro ->
+  retry (no re-pick) -> 650. discard isolation held: dashboard stayed at 3 meals /
+  1090 over through every error and discard cycle.
+- dark dashboard + result card verified clean via live appearance switch.
+- reminder: killing metro pops the dev banner over the scan button - dismiss at
+  (0.93, 0.936) first. metro was restarted and is healthy on 8087.
+
+### next: task 17 (widget before/after + final audit + verification.md)
+
+- 09/10 widget: cold launch = widget 2000 (before), accept one meal = widget new value
+  (after). widget already on pro max home screen page 2.
+- final audit: bunx jest, tsc, lint, `bunx expo export --platform web --no-ssg`,
+  npx expo run:ios clean launch, secret scan (grep for OPENAI_API_KEY / base64 in
+  committed tree), out-of-scope feature scan. write verification/test-1/verification.md.
+
 ## design identity (from spec)
 
 warm off-white light bg / near-black dark bg; coral primary #E8654A-ish; raspberry
