@@ -474,6 +474,17 @@ theme/a11y/reduce-motion sweeps (task 13), and final widget vs dashboard values
   circuit board; its not_food card doubled as a live regression pass). after a
   seemingly dead tap, describe/await before tapping again.
 
+### task 15 (happy-path evidence) - DONE
+
+- captured on the pro max, light mode, real backend, committed `36a8117`:
+  01-dashboard-empty-light, 02-analyzing-photo-carry-through, 03-result-card-light,
+  04-dashboard-three-meals, happy-path.mov (compressed h264, 737kb), notes-task15.md.
+- 3 real meals: salad 620/46/48/25, grill platter 1850/135/85/105, salad 620/48/48/25.
+  sums 3090/229/181/155 -> dashboard "1090 over / 79g over / 69g left / 85g over" - exact.
+  over-goal red-ring + "over" treatment verified. 3rd meal logged (collision fix holds).
+- recording frame-extraction confirmed photo carry-through with no blank frame.
+- APP IS IN A 3-MEAL STATE right now (task 16 can reuse it for the dark dashboard shot).
+
 ## design identity (from spec)
 
 warm off-white light bg / near-black dark bg; coral primary #E8654A-ish; raspberry
