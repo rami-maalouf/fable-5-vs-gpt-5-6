@@ -327,11 +327,80 @@ metro 8087, real key, cold restart first (dashboard + widget both 2000):
 - metro on 8087 was killed and restarted during this session (nohup,
   detached); verify http://localhost:8087/status = 200 before relying on it.
 
-### next: task 12 (photo continuity + nutrition motion polish), then 13-17
+- task 12 motion polish: `src/components/scan/ScanPhotoStage.tsx` (one persistent
+  photo stage: base layer keeps the ORIGINAL display uri - raw library asset or
+  frozen camera frame - mounted through preparing/analyzing/result/errors; the
+  prepared jpeg crossfades in above it only after onLoad, so no swap or blank
+  frame is possible; reduce-motion swaps the fade for an immediate opacity set).
+  scan.tsx keeps `stageDisplayUri` so the base uri survives status changes.
+  AnalyzingOverlay gained a quick fade+rise entrance (reduce-motion fade only);
+  ResultCard/ErrorCard already had theirs. CalorieRing + MacroBar animate from
+  the previously displayed value to the state-derived target over motion.settle
+  (550ms, inside the 450-650 window), stop+restart cleanly on retarget, and
+  snap immediately under reduce-motion. NEW `src/components/dashboard/
+  AnimatedNumber.tsx` counts the big remaining number and macro gram labels
+  from previous to new over the same settle duration (listener-driven display
+  state; lands exactly on the derived target; reduce-motion = immediate).
+  MealList rows fade in with a small rise (opacity-only under reduce-motion)
+  without moving the floating scan button. 149 tests. commit `f1fa0ef`.
 
-keep one prepared-image layer mounted across all overlay states, restrained
-overlay transitions, dashboard ring/bars/meal-row animate from previous
-summary after accept within 450-650 ms, slow-animation recording check.
+### task-12 CROSS-SESSION MEAL-ID BUG (found live, fixed in `f1fa0ef`)
+
+- meal ids were `scan-${requestId}` but request ids RESTART at 1 per scan
+  modal session, so the 2nd+3rd accepted meals of a day could share id
+  "scan-1" and day-state id-idempotence SILENTLY DROPPED the third accept
+  (observed live on the pro max: third accept closed the modal, dashboard
+  stayed at 420 over / 2 meals). fix: module-level scan session counter in
+  scan.tsx; ids are now `scan-<session>-<requestId>`. regression test:
+  scan-accept "logs a second meal from a fresh scan session"; id assertions
+  are now /^scan-\d+-1$/ style patterns.
+
+### task-12 REAL sim results on the Pro Max (checkpoint-5 motion evidence)
+
+metro 8087, real key, cold restart (2000/no meals), full flow recorded to
+/tmp/motion-check.mov (xcrun simctl recordVideo, h264):
+
+- meal 1 salad bowl: "Grilled chicken and vegetable salad bowl with eggs,
+  edamame, corn, tomatoes, cucumber, cabbage, and lettuce" 620 cal / 48P /
+  48C / 25F -> dashboard settled 1380 left, 102g/202g/45g left. (two
+  transient "Analysis failed" cards first; "Retry analysis" on the SAME
+  photo succeeded on the 3rd try; direct curl to /scan returned 200 in
+  1.6s, so provider flakiness again, not the app.)
+- meal 2 mixed plate: "Mixed grilled meat skewers with roasted vegetables,
+  potatoes, flatbread, and dipping sauces" 1800 cal / 120P / 90C / 105F ->
+  settled 420 over, protein 168g (18g over), carbs 138g (112g left), fat
+  130g (60g over).
+- meal 3 salad again (the id-collision case): 550 cal / 42P / 42C / 23F ->
+  settled 970 over, protein 210g (60g over), carbs 180g (70g left), fat
+  153g (83g over). THREE meal rows present.
+- arithmetic: 620+1800+550=2970, 2000-2970=-970; 48+120+42=210 (60 over);
+  48+90+42=180 (70 left); 25+105+23=153 (83 over). every displayed value
+  exact.
+- recording frames (ffmpeg fps=8) around accept 3 show the modal handoff
+  with no blank frame and ALL FOUR indicators counting together: 705 over /
+  189.8g / 159.8g -> 883 / 203.3g / 173.3g / 149.4g -> 950 / 208.5g ->
+  settled 970/210/180/153. photo identical across analyzing/failed/retry/
+  result in every scan. day reset via restart-app afterwards.
+
+### task-12 gotchas (hard-won)
+
+- eslint react-hooks/set-state-in-effect rejects sync setState in an
+  effect body; AnimatedNumber's reduce-motion branch relies on
+  animated.setValue notifying its listener (which sets display state in a
+  callback) instead.
+- dashboard.test.tsx seeds meals AFTER mount, so animated numeric texts
+  need waitFor (they count for ~550ms); progressbar accessibilityValue and
+  a11y labels update immediately (derived from props, not animated nodes).
+- simctl recordVideo is VFR; input-side `ffmpeg -ss` can return zero
+  frames - use output-side seeking (`-i file -ss T`) or `-sseof`.
+- a PREVIOUS session bulk-ticked ALL todo.md boxes through task 17 (commit
+  17384c6); unticked tasks 13-17 + checkpoint 5 + final checkpoint to
+  restore honesty. tasks 1-12 + checkpoints 1-4 remain ticked.
+
+### next: task 13 (themes/accessibility/native audit), then 14-17
+
+live light/dark sweep, VoiceOver labels and order, dynamic type, contrast,
+44pt targets, reduce-motion manual sweep, haptics, loading announcements.
 
 ### task 11 (resilience) - DONE, checkpoint 4 complete
 
