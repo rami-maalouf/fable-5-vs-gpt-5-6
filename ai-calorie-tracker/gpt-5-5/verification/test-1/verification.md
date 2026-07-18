@@ -45,3 +45,28 @@ Recording review:
 - whole-recording contact sheet confirmed empty dashboard, scan sheet, Photos picker, selected photo continuity, result card, and accept action.
 - frame-index extraction confirmed the final recorded frame is the settled dashboard with exactly one logged meal.
 - no blank frame or duplicate meal row was observed in the reviewed recording frames.
+
+## task 16 resilience and theme evidence
+
+Captured files:
+
+- `05-not-food-error.png`: non-food circuit-board input, selected photo remains visible, recovery action is `Try another photo`.
+- `06-network-error.png`: clean dish input with analyzer unavailable, selected photo remains visible, recovery action is `Retry analysis`.
+- `07-dashboard-dark.png`: empty dashboard in dark appearance, normal content size.
+- `08-result-card-dark.png`: clean dish result card in dark appearance, normal content size.
+
+Manual resilience checks:
+
+- non-food retry: `Try another photo` returned to acquisition, selecting `clean-dish.jpg` reached a food result without logging the non-food attempt.
+- offline retry: analyzer outage produced `Connection problem`; after restoring the analyzer, `Retry analysis` reused the same prepared clean-dish photo and reached a food result.
+- discard isolation: discarding after both retry paths returned to an empty dashboard with 2000 calories left and no meals.
+- stale completion isolation: close and discard paths were inspected through the reducer-backed scan flow; no late result added a meal after leaving the scan.
+- denied-camera fallback: setting simulator TCC `kTCCServiceCamera` to denied for `com.rami.nourish` produced `Camera access is off` with `Choose from Photos` and `Close scan`.
+- accessibility: error and fallback cards expose single summary or alert labels plus named actions in the accessibility tree.
+- larger text: initial `accessibility-extra-extra-large` sweep exposed clipped dashboard text. The final build caps dense visual text with `nourishFontScale.dense`, while preserving full semantic labels. Re-sweep passed on the dashboard at `accessibility-extra-extra-large`.
+- reduced motion: simulator `ReduceMotionEnabled` was enabled and the app restarted. Automated coverage verifies no `Animated.timing` calls for nutrition and meal row transitions when reduced motion is active.
+
+Task 16 result notes:
+
+- dark result card final returned: grilled chicken and vegetable salad bowl with edamame, eggs, corn, tomatoes, cabbage, cucumber, lettuce and macaroni, 620 calories, 48g protein, 48g carbs, 25g fat, 87 percent confidence.
+- the four task 16 screenshots were reviewed for clipping, contrast, safe areas, status bar treatment, and default-surface defects.
