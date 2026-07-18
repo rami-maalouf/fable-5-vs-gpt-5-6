@@ -3,6 +3,7 @@
 import * as Haptics from 'expo-haptics';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -26,7 +27,7 @@ import { analyzePhoto } from '@/services/analyze-photo';
 import { prepareImage } from '@/services/prepare-image';
 import type { SourceImage } from '@/services/prepare-image';
 import { useDay } from '@/state/day-context';
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 const PREPARATION_NOTICE =
@@ -217,16 +218,24 @@ export default function ScanScreen() {
   // the camera renders while acquiring and keeps rendering through preparing
   // a captured photo, so the frozen frame stays over the preview with no
   // blank frame before the prepared-photo stage takes over at analyzing
+  // the camera and photo stage are always dark in both themes, so the status
+  // bar switches to light content there; acquisition keeps the themed auto
+  // style from the root layout, which the stack restores on unmount
+  const stageStatusBar = <StatusBar style="light" animated />;
+
   if (
     cameraOpen &&
     (screen.status === 'acquiring' || screen.status === 'preparing')
   ) {
     return (
-      <CameraCapture
-        onCapture={handleCameraCapture}
-        onChooseLibrary={handleChooseLibrary}
-        onClose={() => setCameraOpen(false)}
-      />
+      <>
+        {stageStatusBar}
+        <CameraCapture
+          onCapture={handleCameraCapture}
+          onChooseLibrary={handleChooseLibrary}
+          onClose={() => setCameraOpen(false)}
+        />
+      </>
     );
   }
 
@@ -246,7 +255,9 @@ export default function ScanScreen() {
     return (
       <View
         style={[styles.stage, { backgroundColor: colors.stageBackground }]}
-      />
+      >
+        {stageStatusBar}
+      </View>
     );
   }
 
@@ -263,6 +274,7 @@ export default function ScanScreen() {
 
   return (
     <View style={[styles.stage, { backgroundColor: colors.stageBackground }]}>
+      {stageStatusBar}
       <ScanPhotoStage displayUri={displayUri} preparedUri={preparedUri} />
       {noticeLabel ? (
         <View
@@ -274,7 +286,10 @@ export default function ScanScreen() {
             {screen.status === 'preparing' ? (
               <ActivityIndicator size="small" color={colors.onStage} />
             ) : null}
-            <Text style={[styles.overlayLabel, { color: colors.onStage }]}>
+            <Text
+              maxFontSizeMultiplier={fontScaleCap.pill}
+              style={[styles.overlayLabel, { color: colors.onStage }]}
+            >
               {noticeLabel}
             </Text>
           </View>

@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { ScanSuccess } from '@/domain/scan-contract';
 import { formatCalories, formatGrams } from '@/domain/nutrition';
-import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 import type { ColorTokens } from '@/theme/tokens';
@@ -42,11 +42,17 @@ function MacroCell({ label, grams, dotColor, colors }: MacroCellProps) {
     >
       <View style={styles.macroHeader}>
         <View style={[styles.macroDot, { backgroundColor: dotColor }]} />
-        <Text style={[styles.macroLabel, { color: colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={[styles.macroLabel, { color: colors.textSecondary }]}
+        >
           {label}
         </Text>
       </View>
-      <Text style={[styles.macroValue, { color: colors.textPrimary }]}>
+      <Text
+        maxFontSizeMultiplier={fontScaleCap.dense}
+        style={[styles.macroValue, { color: colors.textPrimary }]}
+      >
         {formatGrams(grams)}g
       </Text>
     </View>
@@ -90,8 +96,10 @@ export function ResultCard({
           borderColor: colors.border,
           bottom: insets.bottom + spacing.lg,
           opacity: entrance,
-          transform: reducedMotion ? undefined : [{ translateY }],
         },
+        // the transform key must be absent (not undefined) under reduce
+        // motion or the native animated validator rejects the style
+        reducedMotion ? null : { transform: [{ translateY }] },
       ]}
     >
       <View style={styles.badgeRow}>
@@ -105,16 +113,27 @@ export function ResultCard({
       <Text
         accessibilityRole="header"
         numberOfLines={2}
+        maxFontSizeMultiplier={fontScaleCap.pill}
         style={[styles.foodName, { color: colors.textPrimary }]}
       >
         {result.food}
       </Text>
 
-      <View style={styles.calorieRow}>
-        <Text style={[styles.calorieValue, { color: colors.textPrimary }]}>
+      <View
+        accessible
+        accessibilityLabel={`${formatCalories(result.calories)} estimated calories`}
+        style={styles.calorieRow}
+      >
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.display}
+          style={[styles.calorieValue, { color: colors.textPrimary }]}
+        >
           {formatCalories(result.calories)}
         </Text>
-        <Text style={[styles.calorieUnit, { color: colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={[styles.calorieUnit, { color: colors.textSecondary }]}
+        >
           estimated calories
         </Text>
       </View>
@@ -153,7 +172,10 @@ export function ResultCard({
             },
           ]}
         >
-          <Text style={[styles.actionText, { color: colors.textPrimary }]}>
+          <Text
+            maxFontSizeMultiplier={fontScaleCap.pill}
+            style={[styles.actionText, { color: colors.textPrimary }]}
+          >
             Discard
           </Text>
         </Pressable>
@@ -171,7 +193,10 @@ export function ResultCard({
             },
           ]}
         >
-          <Text style={[styles.actionText, { color: colors.onAccent }]}>
+          <Text
+            maxFontSizeMultiplier={fontScaleCap.pill}
+            style={[styles.actionText, { color: colors.onAccent }]}
+          >
             Accept
           </Text>
         </Pressable>

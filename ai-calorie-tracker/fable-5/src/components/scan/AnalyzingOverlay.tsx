@@ -2,16 +2,24 @@
 // backend analyzes. no fabricated percentage: the route gives no progress
 // signal, so this shows only a subtle animated indicator and a label.
 import { useEffect, useState } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  Animated,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
-import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 const SPINNER_SIZE = 20;
 const SPINNER_STROKE = 2.4;
+const ANALYZING_LABEL = 'Analyzing your meal';
 
 export function AnalyzingOverlay() {
   const colors = useThemeColors();
@@ -21,6 +29,12 @@ export function AnalyzingOverlay() {
   const [spin] = useState(() => new Animated.Value(0));
   const [pulse] = useState(() => new Animated.Value(1));
   const [entrance] = useState(() => new Animated.Value(0));
+
+  // voiceover hears the loading state begin: the live region below covers
+  // android, and this explicit announcement covers ios
+  useEffect(() => {
+    AccessibilityInfo.announceForAccessibility(ANALYZING_LABEL);
+  }, []);
 
   // one short entrance for the pill itself: quick fade with a small rise;
   // reduce-motion users get the fade only
@@ -88,24 +102,26 @@ export function AnalyzingOverlay() {
   return (
     <Animated.View
       pointerEvents="none"
+      accessible
+      accessibilityLabel={ANALYZING_LABEL}
       accessibilityLiveRegion="polite"
       style={[
         styles.area,
         {
           bottom: insets.bottom + spacing.xxxl,
           opacity: entrance,
-          transform: reducedMotion
-            ? undefined
-            : [{ translateY: entranceRise }],
         },
+        // the transform key must be absent (not undefined) under reduce
+        // motion or the native animated validator rejects the style
+        reducedMotion ? null : { transform: [{ translateY: entranceRise }] },
       ]}
     >
       <View style={[styles.pill, { backgroundColor: colors.stageScrim }]}>
         <Animated.View
-          style={{
-            opacity: pulse,
-            transform: reducedMotion ? undefined : [{ rotate }],
-          }}
+          style={[
+            { opacity: pulse },
+            reducedMotion ? null : { transform: [{ rotate }] },
+          ]}
         >
           <Svg width={SPINNER_SIZE} height={SPINNER_SIZE}>
             {/* quiet track plus a leading arc, tinted for the dark stage */}
@@ -130,8 +146,11 @@ export function AnalyzingOverlay() {
             />
           </Svg>
         </Animated.View>
-        <Text style={[styles.label, { color: colors.onStage }]}>
-          Analyzing your meal
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.pill}
+          style={[styles.label, { color: colors.onStage }]}
+        >
+          {ANALYZING_LABEL}
         </Text>
       </View>
     </Animated.View>

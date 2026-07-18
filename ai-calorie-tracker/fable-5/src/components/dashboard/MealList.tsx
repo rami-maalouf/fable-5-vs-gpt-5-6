@@ -6,7 +6,7 @@ import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { formatCalories, formatGrams, type Meal } from '@/domain/nutrition';
-import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 import type { ColorTokens } from '@/theme/tokens';
@@ -112,10 +112,10 @@ function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
           backgroundColor: colors.surface,
           borderColor: colors.border,
           opacity: entrance,
-          transform: reducedMotion
-            ? undefined
-            : [{ translateY: entranceRise }],
         },
+        // the transform key must be absent (not undefined) under reduce
+        // motion or the native animated validator rejects the style
+        reducedMotion ? null : { transform: [{ translateY: entranceRise }] },
       ]}
     >
       <Image
@@ -128,11 +128,16 @@ function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
       <View style={styles.rowBody}>
         <Text
           numberOfLines={1}
+          maxFontSizeMultiplier={fontScaleCap.dense}
           style={[styles.rowTitle, { color: colors.textPrimary }]}
         >
           {meal.food}
         </Text>
-        <Text numberOfLines={1} style={styles.rowMacros}>
+        <Text
+          numberOfLines={1}
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={styles.rowMacros}
+        >
           <Text style={{ color: colors.protein }}>
             {formatGrams(meal.protein_g)}g P
           </Text>
@@ -145,10 +150,16 @@ function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
         </Text>
       </View>
       <View style={styles.rowCalories}>
-        <Text style={[styles.rowCalorieNumber, { color: colors.textPrimary }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={[styles.rowCalorieNumber, { color: colors.textPrimary }]}
+        >
           {formatCalories(meal.calories)}
         </Text>
-        <Text style={[styles.rowCalorieUnit, { color: colors.textSecondary }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={[styles.rowCalorieUnit, { color: colors.textSecondary }]}
+        >
           kcal
         </Text>
       </View>

@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
@@ -106,8 +106,10 @@ export function ErrorCard({
             borderColor: colors.border,
             bottom: insets.bottom + spacing.lg,
             opacity: entrance,
-            transform: reducedMotion ? undefined : [{ translateY }],
           },
+          // the transform key must be absent (not undefined) under reduce
+          // motion or the native animated validator rejects the style
+          reducedMotion ? null : { transform: [{ translateY }] },
         ]}
       >
         <Text
@@ -132,7 +134,10 @@ export function ErrorCard({
               },
             ]}
           >
-            <Text style={[styles.actionText, { color: colors.textPrimary }]}>
+            <Text
+              maxFontSizeMultiplier={fontScaleCap.pill}
+              style={[styles.actionText, { color: colors.textPrimary }]}
+            >
               Discard
             </Text>
           </Pressable>
@@ -148,7 +153,10 @@ export function ErrorCard({
               },
             ]}
           >
-            <Text style={[styles.actionText, { color: colors.onAccent }]}>
+            <Text
+              maxFontSizeMultiplier={fontScaleCap.pill}
+              style={[styles.actionText, { color: colors.onAccent }]}
+            >
               {copy.primaryLabel}
             </Text>
           </Pressable>

@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import type { SourceImage } from '@/services/prepare-image';
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 import type { ColorTokens } from '@/theme/tokens';
 
@@ -109,7 +109,10 @@ function BlockedView({ title, body, colors, onChooseLibrary }: BlockedViewProps)
           { backgroundColor: colors.accent, opacity: pressed ? 0.85 : 1 },
         ]}
       >
-        <Text style={[styles.libraryActionLabel, { color: colors.onAccent }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.pill}
+          style={[styles.libraryActionLabel, { color: colors.onAccent }]}
+        >
           Choose from library
         </Text>
       </Pressable>
@@ -218,7 +221,10 @@ export function CameraCapture({
                   ]}
                 >
                   <ActivityIndicator size="small" color={colors.onStage} />
-                  <Text style={[styles.preparingLabel, { color: colors.onStage }]}>
+                  <Text
+                    maxFontSizeMultiplier={fontScaleCap.pill}
+                    style={[styles.preparingLabel, { color: colors.onStage }]}
+                  >
                     Preparing photo
                   </Text>
                 </View>

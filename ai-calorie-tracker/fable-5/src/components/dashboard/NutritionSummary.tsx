@@ -10,7 +10,7 @@ import {
   formatCalories,
   type DaySummary,
 } from '@/domain/nutrition';
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 type NutritionSummaryProps = {
@@ -42,6 +42,7 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
           accessibilityLabel={`${calorieNumber} ${calorieCaption} today`}
         >
           <Text
+            maxFontSizeMultiplier={fontScaleCap.display}
             style={[
               styles.calorieNumber,
               { color: isOver ? colors.over : colors.textPrimary },

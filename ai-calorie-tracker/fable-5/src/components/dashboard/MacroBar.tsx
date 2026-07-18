@@ -5,7 +5,7 @@ import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 
 import { AnimatedNumber } from '@/components/dashboard/AnimatedNumber';
 import { clampProgress, formatGrams } from '@/domain/nutrition';
-import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
@@ -58,9 +58,17 @@ export function MacroBar({ label, consumed, goal, color }: MacroBarProps) {
       <View style={styles.labelRow}>
         <View style={styles.labelGroup}>
           <View style={[styles.dot, { backgroundColor: color }]} />
-          <Text style={[styles.label, { color: colors.textPrimary }]}>{label}</Text>
+          <Text
+            maxFontSizeMultiplier={fontScaleCap.dense}
+            style={[styles.label, { color: colors.textPrimary }]}
+          >
+            {label}
+          </Text>
         </View>
-        <Text style={[styles.consumed, { color: colors.textPrimary }]}>
+        <Text
+          maxFontSizeMultiplier={fontScaleCap.dense}
+          style={[styles.consumed, { color: colors.textPrimary }]}
+        >
           <AnimatedNumber
             value={consumed}
             format={(shown) => `${formatGrams(shown)}g`}
@@ -76,6 +84,7 @@ export function MacroBar({ label, consumed, goal, color }: MacroBarProps) {
         />
       </View>
       <Text
+        maxFontSizeMultiplier={fontScaleCap.dense}
         style={[
           styles.remaining,
           isOver

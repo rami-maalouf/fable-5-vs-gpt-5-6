@@ -3,7 +3,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, radius, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 type ScanButtonProps = {
@@ -56,7 +56,12 @@ export function ScanButton({ onPress }: ScanButtonProps) {
           fill="none"
         />
       </Svg>
-      <Text style={[styles.label, { color: colors.onAccent }]}>Scan meal</Text>
+      <Text
+        maxFontSizeMultiplier={fontScaleCap.pill}
+        style={[styles.label, { color: colors.onAccent }]}
+      >
+        Scan meal
+      </Text>
     </Pressable>
   );
 }

@@ -109,3 +109,12 @@ export const motion = {
   standard: 300,
   settle: 550,
 } as const;
+
+// dynamic type caps for layouts that cannot reflow indefinitely. body copy
+// scales freely; oversized numerals, dense multi-column rows, and single-line
+// pills cap so accessibility text sizes never clip or push content off-card.
+export const fontScaleCap = {
+  display: 1.3,
+  dense: 1.4,
+  pill: 1.5,
+} as const;

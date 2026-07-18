@@ -1,14 +1,20 @@
 // today's dashboard: rendered entirely from derived day selectors.
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MealList } from '@/components/dashboard/MealList';
 import { NutritionSummary } from '@/components/dashboard/NutritionSummary';
 import { ScanButton } from '@/components/dashboard/ScanButton';
 import { useDay } from '@/state/day-context';
-import { spacing, typeScale } from '@/theme/tokens';
+import { fontScaleCap, spacing, typeScale } from '@/theme/tokens';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
 export default function DashboardScreen() {
@@ -16,19 +22,31 @@ export default function DashboardScreen() {
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  // a live system text-size change can leave already-mounted capped text
+  // clipped at its previously measured width; remounting the screen content
+  // on fontScale change re-measures every label at the new size
+  const { fontScale } = useWindowDimensions();
 
   const handleScanPress = useCallback(() => {
     router.push('/scan');
   }, [router]);
 
+  // the floating scan button grows with its capped label, so the scroll
+  // clearance under the content scales with it instead of staying fixed
+  const scanClearance =
+    56 * Math.min(fontScale, fontScaleCap.pill) + spacing.lg + 40;
+
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+    <View
+      key={`text-scale-${fontScale}`}
+      style={[styles.screen, { backgroundColor: colors.background }]}
+    >
       <ScrollView
         contentContainerStyle={[
           styles.content,
           {
             paddingTop: insets.top + spacing.md,
-            paddingBottom: insets.bottom + 112,
+            paddingBottom: insets.bottom + scanClearance,
           },
         ]}
         showsVerticalScrollIndicator={false}
