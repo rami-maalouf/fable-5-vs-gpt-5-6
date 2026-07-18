@@ -420,6 +420,22 @@ live light/dark sweep, VoiceOver labels and order, dynamic type, contrast,
 - SUBAGENT CREDITS HAZARD: spawned subagents can die mid-task on "out of usage
   credits" api errors. check `git log` for partial commits before redoing work.
 
+### task 13 (theme/accessibility audit) - DONE
+
+- the task-13 subagent (died on session limit) completed the audit code across 10
+  files: maxFontSizeMultiplier caps (fontScaleCap tokens) on dense rows, voiceover
+  labels/roles/reading order, analyzing live-region + ios announce, theme fixes,
+  status-bar behavior, plus tests/components/accessibility.test.tsx. gates were green.
+- orchestrator finished the remaining verification and found + fixed a REAL crash:
+  `transform: reducedMotion ? undefined : [...]` throws "Cannot read property
+  'forEach' of null" in the native animated style validator when reduce motion is ON.
+  fix: omit the transform key entirely via a conditional style-array entry. applied in
+  AnalyzingOverlay (2x), ResultCard, ErrorCard, MealList. full real scan verified on
+  the pro max WITH reduce motion enabled (result 620 cal), then reduce motion reset to
+  off, appearance light. committed `8a21555` (156 tests / 16 suites, tsc, lint green).
+- lesson: never write `transform: cond ? undefined : [...]` inside an animated style
+  object - always conditionally include the whole object.
+
 ## design identity (from spec)
 
 warm off-white light bg / near-black dark bg; coral primary #E8654A-ish; raspberry
