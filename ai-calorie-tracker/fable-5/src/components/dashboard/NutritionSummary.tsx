@@ -1,6 +1,7 @@
 // calorie card plus macro bars, rendered purely from the derived day summary.
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AnimatedNumber } from '@/components/dashboard/AnimatedNumber';
 import { CalorieRing } from '@/components/dashboard/CalorieRing';
 import { MacroBar } from '@/components/dashboard/MacroBar';
 import {
@@ -46,7 +47,10 @@ export function NutritionSummary({ summary }: NutritionSummaryProps) {
               { color: isOver ? colors.over : colors.textPrimary },
             ]}
           >
-            {calorieNumber}
+            <AnimatedNumber
+              value={remainingCalories}
+              format={(shown) => formatCalories(Math.abs(shown))}
+            />
           </Text>
           <Text style={[styles.calorieCaption, { color: colors.textSecondary }]}>
             {calorieCaption}

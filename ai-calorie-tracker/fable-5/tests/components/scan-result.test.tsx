@@ -140,8 +140,12 @@ it('renders every required result field over the same photo on success', async (
   // both actions are present and accessible
   expect(screen.getByRole('button', { name: 'Accept' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Discard' })).toBeTruthy();
-  // the photo stays mounted from the prepared uri
+  // the base photo layer keeps the original picked uri with the prepared
+  // jpeg layered above it, so the photo never swaps between states
   expect(screen.getByTestId('scan-photo').props.source).toEqual([
+    { uri: PICKED_ASSET.uri },
+  ]);
+  expect(screen.getByTestId('scan-photo-prepared').props.source).toEqual([
     { uri: PREPARED_PHOTO.uri },
   ]);
 });
@@ -181,7 +185,7 @@ it('keeps the photo mounted under the not-food card with discard available', asy
     expect(screen.getByText(/doesn't look like food/i)).toBeTruthy();
   });
   expect(screen.getByTestId('scan-photo').props.source).toEqual([
-    { uri: PREPARED_PHOTO.uri },
+    { uri: PICKED_ASSET.uri },
   ]);
   expect(
     screen.getByRole('button', { name: 'Discard photo and close' }),
@@ -201,7 +205,7 @@ it('keeps the photo mounted under the failure card with discard available', asyn
     expect(screen.getByTestId('error-card')).toBeTruthy();
   });
   expect(screen.getByTestId('scan-photo').props.source).toEqual([
-    { uri: PREPARED_PHOTO.uri },
+    { uri: PICKED_ASSET.uri },
   ]);
   expect(
     screen.getByRole('button', { name: 'Discard photo and close' }),

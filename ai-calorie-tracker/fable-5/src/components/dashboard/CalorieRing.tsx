@@ -5,6 +5,7 @@ import { Animated, Easing, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { motion } from '@/theme/tokens';
+import { useReducedMotion } from '@/theme/use-reduced-motion';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -24,16 +25,29 @@ export function CalorieRing({
   trackColor,
   progressColor,
 }: CalorieRingProps) {
+  const reducedMotion = useReducedMotion();
   const [animatedProgress] = useState(() => new Animated.Value(progress));
 
+  // the animated value persists across renders, so every timing run starts
+  // from the previously displayed progress and targets the freshly derived
+  // one; rapid consecutive updates always land on the latest target because
+  // the target is state-derived, never an accumulated delta. reduce-motion
+  // users get the new value immediately with no sweep.
   useEffect(() => {
-    Animated.timing(animatedProgress, {
+    if (reducedMotion) {
+      animatedProgress.stopAnimation();
+      animatedProgress.setValue(progress);
+      return;
+    }
+    const animation = Animated.timing(animatedProgress, {
       toValue: progress,
       duration: motion.settle,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: false,
-    }).start();
-  }, [animatedProgress, progress]);
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [animatedProgress, progress, reducedMotion]);
 
   const center = size / 2;
   const ringRadius = (size - strokeWidth) / 2;

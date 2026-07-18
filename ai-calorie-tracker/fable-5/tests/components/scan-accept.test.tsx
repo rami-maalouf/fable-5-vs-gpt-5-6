@@ -110,15 +110,19 @@ function DayProbe() {
   );
 }
 
-async function renderScanWithDay() {
-  await render(
+function harness(sessionKey = 'session-1') {
+  return (
     <SafeAreaProvider initialMetrics={INITIAL_METRICS}>
       <DayProvider>
-        <ScanScreen />
+        <ScanScreen key={sessionKey} />
         <DayProbe />
       </DayProvider>
-    </SafeAreaProvider>,
+    </SafeAreaProvider>
   );
+}
+
+async function renderScanWithDay() {
+  await render(harness());
 }
 
 // drives acquisition -> preparing -> analyzing -> result with the real reducer
@@ -160,10 +164,10 @@ it('logs exactly one meal with the prepared thumbnail even with rapid repeated a
   await waitFor(() => {
     expect(screen.getByTestId('probe-meal-count').children.join('')).toBe('1');
   });
-  // the meal id is derived from the request id, so day state also rejects
-  // any duplicate accept of the same result
-  expect(screen.getByTestId('probe-meal-ids').children.join('')).toBe(
-    'scan-1',
+  // the meal id is derived from the session and request id, so day state
+  // also rejects any duplicate accept of the same result
+  expect(screen.getByTestId('probe-meal-ids').children.join('')).toMatch(
+    /^scan-\d+-1$/,
   );
   expect(screen.getByTestId('probe-meal-thumbs').children.join('')).toBe(
     PREPARED_PHOTO.uri,
@@ -171,6 +175,35 @@ it('logs exactly one meal with the prepared thumbnail even with rapid repeated a
   // one success haptic on the first press only
   expect(mockNotificationAsync).toHaveBeenCalledTimes(1);
   expect(mockNotificationAsync).toHaveBeenCalledWith('success');
+});
+
+it('logs a second meal from a fresh scan session instead of dropping it as a duplicate', async () => {
+  await renderScanWithDay();
+  await reachResult();
+  fireEvent.press(screen.getByRole('button', { name: 'Accept' }));
+  await waitFor(() => {
+    expect(screen.getByTestId('probe-meal-count').children.join('')).toBe('1');
+  });
+
+  // the accepted modal closes; the next scan mounts a fresh machine whose
+  // request ids restart at 1, so the meal id must not collide with the
+  // first session's meal
+  await screen.rerender(harness('session-2'));
+  await reachResult();
+  fireEvent.press(screen.getByRole('button', { name: 'Accept' }));
+  await waitFor(() => {
+    expect(screen.getByTestId('probe-meal-count').children.join('')).toBe('2');
+  });
+
+  const ids = screen
+    .getByTestId('probe-meal-ids')
+    .children.join('')
+    .split(',');
+  expect(new Set(ids).size).toBe(2);
+  // totals equal the exact sum of both accepted results
+  expect(screen.getByTestId('probe-consumed').children.join('')).toBe(
+    '1100|84|91|44',
+  );
 });
 
 it('derives the dashboard summary from the accepted result and publishes the identical remaining value', async () => {

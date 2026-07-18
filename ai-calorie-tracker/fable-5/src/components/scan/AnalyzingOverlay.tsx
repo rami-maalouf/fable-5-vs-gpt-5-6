@@ -6,7 +6,7 @@ import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { motion, radius, spacing, typeScale } from '@/theme/tokens';
 import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 
@@ -20,6 +20,18 @@ export function AnalyzingOverlay() {
   // stable animated nodes; useState initializer keeps them off the ref rule
   const [spin] = useState(() => new Animated.Value(0));
   const [pulse] = useState(() => new Animated.Value(1));
+  const [entrance] = useState(() => new Animated.Value(0));
+
+  // one short entrance for the pill itself: quick fade with a small rise;
+  // reduce-motion users get the fade only
+  useEffect(() => {
+    Animated.timing(entrance, {
+      toValue: 1,
+      duration: motion.quick,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [entrance]);
 
   // full-motion users get a small rotating arc; reduce-motion users get a
   // gentle opacity pulse with no transforms
@@ -68,11 +80,25 @@ export function AnalyzingOverlay() {
   const arcRadius = center - SPINNER_STROKE / 2;
   const circumference = 2 * Math.PI * arcRadius;
 
+  const entranceRise = entrance.interpolate({
+    inputRange: [0, 1],
+    outputRange: [10, 0],
+  });
+
   return (
-    <View
+    <Animated.View
       pointerEvents="none"
       accessibilityLiveRegion="polite"
-      style={[styles.area, { bottom: insets.bottom + spacing.xxxl }]}
+      style={[
+        styles.area,
+        {
+          bottom: insets.bottom + spacing.xxxl,
+          opacity: entrance,
+          transform: reducedMotion
+            ? undefined
+            : [{ translateY: entranceRise }],
+        },
+      ]}
     >
       <View style={[styles.pill, { backgroundColor: colors.stageScrim }]}>
         <Animated.View
@@ -108,7 +134,7 @@ export function AnalyzingOverlay() {
           Analyzing your meal
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

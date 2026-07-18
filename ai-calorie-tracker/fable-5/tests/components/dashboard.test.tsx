@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -146,31 +146,46 @@ describe('dashboard with three fixture meals', () => {
   it('shows arithmetically exact totals and remaining values', async () => {
     await renderDashboard(FIXTURE_MEALS);
 
+    // the numerals animate from the previous summary and must settle on the
+    // exact derived totals, never a rounded in-flight frame value
     // calories: 320 + 550 + 610 = 1480 consumed, 520 remaining
-    expect(screen.getByText('520')).toBeOnTheScreen();
+    await waitFor(
+      () => {
+        expect(screen.getByText('520')).toBeOnTheScreen();
+        // protein: 22.5 + 42 + 28 = 92.5 consumed, 57.5 remaining
+        expect(screen.getByText('92.5g of 150g')).toBeOnTheScreen();
+        expect(screen.getByText('57.5g left')).toBeOnTheScreen();
+        // carbs: 40 + 45 + 78.5 = 163.5 consumed, 86.5 remaining
+        expect(screen.getByText('163.5g of 250g')).toBeOnTheScreen();
+        expect(screen.getByText('86.5g left')).toBeOnTheScreen();
+        // fat: 8.5 + 22 + 19 = 49.5 consumed, 20.5 remaining
+        expect(screen.getByText('49.5g of 70g')).toBeOnTheScreen();
+        expect(screen.getByText('20.5g left')).toBeOnTheScreen();
+      },
+      { timeout: 3000 },
+    );
     expect(screen.getByText('calories left')).toBeOnTheScreen();
     expect(screen.getByRole('progressbar').props.accessibilityValue).toEqual({
       min: 0,
       max: 100,
       now: 74,
     });
-
-    // protein: 22.5 + 42 + 28 = 92.5 consumed, 57.5 remaining
-    expect(screen.getByText('92.5g of 150g')).toBeOnTheScreen();
-    expect(screen.getByText('57.5g left')).toBeOnTheScreen();
-    // carbs: 40 + 45 + 78.5 = 163.5 consumed, 86.5 remaining
-    expect(screen.getByText('163.5g of 250g')).toBeOnTheScreen();
-    expect(screen.getByText('86.5g left')).toBeOnTheScreen();
-    // fat: 8.5 + 22 + 19 = 49.5 consumed, 20.5 remaining
-    expect(screen.getByText('49.5g of 70g')).toBeOnTheScreen();
-    expect(screen.getByText('20.5g left')).toBeOnTheScreen();
   });
 
   it('applies the over-goal treatment when a goal is exceeded', async () => {
     await renderDashboard([OVER_GOAL_MEAL]);
 
     // calories: 2400 consumed against 2000 means 400 over
-    expect(screen.getByText('400')).toBeOnTheScreen();
+    await waitFor(
+      () => {
+        expect(screen.getByText('400')).toBeOnTheScreen();
+        // fat: 90 consumed against 70 means 20 over; other macros stay under
+        expect(screen.getByText('20g over')).toBeOnTheScreen();
+        expect(screen.getByText('90g left')).toBeOnTheScreen();
+        expect(screen.getByText('50g left')).toBeOnTheScreen();
+      },
+      { timeout: 3000 },
+    );
     expect(screen.getByText('calories over')).toBeOnTheScreen();
     // visual progress clamps at 100 even though remaining is negative
     expect(screen.getByRole('progressbar').props.accessibilityValue).toEqual({
@@ -178,11 +193,6 @@ describe('dashboard with three fixture meals', () => {
       max: 100,
       now: 100,
     });
-
-    // fat: 90 consumed against 70 means 20 over; other macros stay under
-    expect(screen.getByText('20g over')).toBeOnTheScreen();
-    expect(screen.getByText('90g left')).toBeOnTheScreen();
-    expect(screen.getByText('50g left')).toBeOnTheScreen();
   });
 });
 

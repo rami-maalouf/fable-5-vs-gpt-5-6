@@ -225,11 +225,16 @@ it('freezes the captured frame over the preview while preparing', async () => {
 
   resolvePrepare(PREPARED_PHOTO);
 
-  // the prepared photo enters the same analyzing stage the library path uses
+  // the prepared photo enters the same analyzing stage the library path
+  // uses: the base layer keeps the captured frame uri and the prepared jpeg
+  // crossfades in above it
   await waitFor(() => {
     expect(screen.getByText('Analyzing your meal')).toBeTruthy();
   });
   expect(screen.getByTestId('scan-photo').props.source).toEqual([
+    { uri: CAPTURED.uri },
+  ]);
+  expect(screen.getByTestId('scan-photo-prepared').props.source).toEqual([
     { uri: PREPARED_PHOTO.uri },
   ]);
 });

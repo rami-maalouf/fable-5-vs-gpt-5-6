@@ -1,11 +1,13 @@
 // today's meal section: a designed empty state or image-led meal rows.
 // pure presentation: meals arrive as props, nothing is fetched or mutated.
 import { Image } from 'expo-image';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
 import { formatCalories, formatGrams, type Meal } from '@/domain/nutrition';
-import { radius, spacing, typeScale } from '@/theme/tokens';
+import { motion, radius, spacing, typeScale } from '@/theme/tokens';
+import { useReducedMotion } from '@/theme/use-reduced-motion';
 import { useThemeColors } from '@/theme/use-theme-colors';
 import type { ColorTokens } from '@/theme/tokens';
 
@@ -76,6 +78,24 @@ function EmptyState({ colors }: { colors: ColorTokens }) {
 }
 
 function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
+  const reducedMotion = useReducedMotion();
+  // one short mount entrance keyed to the row, so a freshly accepted meal
+  // fades in (with a small rise under full motion) while existing rows and
+  // the absolutely positioned scan button stay exactly where they were
+  const [entrance] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Animated.timing(entrance, {
+      toValue: 1,
+      duration: motion.standard,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [entrance]);
+  const entranceRise = entrance.interpolate({
+    inputRange: [0, 1],
+    outputRange: [10, 0],
+  });
+
   const accessibilityLabel =
     `${meal.food}, ${formatCalories(meal.calories)} calories, ` +
     `${formatGrams(meal.protein_g)} grams protein, ` +
@@ -83,12 +103,19 @@ function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
     `${formatGrams(meal.fat_g)} grams fat`;
 
   return (
-    <View
+    <Animated.View
       accessible
       accessibilityLabel={accessibilityLabel}
       style={[
         styles.row,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          opacity: entrance,
+          transform: reducedMotion
+            ? undefined
+            : [{ translateY: entranceRise }],
+        },
       ]}
     >
       <Image
@@ -125,7 +152,7 @@ function MealRow({ meal, colors }: { meal: Meal; colors: ColorTokens }) {
           kcal
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

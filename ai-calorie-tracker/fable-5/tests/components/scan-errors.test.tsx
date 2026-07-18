@@ -294,7 +294,7 @@ it('rapid double retry starts exactly one replacement request and the latest req
   // accepting proves the surviving screen belongs to the retry request id
   fireEvent.press(screen.getByRole('button', { name: 'Accept' }));
   await waitFor(() => {
-    expect(probeText('probe-meal-ids')).toBe('scan-2');
+    expect(probeText('probe-meal-ids')).toMatch(/^scan-\d+-2$/);
   });
   expect(probeText('probe-meal-count')).toBe('1');
 });

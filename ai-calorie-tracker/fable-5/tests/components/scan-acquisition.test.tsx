@@ -142,11 +142,15 @@ it('keeps the selected photo mounted from preparing into analyzing', async () =>
 
   resolvePrepare(PREPARED_PHOTO);
 
-  // analyzing: the photo stays mounted, now from the prepared uri
+  // analyzing: the base photo layer keeps the original picked uri while the
+  // prepared jpeg crossfades in above it, so nothing swaps or blanks
   await waitFor(() => {
     expect(screen.getByText('Analyzing your meal')).toBeTruthy();
   });
   expect(screen.getByTestId('scan-photo').props.source).toEqual([
+    { uri: PICKED_ASSET.uri },
+  ]);
+  expect(screen.getByTestId('scan-photo-prepared').props.source).toEqual([
     { uri: PREPARED_PHOTO.uri },
   ]);
 });

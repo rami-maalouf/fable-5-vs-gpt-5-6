@@ -1,7 +1,6 @@
 // full-screen scan modal. owns the scan state machine and renders purely by
 // screen status; every transition goes through scanReducer events.
 import * as Haptics from 'expo-haptics';
-import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
@@ -20,6 +19,7 @@ import { AnalyzingOverlay } from '@/components/scan/AnalyzingOverlay';
 import { CameraCapture } from '@/components/scan/CameraView';
 import { ErrorCard } from '@/components/scan/ErrorCard';
 import { ResultCard } from '@/components/scan/ResultCard';
+import { ScanPhotoStage } from '@/components/scan/ScanPhotoStage';
 import { createMeal } from '@/domain/nutrition';
 import { INITIAL_SCAN_STATE, scanReducer } from '@/domain/scan-machine';
 import { analyzePhoto } from '@/services/analyze-photo';
@@ -32,6 +32,13 @@ import { useThemeColors } from '@/theme/use-theme-colors';
 const PREPARATION_NOTICE =
   'That photo could not be read. Try another one.';
 
+// each scan modal session takes a fresh token so meal ids stay unique across
+// separate scans in one day; request ids restart per session, so an id built
+// from the request id alone would collide and day state would silently drop
+// a later meal. within a session the request id still keeps duplicate accepts
+// of the same result idempotent.
+let scanSessionCounter = 0;
+
 export default function ScanScreen() {
   const [state, dispatch] = useReducer(scanReducer, INITIAL_SCAN_STATE);
   const router = useRouter();
@@ -41,6 +48,15 @@ export default function ScanScreen() {
   // presentation-only flags; the machine still owns the flow
   const [prepFailed, setPrepFailed] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
+  // the uri the user saw first for the current photo (raw library asset or
+  // frozen camera frame). the photo stage keeps this exact uri mounted under
+  // every later state so the prepared jpeg can crossfade in with no swap.
+  const [stageDisplayUri, setStageDisplayUri] = useState<string | null>(null);
+  // stable per-mount session token for meal ids
+  const [scanSession] = useState(() => {
+    scanSessionCounter += 1;
+    return scanSessionCounter;
+  });
   const pickerOpenRef = useRef(false);
   // exactly one request per request id; the controller cancels the active
   // request on discard and unmount
@@ -135,17 +151,18 @@ export default function ScanScreen() {
     acceptMeal(
       createMeal(
         screen.result,
-        `scan-${screen.requestId}`,
+        `scan-${scanSession}-${screen.requestId}`,
         screen.photo.uri,
         Date.now(),
       ),
     );
-  }, [screen, acceptMeal]);
+  }, [screen, acceptMeal, scanSession]);
 
   // one shared preparation path: captured and selected photos dispatch the
   // same events and use the same downstream analysis and result logic
   const runPreparation = useCallback(async (source: SourceImage) => {
     setPrepFailed(false);
+    setStageDisplayUri(source.uri);
     dispatch({ type: 'start_preparing', displayUri: source.uri });
     try {
       const photo = await prepareImage(source);
@@ -233,25 +250,20 @@ export default function ScanScreen() {
     );
   }
 
-  // every remaining status keeps the selected photo mounted full screen with
-  // overlays layered above it, so the image never flashes away
-  const stageUri =
-    screen.status === 'preparing' ? screen.displayUri : screen.photo.uri;
+  // every remaining status keeps one photo stage mounted full screen with
+  // overlays layered above it. the base layer always shows the original
+  // display uri; the prepared jpeg crossfades in above it once it exists,
+  // so no state change ever swaps or blanks the visible image.
+  const displayUri =
+    screen.status === 'preparing'
+      ? screen.displayUri
+      : (stageDisplayUri ?? screen.photo.uri);
+  const preparedUri = screen.status === 'preparing' ? null : screen.photo.uri;
   const noticeLabel = screen.status === 'preparing' ? 'Preparing photo' : null;
 
   return (
     <View style={[styles.stage, { backgroundColor: colors.stageBackground }]}>
-      <Image
-        source={{ uri: stageUri }}
-        contentFit="cover"
-        transition={0}
-        style={StyleSheet.absoluteFill}
-        accessibilityIgnoresInvertColors
-        accessible
-        accessibilityRole="image"
-        accessibilityLabel="Selected meal photo"
-        testID="scan-photo"
-      />
+      <ScanPhotoStage displayUri={displayUri} preparedUri={preparedUri} />
       {noticeLabel ? (
         <View
           pointerEvents="none"
