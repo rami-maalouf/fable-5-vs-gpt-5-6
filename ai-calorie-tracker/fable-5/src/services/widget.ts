@@ -4,9 +4,15 @@ import { Platform } from 'react-native';
 
 import RemainingCaloriesWidget from '../../widgets/RemainingCaloriesWidget';
 
-export function publishRemainingCalories(remaining: number): void {
+export function publishRemainingCalories(
+  remaining: number,
+  progress: number,
+): void {
   if (Platform.OS !== 'ios') {
     return;
   }
-  RemainingCaloriesWidget.updateSnapshot({ remaining: Math.round(remaining) });
+  RemainingCaloriesWidget.updateSnapshot({
+    remaining: Math.round(remaining),
+    progress,
+  });
 }

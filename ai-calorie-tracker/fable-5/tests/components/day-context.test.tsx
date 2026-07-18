@@ -51,7 +51,7 @@ describe('DayProvider', () => {
 
   it('publishes the default remaining calories to the widget on mount', async () => {
     await renderHook(() => useDay(), { wrapper });
-    expect(mockPublish).toHaveBeenCalledWith(2000);
+    expect(mockPublish).toHaveBeenCalledWith(2000, 0);
   });
 
   it('accepts a unique meal exactly once', async () => {
@@ -78,12 +78,12 @@ describe('DayProvider', () => {
     await act(() => {
       result.current.acceptMeal(makeMeal('scan-1', 610));
     });
-    expect(mockPublish).toHaveBeenLastCalledWith(1390);
+    expect(mockPublish).toHaveBeenLastCalledWith(1390, 610 / 2000);
 
     await act(() => {
       result.current.acceptMeal(makeMeal('scan-2', 540));
     });
-    expect(mockPublish).toHaveBeenLastCalledWith(850);
+    expect(mockPublish).toHaveBeenLastCalledWith(850, 1150 / 2000);
 
     expect(result.current.summary.remaining.calories).toBe(850);
   });

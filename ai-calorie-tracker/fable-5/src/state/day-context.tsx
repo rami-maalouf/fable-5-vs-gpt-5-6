@@ -10,7 +10,13 @@ import {
   type ReactNode,
 } from 'react';
 
-import { getDaySummary, type DaySummary, type Meal } from '@/domain/nutrition';
+import {
+  clampProgress,
+  DAILY_GOALS,
+  getDaySummary,
+  type DaySummary,
+  type Meal,
+} from '@/domain/nutrition';
 import { publishRemainingCalories } from '@/services/widget';
 
 type DayState = {
@@ -47,12 +53,17 @@ export function DayProvider({ children }: { children: ReactNode }) {
 
   const summary = useMemo(() => getDaySummary(state.meals), [state.meals]);
 
-  // the widget snapshot mirrors the derived remaining calories: the daily goal
-  // on cold launch, then the new value after every accepted meal.
+  // the widget snapshot mirrors the derived remaining calories and clamped
+  // ring progress: goal + empty ring on cold launch, then the new derived
+  // values after every accepted meal.
   const remainingCalories = summary.remaining.calories;
+  const consumedCalories = summary.consumed.calories;
   useEffect(() => {
-    publishRemainingCalories(remainingCalories);
-  }, [remainingCalories]);
+    publishRemainingCalories(
+      remainingCalories,
+      clampProgress(consumedCalories, DAILY_GOALS.calories),
+    );
+  }, [remainingCalories, consumedCalories]);
 
   const value = useMemo<DayContextValue>(
     () => ({

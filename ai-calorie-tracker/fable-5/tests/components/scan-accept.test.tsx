@@ -210,7 +210,7 @@ it('derives the dashboard summary from the accepted result and publishes the ide
   await renderScanWithDay();
   // the provider publishes the default goal once on mount
   expect(mockPublish).toHaveBeenCalledTimes(1);
-  expect(mockPublish).toHaveBeenCalledWith(2000);
+  expect(mockPublish).toHaveBeenCalledWith(2000, 0);
   await reachResult();
 
   fireEvent.press(screen.getByRole('button', { name: 'Accept' }));
@@ -224,7 +224,7 @@ it('derives the dashboard summary from the accepted result and publishes the ide
     '550|42|45.5|22',
   );
   // the widget receives exactly the value the dashboard selectors derive
-  expect(mockPublish).toHaveBeenLastCalledWith(1450);
+  expect(mockPublish).toHaveBeenLastCalledWith(1450, 550 / 2000);
   expect(mockPublish).toHaveBeenCalledTimes(2);
 });
 
