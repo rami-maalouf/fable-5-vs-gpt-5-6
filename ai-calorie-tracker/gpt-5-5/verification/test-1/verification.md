@@ -70,3 +70,62 @@ Task 16 result notes:
 
 - dark result card final returned: grilled chicken and vegetable salad bowl with edamame, eggs, corn, tomatoes, cabbage, cucumber, lettuce and macaroni, 620 calories, 48g protein, 48g carbs, 25g fat, 87 percent confidence.
 - the four task 16 screenshots were reviewed for clipping, contrast, safe areas, status bar treatment, and default-surface defects.
+
+## task 17 widget and final audit evidence
+
+Captured files:
+
+- `09-widget-before.png`: simulator home screen with the Nourish small widget showing 2000 calories left after a clean dashboard launch.
+- `10-widget-after.png`: simulator home screen with the Nourish small widget showing 1380 calories left after accepting a 620-calorie meal.
+
+Widget before and after:
+
+- dashboard before accept: 2000 calories left, no meals yet.
+- widget before accept: 2000 calories left.
+- accepted real scan result: grilled chicken salad bowl with vegetables, edamame, eggs, and corn, 620 calories, 48g protein, 43g carbs, 28g fat, 87 percent confidence.
+- dashboard after accept: 1380 calories left, 48 / 150g protein, 43 / 250g carbs, 28 / 70g fat, one meal logged.
+- widget after accept: 1380 calories left.
+- arithmetic: 2000 - 620 = 1380.
+
+Final command audit:
+
+- `bun run test -- --runInBand`: passed, 18 suites and 73 tests.
+- `bun run lint`: passed.
+- `bunx tsc --noEmit`: passed.
+- `bunx expo export --platform web --no-ssg`: passed, server export produced one `/scan` API route.
+- `npx expo run:ios --device 93EEF062-B4DC-4989-AF77-CF47EE2A9816`: build succeeded, installed the app, started Metro, and Argent verified the app launched to the clean 2000-calorie dashboard. The Expo CLI stayed on its post-install "Connecting to: iPhone 17 Pro" spinner until interrupted, so the device launch was verified through Argent rather than by a normal CLI return.
+- `npx expo run:ios --device 93EEF062-B4DC-4989-AF77-CF47EE2A9816 --no-bundler`: diagnostic only, not counted as launch evidence. It built with 0 errors and 0 warnings, but the dev-client app redboxed because no script URL was available.
+
+Secret and scope scans:
+
+- tracked environment files: only `.env.example` is tracked; `.env` is ignored by `.gitignore`.
+- key-pattern scan: no committed `sk-...` key material found. `.env.example` contains only `OPENAI_API_KEY=your-openai-api-key-here`.
+- base64 scan: found only expected image plumbing, route tests, and short fixture strings. No real image payload artifact was committed.
+- log scan: no `console.log` or payload logging found. The route sets `tracingDisabled: true` and `traceIncludeSensitiveData: false`.
+- out-of-scope feature scan: no onboarding, account, settings, date navigation, persistence, notifications, meal editing, manual meal entry, history, auth, or storage implementation found. The only "manual entry" match is the dashboard empty-state copy saying scanning avoids manual entry.
+
+Criterion-to-evidence links:
+
+| spec success criterion | evidence |
+| --- | --- |
+| `npx expo run:ios` builds and launches the app cleanly on the target simulator | task 17 command audit plus Argent dashboard verification on iPhone 17 Pro, UDID `93EEF062-B4DC-4989-AF77-CF47EE2A9816`; CLI spinner caveat recorded above |
+| `bun run test -- --runInBand`, `bun run lint`, and `bunx tsc --noEmit` pass | final command audit |
+| web server export succeeds with `web.output` set to `server` | final command audit and task 1 app config audit in `DEVIATIONS.md` |
+| a library food photo reaches the real MacroLens route and returns a validated food result | task 15 happy path, task 16 dark result check, and task 17 accepted real scan |
+| every uploaded JPEG has a long edge no greater than 1024 px | task 15 input dimensions and `tests/domain/prepare-image.test.ts` coverage |
+| camera capture and library selection use the same scan pipeline | task 11 manual fallback checks and component coverage; task 16 denied-camera fallback check |
+| the captured or selected photo remains visually continuous through analysis and result | `happy-path.mov`, `02-analyzing-photo-carry-through.png`, and result screenshots |
+| accepting logs exactly one meal and animates the dashboard from prior totals | `happy-path.mov`, `04-dashboard-three-meals.png`, task 12 motion notes, and accept tests |
+| displayed totals are arithmetically correct after at least three meals | task 15 three-meal arithmetic table and `04-dashboard-three-meals.png` |
+| discard changes neither the day state nor widget snapshot | task 16 discard isolation checks and component tests |
+| a non-food image shows the correct recovery actions and retry succeeds | `05-not-food-error.png` and task 16 non-food retry notes |
+| a network failure shows the correct recovery actions and same-image retry succeeds | `06-network-error.png` and task 16 offline retry notes |
+| the small home-screen widget is visible and updates after an accepted meal | `09-widget-before.png`, `10-widget-after.png`, and task 17 widget arithmetic |
+| dashboard, result, errors, and widget are verified in light and dark modes | light screenshots `01` through `06`, dark screenshots `07` and `08`, widget screenshots `09` and `10`, and task 14 widget model tests for dark and accented rendering |
+| API key and image base64 are absent from client code, client logs, and committed artifacts | secret and scope scans above, route tests, and `DEVIATIONS.md` |
+| all required evidence exists under `verification/test-1/` | files `01` through `10`, `happy-path.mov`, input images, and this verification log |
+| implementation contains no feature outside the stated scope | out-of-scope feature scan above |
+
+Final short summary:
+
+Nourish is ready for benchmark judging: it provides one in-memory day dashboard, one camera/library scan flow, real MacroLens estimates through the server route, explicit recovery states, dark and light theme evidence, and a small iOS widget that updates from 2000 to 1380 calories left after an accepted 620-calorie meal. The only recorded caveat is Expo CLI behavior after a successful native build and install: the app launch was verified through Argent because the CLI stayed on its device connection spinner.
