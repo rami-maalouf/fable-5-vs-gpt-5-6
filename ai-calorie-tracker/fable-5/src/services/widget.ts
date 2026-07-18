@@ -1,18 +1,11 @@
-// the only bridge between app state and the home-screen widget. the widget
-// snapshot is an os rendering artifact, never app persistence.
-import { Platform } from 'react-native';
-
-import RemainingCaloriesWidget from '../../widgets/RemainingCaloriesWidget';
+// default widget adapter for non-ios platforms (web server bundle, android).
+// the home-screen widget is ios-only, so this is a no-op that deliberately
+// imports no native modules. metro resolves widget.ios.ts on ios instead,
+// keeping @expo/ui and expo-widgets out of the web/server bundle entirely.
 
 export function publishRemainingCalories(
-  remaining: number,
-  progress: number,
+  _remaining: number,
+  _progress: number,
 ): void {
-  if (Platform.OS !== 'ios') {
-    return;
-  }
-  RemainingCaloriesWidget.updateSnapshot({
-    remaining: Math.round(remaining),
-    progress,
-  });
+  // no widget surface off ios
 }
