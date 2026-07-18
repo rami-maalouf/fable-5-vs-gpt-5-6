@@ -1,5 +1,20 @@
 # test 1 verification notes
 
+## task 12 photo continuity, motion, and performance overlay evidence
+
+Captured files:
+
+- `happy-path.mov`: normal-speed library scan and accept transition, 55.658333 seconds, H.264, 1206 x 2622.
+- `slow-animation-check.mov`: simulator slow-animation library scan from prepared photo through analysis and result, 94.113333 seconds, H.264, 1206 x 2622.
+- `performance-overlay-check.png`: React Native performance overlay visible over the food result, showing UI 60 and JS 60.
+- `performance-overlay-dashboard.png`: React Native performance overlay visible after accepting the result and returning to the dashboard, showing UI 60 and JS 60.
+
+Motion review:
+
+- normal-speed review: `happy-path.mov` shows the empty dashboard, scan acquisition sheet, Photos picker, selected prepared photo, analyzing state, result card, accept action, and dashboard motion. No blank frame, duplicate meal row, photo crop jump, or geometry jump was observed in the reviewed frames.
+- slow-animation review: `slow-animation-check.mov` was captured with simulator slow animations enabled. The selected prepared meal photo stayed mounted behind the analyzing card and result card, then settled on the result without a blank frame, crop change, or visible geometry jump.
+- performance overlay review: the React Native performance overlay was enabled from the dev menu. The result screen showed UI 60 and JS 60, and the accept transition landed on the dashboard with the overlay still visible and UI 60 and JS 60. No obvious dropped-frame sequence was visible during the reviewed transition.
+
 ## task 15 happy path and motion evidence
 
 Device: iPhone 17 Pro simulator, UDID `93EEF062-B4DC-4989-AF77-CF47EE2A9816`, iOS 27.0 runtime.
@@ -114,8 +129,8 @@ Criterion-to-evidence links:
 | a library food photo reaches the real MacroLens route and returns a validated food result | task 15 happy path, task 16 dark result check, and task 17 accepted real scan |
 | every uploaded JPEG has a long edge no greater than 1024 px | task 15 input dimensions and `tests/domain/prepare-image.test.ts` coverage |
 | camera capture and library selection use the same scan pipeline | task 11 manual fallback checks and component coverage; task 16 denied-camera fallback check |
-| the captured or selected photo remains visually continuous through analysis and result | `happy-path.mov`, `02-analyzing-photo-carry-through.png`, and result screenshots |
-| accepting logs exactly one meal and animates the dashboard from prior totals | `happy-path.mov`, `04-dashboard-three-meals.png`, task 12 motion notes, and accept tests |
+| the captured or selected photo remains visually continuous through analysis and result | `happy-path.mov`, `slow-animation-check.mov`, `02-analyzing-photo-carry-through.png`, and result screenshots |
+| accepting logs exactly one meal and animates the dashboard from prior totals | `happy-path.mov`, `performance-overlay-dashboard.png`, `04-dashboard-three-meals.png`, task 12 motion notes, and accept tests |
 | displayed totals are arithmetically correct after at least three meals | task 15 three-meal arithmetic table and `04-dashboard-three-meals.png` |
 | discard changes neither the day state nor widget snapshot | task 16 discard isolation checks and component tests |
 | a non-food image shows the correct recovery actions and retry succeeds | `05-not-food-error.png` and task 16 non-food retry notes |
@@ -123,7 +138,7 @@ Criterion-to-evidence links:
 | the small home-screen widget is visible and updates after an accepted meal | `09-widget-before.png`, `10-widget-after.png`, and task 17 widget arithmetic |
 | dashboard, result, errors, and widget are verified in light and dark modes | light screenshots `01` through `06`, dark screenshots `07` and `08`, widget screenshots `09` and `10`, and task 14 widget model tests for dark and accented rendering |
 | API key and image base64 are absent from client code, client logs, and committed artifacts | secret and scope scans above, route tests, and `DEVIATIONS.md` |
-| all required evidence exists under `verification/test-1/` | files `01` through `10`, `happy-path.mov`, input images, and this verification log |
+| all required evidence exists under `verification/test-1/` | files `01` through `10`, `happy-path.mov`, `slow-animation-check.mov`, performance overlay screenshots, input images, and this verification log |
 | implementation contains no feature outside the stated scope | out-of-scope feature scan above |
 
 Final short summary:
