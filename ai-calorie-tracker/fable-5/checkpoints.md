@@ -505,6 +505,22 @@ theme/a11y/reduce-motion sweeps (task 13), and final widget vs dashboard values
   npx expo run:ios clean launch, secret scan (grep for OPENAI_API_KEY / base64 in
   committed tree), out-of-scope feature scan. write verification/test-1/verification.md.
 
+### task 17 (widget evidence + final audit) - DONE - BENCHMARK COMPLETE
+
+- committed `01baef4`: 09-widget-before (cold launch, 2000, empty ring),
+  10-widget-after (after one 620 meal, 1380, partial ring - equals dashboard),
+  verification.md (full criterion-to-evidence map + arithmetic + summary).
+- WEB EXPORT FIX (`dc1993b`): `bunx expo export --platform web --no-ssg` was failing on
+  `requireNativeViewManager not available on web` because widget.ts statically imported
+  the @expo/ui/expo-widgets widget, transitively pulled into the web bundle via
+  _layout -> day-context -> widget.ts. fixed by splitting into `widget.ios.ts` (real,
+  ios-only) and `widget.ts` (no-op). export now emits the /scan api route cleanly. jest
+  still resolves widget.ios.ts (haste defaultPlatform ios) so 161 tests stay green.
+- FINAL AUDIT ALL GREEN: jest 161/17 suites, tsc, lint, web export (/scan api route),
+  clean ios launch, secret scan (no key/base64 in tracked tree, .env untracked,
+  OPENAI_API_KEY only in scan+api.ts), no client->server import, no out-of-scope feature.
+- all 17 tasks + all 5 checkpoints + final checkpoint ticked in todo.md.
+
 ## design identity (from spec)
 
 warm off-white light bg / near-black dark bg; coral primary #E8654A-ish; raspberry
