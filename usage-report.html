@@ -177,7 +177,7 @@
   .bar-row .lab { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
   .bar-row .lab .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
   .track { position: relative; height: 32px; background: var(--track); border-radius: 7px; overflow: hidden; }
-  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 6px 6px 0; display: flex; align-items: center; justify-content: flex-end; transition: width 1s cubic-bezier(0.22,1,0.36,1); }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: var(--w, 0%); border-radius: 0 6px 6px 0; display: flex; align-items: center; justify-content: flex-end; }
   .fill .val { color: #fff; font-size: 0.83rem; font-weight: 700; padding-right: 0.65rem; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; }
   .val.outside { position: absolute; top: 50%; transform: translateY(-50%); color: var(--ink); text-shadow: none; font-weight: 700; font-size: 0.83rem; white-space: nowrap; }
 
@@ -193,7 +193,7 @@
   .gbar .gtop .gm { color: var(--ink-2); }
   .gbar .gtop .gv { font-weight: 700; }
   .gtrack { position: relative; height: 12px; background: var(--track); border-radius: 4px; overflow: hidden; }
-  .gtrack .gfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 4px 4px 0; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .gtrack .gfill { position: absolute; left: 0; top: 0; bottom: 0; width: var(--w, 0%); border-radius: 0 4px 4px 0; }
 
   /* ---------- scatter ---------- */
   .scatter-wrap { overflow-x: auto; }
@@ -212,7 +212,7 @@
   .compo-row .clab { font-size: 0.9rem; font-weight: 650; display: flex; align-items: center; gap: 0.5rem; }
   .compo-row .clab .sw { width: 10px; height: 10px; border-radius: 3px; }
   .cstack { display: flex; height: 30px; border-radius: 7px; overflow: hidden; background: var(--track); }
-  .cseg { height: 100%; box-shadow: inset -2px 0 0 var(--panel); transition: width 0.9s cubic-bezier(0.22,1,0.36,1); width: 0; display: flex; align-items: center; }
+  .cseg { height: 100%; box-shadow: inset -2px 0 0 var(--panel); width: var(--w, 0%); display: flex; align-items: center; }
   .cseg:last-child { box-shadow: none; }
   .cseg .cv { font-size: 0.72rem; font-weight: 700; color: #fff; padding-left: 0.5rem; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.3); overflow: hidden; }
   .compo-legend { display: flex; flex-wrap: wrap; gap: 0.8rem 1.3rem; margin-bottom: 1.3rem; }
@@ -236,17 +236,30 @@
   .callout p b { font-weight: 700; }
 
   /* ---------- runtime telemetry ---------- */
-  .runtime-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
-  .runtime-card { position: relative; overflow: hidden; }
-  .runtime-card h3 { margin: 0 0 1rem; font-size: 1rem; letter-spacing: -0.01em; }
-  .runtime-list { display: grid; gap: 0.9rem; }
-  .runtime-row { display: grid; gap: 0.35rem; }
-  .runtime-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; font-size: 0.8rem; }
-  .runtime-model { color: var(--ink-2); display: inline-flex; align-items: center; gap: 0.45rem; }
-  .runtime-model .sw { width: 9px; height: 9px; border-radius: 2px; }
-  .runtime-value { color: var(--ink); font-weight: 700; }
-  .runtime-track { height: 8px; border-radius: 3px; background: var(--track); overflow: hidden; }
-  .runtime-fill { height: 100%; width: 0; border-radius: 0 3px 3px 0; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .runtime-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1rem; }
+  .runtime-stat { min-height: 118px; display: flex; flex-direction: column; justify-content: space-between; }
+  .runtime-stat .label { color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; }
+  .runtime-stat .value { margin-top: 0.55rem; font-size: clamp(1.65rem,3.4vw,2.25rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .runtime-stat .context { margin-top: 0.55rem; color: var(--ink-2); font-size: 0.78rem; line-height: 1.35; }
+  .runtime-chart { padding-bottom: 1.55rem; }
+  .runtime-axis, .runtime-row { display: grid; grid-template-columns: 132px minmax(240px,1fr) 82px; gap: 0.9rem; align-items: center; }
+  .runtime-axis { margin-bottom: 0.8rem; color: var(--muted); font-size: 0.65rem; }
+  .runtime-ticks { position: relative; height: 1em; }
+  .runtime-ticks span { position: absolute; transform: translateX(-50%); }
+  .runtime-ticks span:first-child { transform: none; }
+  .runtime-ticks span:last-child { transform: translateX(-100%); }
+  .runtime-groups { display: grid; gap: 1.45rem; }
+  .runtime-group { display: grid; gap: 0.65rem; }
+  .runtime-group + .runtime-group { border-top: 1px solid var(--line-2); padding-top: 1.35rem; }
+  .runtime-app { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.15rem; }
+  .runtime-app h3 { margin: 0; font-size: 0.98rem; letter-spacing: -0.01em; }
+  .runtime-app span { color: var(--muted); font-size: 0.7rem; }
+  .runtime-model { color: var(--ink-2); display: inline-flex; align-items: center; gap: 0.45rem; min-width: 0; font-size: 0.78rem; white-space: nowrap; }
+  .runtime-model .sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .runtime-model .fastest { color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 35%, transparent); border-radius: 999px; padding: 0.08rem 0.35rem; font-size: 0.56rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .runtime-value { color: var(--ink); font-size: 0.78rem; font-weight: 700; text-align: right; }
+  .runtime-track { position: relative; height: 18px; border-radius: 5px; overflow: hidden; background-color: var(--track); background-image: linear-gradient(90deg, transparent calc(100% - 1px), var(--line) calc(100% - 1px)); background-size: 28.571% 100%; }
+  .runtime-fill { height: 100%; width: var(--w, 0%); min-width: 3px; border-radius: 0 4px 4px 0; }
   .runtime-note { margin-top: 1.2rem; color: var(--ink-2); font-size: 0.84rem; max-width: 82ch; }
   .runtime-note b { color: var(--ink); }
 
@@ -276,17 +289,21 @@
   footer b { color: var(--ink-2); }
 
   /* reveal */
-  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1); }
-  .reveal.in { opacity: 1; transform: none; }
+  .reveal { opacity: 1; transform: none; }
+  .motion-ready .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+  .motion-ready .reveal.in { opacity: 1; transform: none; }
 
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
     .ring-wrap { order: -1; }
-    .podium, .appgrid, .eff, .runtime-grid { grid-template-columns: 1fr; }
+    .podium, .appgrid, .eff, .runtime-summary { grid-template-columns: 1fr; }
+    .runtime-axis, .runtime-row { grid-template-columns: 112px minmax(220px,1fr) 76px; }
+    .runtime-chart { overflow-x: auto; }
+    .runtime-chart-inner { min-width: 540px; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .fill, .gfill, .cseg, .runtime-fill, .reveal, .brand .live { transition: none !important; animation: none !important; }
+    .reveal, .brand .live { transition: none !important; animation: none !important; }
     .reveal { opacity: 1; transform: none; }
   }
 </style>
@@ -414,7 +431,10 @@
       <div class="sec-titles"><h2>How long each build stayed active</h2><p>Recorded workflow time only. Overnight pauses and gaps between manual resumptions are excluded.</p></div>
       <span class="sec-rule"></span>
     </div>
-    <div class="runtime-grid reveal" id="runtimeGrid"></div>
+    <div class="runtime-summary reveal" id="runtimeSummary"></div>
+    <div class="panel glow runtime-chart reveal">
+      <div class="runtime-chart-inner" id="runtimeChart"></div>
+    </div>
     <p class="runtime-note reveal"><b>Timing source.</b> Codex uses the goal ledger's exact active seconds. Claude uses root-session turn durations. The Fable-labelled calorie run includes 23m 06s of Opus 4.8 work after a model switch.</p>
   </section>
 
@@ -489,7 +509,8 @@
     const minutes = totalMinutes % 60;
     return `${hours}h ${String(minutes).padStart(2, '0')}m`;
   };
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduce = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sumRows = key => rows.reduce((total, row) => total + row[key], 0);
 
   // ---------- tooltip ----------
   const tip = document.getElementById('tip');
@@ -571,7 +592,7 @@
       return `<div class="bar-row">
         <div class="lab"><span class="sw" style="background:${C[it.key]}"></span>${it.name}</div>
         <div class="track">
-          <div class="fill" data-w="${pct}" style="background:${C[it.key]}">${outside ? '' : `<span class="val">${fmt(it.value)}</span>`}</div>
+          <div class="fill" style="--w:${pct}%;background:${C[it.key]}">${outside ? '' : `<span class="val">${fmt(it.value)}</span>`}</div>
           ${outside ? `<span class="val outside" data-l="${pct}">${fmt(it.value)}</span>` : ''}
         </div>
       </div>`;
@@ -583,8 +604,6 @@
     });
     return c;
   }
-  function animBars(c) { c.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%'); }
-
   const modelItems = models.map(m => ({ ...m, value: m.cost }));
   const modelBars = renderBars('modelBars', modelItems, Math.max(...models.map(m => m.cost)), usd,
     m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Total cost</b><span>${usd(m.cost)}</span></div><div class="tt-row"><b>Messages</b><span>${num(m.msgs)}</span></div><div class="tt-row"><b>Tokens</b><span>${num(m.tokens)}</span></div>`);
@@ -598,21 +617,33 @@
     m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Per 1M tokens</b><span>${usd(m.cost / (m.tokens / 1e6))}</span></div><div class="tt-row"><b>${(m.tokens / 1e6).toFixed(0)}M tokens</b><span>${usd(m.cost)}</span></div>`);
 
   // ---------- runtime telemetry ----------
-  const runtimeMax = Math.max(...rows.map(r => r.active));
-  document.getElementById('runtimeGrid').innerHTML = apps.map(app => {
-    const appRows = rows.filter(r => r.app === app.name);
-    return `<article class="panel runtime-card">
-      <h3>${app.name}</h3>
-      <div class="runtime-list">${appRows.map(r => `
-        <div class="runtime-row" data-app="${r.app}" data-mk="${r.mk}">
-          <div class="runtime-top">
-            <span class="runtime-model"><span class="sw" style="background:${C[r.mk]}"></span>${r.model}</span>
+  const runtimeCeiling = 14 * 3600;
+  const runtimeTicks = [0, 4, 8, 12, 14];
+  const runtimeSorted = [...rows].sort((a, b) => a.active - b.active);
+  const runtimeFastest = runtimeSorted[0];
+  const runtimeLongest = runtimeSorted.at(-1);
+  document.getElementById('runtimeSummary').innerHTML = [
+    { label: 'All nine builds', value: durationShort(sumRows('active')), context: `${duration(sumRows('active'))} of measured active work` },
+    { label: 'Fastest build', value: durationShort(runtimeFastest.active), context: `${runtimeFastest.app} on ${runtimeFastest.model}` },
+    { label: 'Longest build', value: durationShort(runtimeLongest.active), context: `${runtimeLongest.app} on ${runtimeLongest.model} - ${(runtimeLongest.active / runtimeFastest.active).toFixed(1)}x the fastest` },
+  ].map(stat => `<article class="panel runtime-stat"><span class="label">${stat.label}</span><div><div class="value mono">${stat.value}</div><div class="context">${stat.context}</div></div></article>`).join('');
+
+  document.getElementById('runtimeChart').innerHTML = `
+    <div class="runtime-axis" aria-hidden="true"><span></span><div class="runtime-ticks">${runtimeTicks.map(hours => `<span style="left:${hours / 14 * 100}%">${hours}h</span>`).join('')}</div><span></span></div>
+    <div class="runtime-groups">${apps.map(app => {
+      const appRows = rows.filter(r => r.app === app.name);
+      const fastest = Math.min(...appRows.map(r => r.active));
+      const spread = Math.max(...appRows.map(r => r.active)) - fastest;
+      return `<article class="runtime-group">
+        <div class="runtime-app"><h3>${app.name}</h3><span class="mono">range ${durationShort(spread)}</span></div>
+        ${appRows.map(r => `
+          <div class="runtime-row" data-app="${r.app}" data-mk="${r.mk}">
+            <span class="runtime-model"><span class="sw" style="background:${C[r.mk]}"></span>${r.model}${r.active === fastest ? '<span class="fastest">fastest</span>' : ''}</span>
+            <div class="runtime-track" role="img" aria-label="${r.model} active for ${duration(r.active)}"><div class="runtime-fill" style="--w:${r.active / runtimeCeiling * 100}%;background:${C[r.mk]}"></div></div>
             <span class="runtime-value mono">${durationShort(r.active)}</span>
-          </div>
-          <div class="runtime-track"><div class="runtime-fill" data-w="${r.active / runtimeMax * 100}" style="background:${C[r.mk]}"></div></div>
-        </div>`).join('')}</div>
-    </article>`;
-  }).join('');
+          </div>`).join('')}
+      </article>`;
+    }).join('')}</div>`;
   document.querySelectorAll('.runtime-row').forEach(row => {
     const r = rows.find(x => x.app === row.dataset.app && x.mk === row.dataset.mk);
     wire(row, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Active time</b><span>${duration(r.active)}</span></div>`);
@@ -627,7 +658,7 @@
       <div class="gbars">${cells.map(r => `
         <div class="gbar" data-app="${app.name}" data-mk="${r.mk}">
           <div class="gtop"><span class="gm">${r.model}</span><span class="gv mono">${usd(r.cost)}</span></div>
-          <div class="gtrack"><div class="gfill" data-w="${r.cost / cellMax * 100}" style="background:${C[r.mk]}"></div></div>
+          <div class="gtrack"><div class="gfill" style="--w:${r.cost / cellMax * 100}%;background:${C[r.mk]}"></div></div>
         </div>`).join('')}</div>
     </div>`;
   }).join('');
@@ -650,7 +681,7 @@
       const wOfMax = v / compoMax * 100;      // width relative to biggest model row
       const showLabel = v / compoMax > 0.08;
       const mtok = (v / 1e6).toFixed(v >= 1e6 ? 1 : 2);
-      return `<div class="cseg" data-w="${wOfMax}" style="background:${C[p.c]}" data-tip="${m.name} &middot; ${p.label}|${num(v)} tokens|${(v/rowTotal*100).toFixed(1)}% of its billable-heavy tokens">
+      return `<div class="cseg" style="--w:${wOfMax}%;background:${C[p.c]}" data-tip="${m.name} &middot; ${p.label}|${num(v)} tokens|${(v/rowTotal*100).toFixed(1)}% of its billable-heavy tokens">
         ${showLabel ? `<span class="cv">${mtok}M</span>` : ''}</div>`;
     }).join('');
     return `<div class="compo-row">
@@ -662,8 +693,6 @@
     const [t, a, b] = (seg.dataset.tip || '').split('|');
     wire(seg, `<div class="tt-title">${t}</div><div class="tt-row"><b>${a}</b></div><div class="tt-row"><b>${b}</b></div>`);
   });
-  function animCompo() { document.querySelectorAll('.cseg').forEach(s => s.style.width = s.dataset.w + '%'); }
-
   // ---------- scatter ----------
   (function scatter() {
     const svg = document.getElementById('scatter');
@@ -702,8 +731,7 @@
       const c = mk('circle');
       c.setAttribute('class', 'dot'); c.setAttribute('cx', cx); c.setAttribute('cy', cy);
       c.style.fill = C[r.mk]; c.setAttribute('fill-opacity', '0.82');
-      c.setAttribute('r', reduce ? rr : 0);
-      if (!reduce) { c.style.transition = 'r 0.8s cubic-bezier(0.22,1,0.36,1)'; c.dataset.r = rr; }
+      c.setAttribute('r', rr);
       wire(c, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Cost</b><span>${usd(r.cost)}</span></div><div class="tt-row"><b>Tokens</b><span>${num(r.total)}</span></div><div class="tt-row"><b>Messages</b><span>${num(r.msgs)}</span></div>`);
       svg.appendChild(c);
     });
@@ -713,7 +741,6 @@
     svg.appendChild(lb);
     const nt = mk('text'); nt.setAttribute('class', 'note'); nt.setAttribute('x', m.l + 6); nt.setAttribute('y', m.t + 10); nt.setAttribute('text-anchor', 'start'); nt.textContent = 'bubble size = messages sent';
     svg.appendChild(nt);
-    svg._anim = () => { if (reduce) return; svg.querySelectorAll('.dot').forEach(d => d.setAttribute('r', d.dataset.r)); };
   })();
 
   // ---------- table ----------
@@ -725,36 +752,32 @@
       <td class="mono">${num(r.cr)}</td><td class="mono">${num(r.cw)}</td><td class="mono">${num(r.total)}</td><td class="mono">${duration(r.active)}</td>
       <td class="mono cost-cell">${usd(r.cost)}</td>
     </tr>`).join('');
-  const sum = k => rows.reduce((a, r) => a + r[k], 0);
   document.getElementById('tfoot').innerHTML = `<tr>
     <td>All builds</td><td>9 runs</td>
-    <td class="mono">${num(sum('msgs'))}</td><td class="mono">${num(sum('tin'))}</td><td class="mono">${num(sum('tout'))}</td>
-    <td class="mono">${num(sum('cr'))}</td><td class="mono">${num(sum('cw'))}</td><td class="mono">${num(sum('total'))}</td><td class="mono">${durationShort(sum('active'))}</td>
-    <td class="mono">${usd(sum('cost'))}</td></tr>`;
+    <td class="mono">${num(sumRows('msgs'))}</td><td class="mono">${num(sumRows('tin'))}</td><td class="mono">${num(sumRows('tout'))}</td>
+    <td class="mono">${num(sumRows('cr'))}</td><td class="mono">${num(sumRows('cw'))}</td><td class="mono">${num(sumRows('total'))}</td><td class="mono">${durationShort(sumRows('active'))}</td>
+    <td class="mono">${usd(sumRows('cost'))}</td></tr>`;
 
-  // ---------- reveal + trigger animations ----------
-  const anims = new Map([
-    [modelBars.closest('.panel'), () => animBars(modelBars)],
-    [document.getElementById('scatter').closest('.panel'), () => document.getElementById('scatter')._anim()],
-    [document.getElementById('appGrid').closest('.panel'), () => document.querySelectorAll('.gfill').forEach(f => f.style.width = f.dataset.w + '%')],
-    [document.getElementById('compo').closest('.panel'), animCompo],
-    [cpmBars.closest('.panel'), () => { animBars(cpmBars); animBars(cptBars); }],
-    [document.getElementById('runtimeGrid'), () => document.querySelectorAll('.runtime-fill').forEach(f => f.style.width = f.dataset.w + '%')],
-  ]);
-  if (reduce) {
-    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
-    anims.forEach(fn => fn());
+  // ---------- optional reveal animation ----------
+  const revealAll = () => document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+  if (!reduce && 'IntersectionObserver' in window) {
+    try {
+      document.documentElement.classList.add('motion-ready');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+      setTimeout(revealAll, 900);
+    } catch (error) {
+      document.documentElement.classList.remove('motion-ready');
+      revealAll();
+    }
   } else {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('in');
-        for (const [panel, fn] of anims) { if (panel && (panel === e.target || e.target.contains(panel) || panel.contains(e.target))) { setTimeout(fn, 180); } }
-        io.unobserve(e.target);
-      });
-    }, { threshold: 0.18 });
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-    // hero bars/ring are above the fold - fire immediately
+    revealAll();
   }
 </script>
 </body>
