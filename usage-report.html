@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The compute bill - Fable 5 vs GPT-5.5 vs GPT-5.6</title>
+<style>
+  :root {
+    color-scheme: dark;
+    /* dark cockpit (default) */
+    --page:      #0a0a0d;
+    --page-2:    #0d0d11;
+    --panel:     #141419;
+    --panel-2:   #1a1a20;
+    --ink:       #f5f4ef;
+    --ink-2:     #a7a69e;
+    --muted:     #6d6c66;
+    --line:      #242429;
+    --line-2:    #1c1c21;
+    --hair:      rgba(255,255,255,0.07);
+    --track:     #202026;
+    --fable:     #e56597;
+    --gpt55:     #4a92ea;
+    --gpt56:     #e0a423;
+    --fable-glow: rgba(229,101,151,0.26);
+    --gpt55-glow: rgba(74,146,234,0.24);
+    --gpt56-glow: rgba(224,164,35,0.22);
+    --good:      #2bb74f;
+    --grid-ink:  rgba(255,255,255,0.035);
+    --scan:      rgba(255,255,255,0.02);
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --page:      #eceae3;
+    --page-2:    #e6e4dc;
+    --panel:     #fbfbf9;
+    --panel-2:   #f4f3ee;
+    --ink:       #16150f;
+    --ink-2:     #55534b;
+    --muted:     #8f8d83;
+    --line:      #e0ded4;
+    --line-2:    #e8e6dd;
+    --hair:      rgba(22,21,15,0.08);
+    --track:     #e7e5dc;
+    --fable:     #c33d81;
+    --gpt55:     #2a6fce;
+    --gpt56:     #b47d05;
+    --fable-glow: rgba(195,61,129,0.14);
+    --gpt55-glow: rgba(42,111,206,0.12);
+    --gpt56-glow: rgba(180,125,5,0.12);
+    --good:      #0a7d34;
+    --grid-ink:  rgba(22,21,15,0.045);
+    --scan:      rgba(22,21,15,0.015);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --page:      #eceae3;
+      --page-2:    #e6e4dc;
+      --panel:     #fbfbf9;
+      --panel-2:   #f4f3ee;
+      --ink:       #16150f;
+      --ink-2:     #55534b;
+      --muted:     #8f8d83;
+      --line:      #e0ded4;
+      --line-2:    #e8e6dd;
+      --hair:      rgba(22,21,15,0.08);
+      --track:     #e7e5dc;
+      --fable:     #c33d81;
+      --gpt55:     #2a6fce;
+      --gpt56:     #b47d05;
+      --fable-glow: rgba(195,61,129,0.14);
+      --gpt55-glow: rgba(42,111,206,0.12);
+      --gpt56-glow: rgba(180,125,5,0.12);
+      --good:      #0a7d34;
+      --grid-ink:  rgba(22,21,15,0.045);
+      --scan:      rgba(22,21,15,0.015);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* blueprint grid + ambient glows */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(1100px 620px at 82% -6%, var(--fable-glow), transparent 60%),
+      radial-gradient(900px 560px at 8% 12%, var(--gpt55-glow), transparent 62%),
+      linear-gradient(var(--grid-ink) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-ink) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 46px 46px, 46px 46px;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: clamp(1.4rem,4vw,3rem) clamp(1.1rem,4vw,2.4rem) 5rem; }
+
+  /* ---------- masthead ---------- */
+  .masthead { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line); padding-bottom: 0.85rem; margin-bottom: clamp(2rem,5vw,3.5rem); }
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-2); }
+  .brand .live { width: 7px; height: 7px; border-radius: 50%; background: var(--fable); box-shadow: 0 0 0 3px var(--fable-glow); animation: pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  .masthead .ref { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
+
+  /* ---------- hero ---------- */
+  .hero { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: clamp(1.5rem,4vw,3.5rem); align-items: center; }
+  .kicker { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--fable); margin: 0 0 1.2rem; }
+  h1 { font-size: clamp(2.4rem,6vw,4.4rem); line-height: 0.98; letter-spacing: -0.035em; font-weight: 800; margin: 0 0 1.3rem; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--ink-2); }
+  .hero .lede { font-size: clamp(1rem,1.5vw,1.16rem); color: var(--ink-2); max-width: 46ch; margin: 0 0 1.9rem; }
+  .hero .lede b { color: var(--ink); font-weight: 650; }
+  .hero-stats { display: flex; gap: 2.2rem; flex-wrap: wrap; }
+  .hstat .n { font-size: clamp(1.35rem,2.8vw,1.9rem); font-weight: 700; letter-spacing: -0.02em; }
+  .hstat .l { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+
+  /* ring */
+  .ring-wrap { position: relative; display: grid; place-items: center; }
+  .ring-wrap svg { width: 100%; max-width: 330px; height: auto; overflow: visible; }
+  .ring-center { position: absolute; text-align: center; }
+  .ring-center .rc-label { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+  .ring-center .rc-total { font-size: clamp(1.9rem,4vw,2.6rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 0.15rem 0; }
+  .ring-center .rc-sub { font-size: 0.76rem; color: var(--ink-2); }
+  .ring-seg { fill: none; stroke-width: 20; stroke-linecap: butt; transition: stroke-width 0.2s ease; cursor: default; }
+  .ring-seg:hover { stroke-width: 26; }
+  .ring-track { fill: none; stroke: var(--track); stroke-width: 20; }
+
+  /* ---------- section frame ---------- */
+  section { margin-top: clamp(3rem,7vw,5.5rem); scroll-margin-top: 2rem; }
+  .sec-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.6rem; }
+  .sec-idx { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; color: var(--fable); }
+  .sec-titles h2 { font-size: clamp(1.4rem,2.8vw,1.9rem); letter-spacing: -0.025em; font-weight: 750; margin: 0; text-wrap: balance; }
+  .sec-titles p { color: var(--ink-2); margin: 0.5rem 0 0; max-width: 66ch; font-size: 0.97rem; }
+  .sec-rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); align-self: center; min-width: 24px; }
+
+  .panel { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: clamp(1.2rem,3vw,1.9rem); }
+  .panel.glow { box-shadow: 0 24px 60px -34px rgba(0,0,0,0.6); }
+  /* instrument corner ticks */
+  .panel::before, .panel::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: var(--hair); border-style: solid; }
+  .panel::before { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+  .panel::after { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 0.9rem 1.4rem; margin-bottom: 1.4rem; }
+  .legend .item { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--ink-2); }
+  .legend .sw { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* ---------- model podium ---------- */
+  .podium { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  .tile { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 15px; padding: 1.4rem 1.45rem 1.5rem; overflow: hidden; }
+  .tile::after { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--accent); }
+  .tile .aura { position: absolute; top: -60px; right: -60px; width: 160px; height: 160px; border-radius: 50%; background: var(--accent); opacity: 0.14; filter: blur(30px); }
+  .tile .mname { position: relative; display: flex; align-items: center; gap: 0.55rem; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .tile .chip { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+  .tile .rankpill { position: absolute; top: 1.3rem; right: 1.45rem; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.55rem; border-radius: 999px; color: var(--ink-2); border: 1px solid var(--line); }
+  .tile .rankpill.best { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .tile .cost { font-size: clamp(2.1rem,4.4vw,2.9rem); font-weight: 800; letter-spacing: -0.035em; margin: 0.9rem 0 0.1rem; }
+  .tile .share { font-size: 0.82rem; color: var(--ink-2); margin-bottom: 1.1rem; }
+  .tile .share b { color: var(--ink); }
+  .tile .rows { display: grid; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--line-2); }
+  .tile .row { display: flex; justify-content: space-between; font-size: 0.84rem; }
+  .tile .row span:first-child { color: var(--ink-2); }
+  .tile .row span:last-child { font-weight: 650; }
+
+  /* ---------- horizontal bars ---------- */
+  .bars { display: grid; gap: 1rem; }
+  .bar-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 0.9rem; }
+  .bar-row .lab { font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+  .bar-row .lab .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .track { position: relative; height: 32px; background: var(--track); border-radius: 7px; overflow: hidden; }
+  .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 6px 6px 0; display: flex; align-items: center; justify-content: flex-end; transition: width 1s cubic-bezier(0.22,1,0.36,1); }
+  .fill .val { color: #fff; font-size: 0.83rem; font-weight: 700; padding-right: 0.65rem; text-shadow: 0 1px 2px rgba(0,0,0,0.35); white-space: nowrap; }
+  .val.outside { position: absolute; top: 50%; transform: translateY(-50%); color: var(--ink); text-shadow: none; font-weight: 700; font-size: 0.83rem; white-space: nowrap; }
+
+  /* ---------- per-app grouped ---------- */
+  .appgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.4rem; }
+  .appgroup .aghead { margin-bottom: 0.9rem; }
+  .appgroup .agname { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+  .appgroup .agtot { font-size: 0.8rem; color: var(--ink-2); }
+  .appgroup .agtot b { color: var(--ink); }
+  .gbars { display: grid; gap: 0.6rem; }
+  .gbar { display: grid; gap: 0.28rem; }
+  .gbar .gtop { display: flex; justify-content: space-between; font-size: 0.78rem; }
+  .gbar .gtop .gm { color: var(--ink-2); }
+  .gbar .gtop .gv { font-weight: 700; }
+  .gtrack { position: relative; height: 12px; background: var(--track); border-radius: 4px; overflow: hidden; }
+  .gtrack .gfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 4px 4px 0; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+
+  /* ---------- scatter ---------- */
+  .scatter-wrap { overflow-x: auto; }
+  .scatter { width: 100%; min-width: 560px; height: auto; display: block; }
+  .scatter text { font-family: ui-monospace, Menlo, monospace; fill: var(--muted); }
+  .scatter .axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 600; }
+  .scatter .grid { stroke: var(--line); stroke-width: 1; }
+  .scatter .dot { stroke: var(--panel); stroke-width: 2.5; transition: opacity 0.2s ease; cursor: default; }
+  .scatter .dot:hover { stroke: var(--ink); }
+  .scatter .dlabel { fill: var(--ink); font-size: 11px; font-weight: 600; }
+  .scatter .note { fill: var(--muted); font-size: 10.5px; }
+
+  /* ---------- composition stacked ---------- */
+  .compo { display: grid; gap: 1.2rem; }
+  .compo-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 0.9rem; }
+  .compo-row .clab { font-size: 0.9rem; font-weight: 650; display: flex; align-items: center; gap: 0.5rem; }
+  .compo-row .clab .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .cstack { display: flex; height: 30px; border-radius: 7px; overflow: hidden; background: var(--track); }
+  .cseg { height: 100%; box-shadow: inset -2px 0 0 var(--panel); transition: width 0.9s cubic-bezier(0.22,1,0.36,1); width: 0; display: flex; align-items: center; }
+  .cseg:last-child { box-shadow: none; }
+  .cseg .cv { font-size: 0.72rem; font-weight: 700; color: #fff; padding-left: 0.5rem; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,0.3); overflow: hidden; }
+  .compo-legend { display: flex; flex-wrap: wrap; gap: 0.8rem 1.3rem; margin-bottom: 1.3rem; }
+  .compo-legend .item { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: var(--ink-2); }
+  .compo-legend .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .compo-legend .sw.input { background: var(--gpt55); }
+  .compo-legend .sw.output { background: var(--gpt56); }
+  .compo-legend .sw.cache { background: var(--fable); }
+  .compo-note { margin-top: 1.3rem; font-size: 0.9rem; color: var(--ink-2); display: flex; align-items: flex-start; gap: 0.6rem; }
+  .compo-note b { color: var(--ink); }
+  .fable-text { color: var(--fable); }
+
+  /* ---------- efficiency + callout ---------- */
+  .eff { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .eff .panel h3 { margin: 0 0 0.15rem; font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+  .eff .panel .sub { font-size: 0.83rem; color: var(--ink-2); margin: 0 0 1.3rem; }
+  .eff .bar-row { grid-template-columns: 108px 1fr; }
+  .callout { margin-top: 1.4rem; display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; background: linear-gradient(120deg, var(--fable-glow), transparent 70%), var(--panel); border: 1px solid color-mix(in srgb, var(--fable) 30%, var(--line)); border-radius: 14px; padding: 1.2rem 1.4rem; }
+  .callout .big { font-size: clamp(2rem,5vw,2.8rem); font-weight: 800; letter-spacing: -0.03em; color: var(--fable); line-height: 1; }
+  .callout p { margin: 0; font-size: 0.98rem; }
+  .callout p b { font-weight: 700; }
+
+  /* ---------- runtime telemetry ---------- */
+  .runtime-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  .runtime-card { position: relative; overflow: hidden; }
+  .runtime-card h3 { margin: 0 0 1rem; font-size: 1rem; letter-spacing: -0.01em; }
+  .runtime-list { display: grid; gap: 0.9rem; }
+  .runtime-row { display: grid; gap: 0.35rem; }
+  .runtime-top { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; font-size: 0.8rem; }
+  .runtime-model { color: var(--ink-2); display: inline-flex; align-items: center; gap: 0.45rem; }
+  .runtime-model .sw { width: 9px; height: 9px; border-radius: 2px; }
+  .runtime-value { color: var(--ink); font-weight: 700; }
+  .runtime-track { height: 8px; border-radius: 3px; background: var(--track); overflow: hidden; }
+  .runtime-fill { height: 100%; width: 0; border-radius: 0 3px 3px 0; transition: width 0.9s cubic-bezier(0.22,1,0.36,1); }
+  .runtime-note { margin-top: 1.2rem; color: var(--ink-2); font-size: 0.84rem; max-width: 82ch; }
+  .runtime-note b { color: var(--ink); }
+
+  /* ---------- table ---------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
+  table { border-collapse: collapse; width: 100%; min-width: 980px; background: var(--panel); }
+  thead th { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 0.9rem 0.9rem; border-bottom: 1px solid var(--line); white-space: nowrap; position: sticky; top: 0; background: var(--panel); }
+  thead th:first-child, thead th:nth-child(2) { text-align: left; }
+  tbody td { padding: 0.72rem 0.9rem; text-align: right; font-size: 0.85rem; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+  tbody td:first-child { text-align: left; font-weight: 650; }
+  tbody td:nth-child(2) { text-align: left; }
+  tbody tr:hover { background: var(--panel-2); }
+  tbody .grouptop td { border-top: 1px solid var(--line); }
+  .mchip { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .mchip .sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .cost-cell { font-weight: 700; }
+  tfoot td { padding: 0.85rem 0.9rem; text-align: right; font-size: 0.85rem; font-weight: 700; border-top: 2px solid var(--line); background: var(--panel-2); white-space: nowrap; }
+  tfoot td:first-child { text-align: left; }
+
+  /* ---------- tooltip ---------- */
+  #tip { position: fixed; z-index: 60; pointer-events: none; opacity: 0; transform: translate(-50%,-112%); transition: opacity 0.12s ease; background: var(--ink); color: var(--page); border-radius: 9px; padding: 0.6rem 0.78rem; font-size: 0.77rem; line-height: 1.5; box-shadow: 0 10px 30px -8px rgba(0,0,0,0.55); max-width: 250px; }
+  #tip .tt-title { font-weight: 700; margin-bottom: 0.28rem; }
+  #tip .tt-row { display: flex; justify-content: space-between; gap: 1.3rem; opacity: 0.86; }
+  #tip .tt-row b { font-weight: 600; }
+
+  footer { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.82rem; max-width: 72ch; }
+  footer b { color: var(--ink-2); }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+    .ring-wrap { order: -1; }
+    .podium, .appgrid, .eff, .runtime-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .fill, .gfill, .cseg, .runtime-fill, .reveal, .brand .live { transition: none !important; animation: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <span class="brand"><span class="live"></span> AI model comparison &middot; compute ledger</span>
+    <span class="ref mono">9 builds / 3 models / 3 apps</span>
+  </div>
+
+  <header class="hero">
+    <div>
+      <p class="kicker">What it costs to let a model build</p>
+      <h1>One question:<br><em>who runs up the bill?</em></h1>
+      <p class="lede">Three apps, each built from scratch three times over - once in the <b>Fable 5</b> contestant workspace, once by <b>GPT-5.5</b>, once by <b>GPT-5.6-Sol</b>. Same briefs, different engines. Here is the token burn, active time, and receipt.</p>
+      <div class="hero-stats">
+        <div class="hstat"><div class="n mono" data-count="1992.94" data-money="1">$0</div><div class="l">Total spend</div></div>
+        <div class="hstat"><div class="n mono" data-count="11930">0</div><div class="l">Messages</div></div>
+        <div class="hstat"><div class="n mono" data-count="2.03" data-suffix="B" data-dec="2">0</div><div class="l">Tokens</div></div>
+        <div class="hstat"><div class="n mono" data-count="47.0" data-suffix="h" data-dec="1">0</div><div class="l">Active build time</div></div>
+      </div>
+    </div>
+
+    <div class="ring-wrap">
+      <svg viewBox="0 0 240 240" role="img" aria-label="Share of total spend by model: Fable 5 fifty percent, GPT-5.6-Sol twenty-eight percent, GPT-5.5 twenty-two percent">
+        <circle class="ring-track" cx="120" cy="120" r="92"></circle>
+        <g id="ringSegs" transform="rotate(-90 120 120)"></g>
+      </svg>
+      <div class="ring-center">
+        <div class="rc-label">Total bill</div>
+        <div class="rc-total mono" data-count="1992.94" data-money="1">$0</div>
+        <div class="rc-sub">Fable 5 = <b class="fable-text">half</b> of it</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 01 model podium -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">01</span>
+      <div class="sec-titles"><h2>The three engines, ranked</h2><p>Same three builds each. The cheapest run and the priciest are separated by more than 2x.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="podium reveal" id="podium"></div>
+  </section>
+
+  <!-- 02 cost by model -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">02</span>
+      <div class="sec-titles"><h2>Total cost by model</h2></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal">
+      <div class="legend" id="legend"></div>
+      <div class="bars" id="modelBars"></div>
+    </div>
+  </section>
+
+  <!-- 03 cost vs volume -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">03</span>
+      <div class="sec-titles"><h2>Cost against volume</h2><p>Every build plotted: tokens processed on the bottom, dollars up the side, bubble size is messages sent. Points that sit high for how far right they are cost more per token. Fable's runs float to the top.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal">
+      <div class="legend" id="legend2"></div>
+      <div class="scatter-wrap"><svg class="scatter" id="scatter" viewBox="0 0 720 440" role="img" aria-label="Scatter plot of cost versus tokens for all nine builds"></svg></div>
+    </div>
+  </section>
+
+  <!-- 04 per app -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">04</span>
+      <div class="sec-titles"><h2>Where the money went, app by app</h2><p>The Swift rewrite on Fable 5 is the single most expensive run in the whole set.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal"><div class="appgrid" id="appGrid"></div></div>
+  </section>
+
+  <!-- 05 composition -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">05</span>
+      <div class="sec-titles"><h2>How each model spends its tokens</h2><p>The cost-heavy token classes only - input, output, and cache writes. Cache reads are cheap and huge, so they are pulled out to the side. This is the chart that explains the bill.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal">
+      <div class="compo-legend">
+        <span class="item"><span class="sw input"></span>Input tokens</span>
+        <span class="item"><span class="sw output"></span>Output tokens</span>
+        <span class="item"><span class="sw cache"></span>Cache writes</span>
+      </div>
+      <div class="compo" id="compo"></div>
+      <div class="compo-note"><span>&rarr;</span><p><b>Fable pays to remember.</b> It sends almost no fresh input but writes <b>23.0M</b> cache tokens - the priciest class there is. Both GPT models write <b>zero</b> cache and instead push 21-26M input tokens. Different strategy, very different bill. Cache reads (cheap): Fable <b>656M</b>, GPT-5.5 <b>579M</b>, GPT-5.6 <b>716M</b>.</p></div>
+    </div>
+  </section>
+
+  <!-- 06 efficiency -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">06</span>
+      <div class="sec-titles"><h2>What each unit of work costs</h2><p>Fable sent the fewest messages of any model, yet charged the most. Normalize by effort and the gap gets sharper.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="eff">
+      <div class="panel glow reveal"><h3>Cost per message</h3><p class="sub">Total cost &divide; messages sent</p><div class="bars" id="cpmBars"></div></div>
+      <div class="panel glow reveal"><h3>Cost per million tokens</h3><p class="sub">Total cost &divide; tokens processed</p><div class="bars" id="cptBars"></div></div>
+    </div>
+    <div class="callout reveal">
+      <div class="big mono">4.4&times;</div>
+      <p><b>The premium is real.</b> Fable 5 costs about <b>4.4x more per message</b> than either GPT model and <b>2.2x</b> the total for the same three apps - almost entirely from those cache writes.</p>
+    </div>
+  </section>
+
+  <!-- 07 runtime -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">07</span>
+      <div class="sec-titles"><h2>How long each build stayed active</h2><p>Recorded workflow time only. Overnight pauses and gaps between manual resumptions are excluded.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="runtime-grid reveal" id="runtimeGrid"></div>
+    <p class="runtime-note reveal"><b>Timing source.</b> Codex uses the goal ledger's exact active seconds. Claude uses root-session turn durations. The Fable-labelled calorie run includes 23m 06s of Opus 4.8 work after a model switch.</p>
+  </section>
+
+  <!-- 08 ledger -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">08</span>
+      <div class="sec-titles"><h2>The full ledger</h2><p>Nine builds, every token class broken out.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="table-scroll reveal">
+      <table>
+        <thead><tr>
+          <th>App</th><th>Model</th><th>Messages</th><th>Tokens in</th><th>Tokens out</th><th>Cache read</th><th>Cache write</th><th>Total tokens</th><th>Active time</th><th>Cost</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+        <tfoot id="tfoot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <b>Method.</b> Usage and cost were validated against Tokscale's workspace-and-model report for July 16-18, 2026, with Claude token classes cross-checked through ccusage. Full-precision costs are rounded only for display. Fable-labelled rows aggregate the entire contestant folder: AI Calorie Tracker includes 110 Opus 4.8 messages and Swift Rewrite includes 8. Active time is goal-scoped, using the Codex goal ledger and Claude root-session turn durations. Cache reads dominate raw volume but are the cheapest class; cache writes and output tokens drive the bill.
+  </footer>
+</div>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+  const C = { fable: 'var(--fable)', gpt55: 'var(--gpt55)', gpt56: 'var(--gpt56)' };
+  const HEX = () => ({
+    fable: getComputedStyle(document.documentElement).getPropertyValue('--fable').trim(),
+    gpt55: getComputedStyle(document.documentElement).getPropertyValue('--gpt55').trim(),
+    gpt56: getComputedStyle(document.documentElement).getPropertyValue('--gpt56').trim(),
+  });
+
+  const TOTAL = 1992.9445877500011;
+  const models = [
+    { key: 'gpt55', name: 'GPT-5.5',     cost: 446.1741390000005, msgs: 4362, tokens: 601110214, tin: 21026201, tout: 1338925, cw: 0,        best: true },
+    { key: 'gpt56', name: 'GPT-5.6-Sol', cost: 550.1650140000002, msgs: 5338, tokens: 743297855, tin: 25688168, tout: 1603799, cw: 0 },
+    { key: 'fable', name: 'Fable 5*',    cost: 996.6054347500005, msgs: 2230, tokens: 681121192, tin: 818231,   tout: 1433201, cw: 23008391 },
+  ];
+  const rows = [
+    { app: 'AI Calorie Tracker', mk: 'fable', model: 'Fable 5*',    msgs: 1061, tin: 499103,   tout: 670109, cr: 200712487, cw: 5067696,  total: 206949395, active: 13483, cost: 276.9499062500007 },
+    { app: 'AI Calorie Tracker', mk: 'gpt55', model: 'GPT-5.5',     msgs: 1512, tin: 8325553,  tout: 436780, cr: 196661248, cw: 0,        total: 205423581, active: 19201, cost: 157.23463900000021 },
+    { app: 'AI Calorie Tracker', mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1724, tin: 8119116,  tout: 513163, cr: 216630272, cw: 0,        total: 225262551, active: 19042, cost: 170.16457599999995 },
+    { app: 'AI Chat App',        mk: 'fable', model: 'Fable 5',     msgs: 396,  tin: 93452,    tout: 239083, cr: 134515693, cw: 1073582,  total: 135921810, active: 7196,  cost: 160.8241380000002 },
+    { app: 'AI Chat App',        mk: 'gpt55', model: 'GPT-5.5',     msgs: 1311, tin: 6219109,  tout: 351619, cr: 167120512, cw: 0,        total: 173691240, active: 15959, cost: 128.2890909999999 },
+    { app: 'AI Chat App',        mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1175, tin: 4733913,  tout: 301251, cr: 179648768, cw: 0,        total: 184683932, active: 12237, cost: 125.504929 },
+    { app: 'Swift Rewrite',      mk: 'fable', model: 'Fable 5*',    msgs: 773,  tin: 225676,   tout: 524009, cr: 320633189, cw: 16867113, total: 338249987, active: 12288, cost: 558.8313904999997 },
+    { app: 'Swift Rewrite',      mk: 'gpt55', model: 'GPT-5.5',     msgs: 1539, tin: 6481539,  tout: 550526, cr: 214963328, cw: 0,        total: 221995393, active: 20878, cost: 160.65040900000037 },
+    { app: 'Swift Rewrite',      mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 2439, tin: 12835139, tout: 789385, cr: 319726848, cw: 0,        total: 333351372, active: 48849, cost: 254.4955090000002 },
+  ];
+  const apps = [
+    { name: 'AI Calorie Tracker', total: 604.3491212500008 },
+    { name: 'AI Chat App',        total: 414.6181580000001 },
+    { name: 'Swift Rewrite',      total: 973.9773085000002 },
+  ];
+
+  const usd  = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const usd3 = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  const num  = n => n.toLocaleString('en-US');
+  const duration = seconds => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours}h ${String(minutes).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+  };
+  const durationShort = seconds => {
+    const totalMinutes = Math.round(seconds / 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+  };
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- tooltip ----------
+  const tip = document.getElementById('tip');
+  const showTip = (html, e) => { tip.innerHTML = html; tip.style.left = e.clientX + 'px'; tip.style.top = e.clientY + 'px'; tip.style.opacity = '1'; };
+  const hideTip = () => { tip.style.opacity = '0'; };
+  const wire = (el, html) => { el.addEventListener('mousemove', e => showTip(html, e)); el.addEventListener('mouseleave', hideTip); };
+
+  // ---------- ring ----------
+  (function ring() {
+    const g = document.getElementById('ringSegs');
+    const r = 92, cx = 120, cy = 120, circ = 2 * Math.PI * r, gap = 5;
+    let offset = 0;
+    const order = [...models].sort((a, b) => b.cost - a.cost); // fable, gpt56, gpt55
+    order.forEach(m => {
+      const frac = m.cost / TOTAL;
+      const len = frac * circ - gap;
+      const segOffset = offset; // capture per-iteration to avoid closure bug
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('class', 'ring-seg');
+      c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', r);
+      c.style.stroke = C[m.key];
+      c.setAttribute('stroke-dasharray', `${Math.max(len,0)} ${circ}`);
+      c.setAttribute('stroke-dashoffset', reduce ? -segOffset : circ);
+      if (!reduce) { c.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(0.22,1,0.36,1)'; requestAnimationFrame(() => { setTimeout(() => c.setAttribute('stroke-dashoffset', -segOffset), 120); }); }
+      wire(c, `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Spend</b><span>${usd(m.cost)}</span></div><div class="tt-row"><b>Share</b><span>${(frac*100).toFixed(1)}%</span></div>`);
+      g.appendChild(c);
+      offset += frac * circ;
+    });
+  })();
+
+  // ---------- count up ----------
+  function countUp(el) {
+    const target = parseFloat(el.dataset.count);
+    const money = el.dataset.money === '1';
+    const dec = el.dataset.dec ? parseInt(el.dataset.dec) : (money ? 2 : 0);
+    const suffix = el.dataset.suffix || '';
+    if (reduce) { el.textContent = (money ? '$' : '') + target.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suffix; return; }
+    const dur = 1400, t0 = performance.now();
+    const tick = t => {
+      const p = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      const v = target * e;
+      el.textContent = (money ? '$' : '') + v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  document.querySelectorAll('[data-count]').forEach(countUp);
+
+  // ---------- legends ----------
+  const legendHTML = models.map(m => `<span class="item"><span class="sw" style="background:${C[m.key]}"></span>${m.name}</span>`).join('');
+  document.getElementById('legend').innerHTML = legendHTML;
+  document.getElementById('legend2').innerHTML = legendHTML;
+
+  // ---------- podium ----------
+  const rankLabel = ['Cheapest', 'Middle', 'Priciest'];
+  const byCost = [...models].sort((a, b) => a.cost - b.cost);
+  document.getElementById('podium').innerHTML = byCost.map((m, i) => `
+    <div class="tile" style="--accent:${C[m.key]}">
+      <span class="aura"></span>
+      <span class="rankpill ${m.best ? 'best' : ''}">${m.best ? 'Cheapest' : rankLabel[i]}</span>
+      <div class="mname"><span class="chip"></span>${m.name}</div>
+      <div class="cost mono">${usd(m.cost)}</div>
+      <div class="share mono"><b>${(m.cost / TOTAL * 100).toFixed(1)}%</b> of total spend</div>
+      <div class="rows">
+        <div class="row"><span>Per message</span><span class="mono">${usd3(m.cost / m.msgs)}</span></div>
+        <div class="row"><span>Per 1M tokens</span><span class="mono">${usd(m.cost / (m.tokens / 1e6))}</span></div>
+        <div class="row"><span>Messages</span><span class="mono">${num(m.msgs)}</span></div>
+        <div class="row"><span>Total tokens</span><span class="mono">${(m.tokens / 1e6).toFixed(1)}M</span></div>
+      </div>
+    </div>`).join('');
+
+  // ---------- horizontal bars ----------
+  function renderBars(id, items, max, fmt, tipFn) {
+    const c = document.getElementById(id);
+    c.innerHTML = items.map(it => {
+      const pct = it.value / max * 100;
+      const outside = pct < 24;
+      return `<div class="bar-row">
+        <div class="lab"><span class="sw" style="background:${C[it.key]}"></span>${it.name}</div>
+        <div class="track">
+          <div class="fill" data-w="${pct}" style="background:${C[it.key]}">${outside ? '' : `<span class="val">${fmt(it.value)}</span>`}</div>
+          ${outside ? `<span class="val outside" data-l="${pct}">${fmt(it.value)}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    [...c.querySelectorAll('.bar-row')].forEach((row, i) => {
+      const out = row.querySelector('.val.outside');
+      if (out) out.style.left = `calc(${out.dataset.l}% + 8px)`;
+      wire(row, tipFn(items[i]));
+    });
+    return c;
+  }
+  function animBars(c) { c.querySelectorAll('.fill').forEach(f => f.style.width = f.dataset.w + '%'); }
+
+  const modelItems = models.map(m => ({ ...m, value: m.cost }));
+  const modelBars = renderBars('modelBars', modelItems, Math.max(...models.map(m => m.cost)), usd,
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Total cost</b><span>${usd(m.cost)}</span></div><div class="tt-row"><b>Messages</b><span>${num(m.msgs)}</span></div><div class="tt-row"><b>Tokens</b><span>${num(m.tokens)}</span></div>`);
+
+  const cpm = models.map(m => ({ ...m, value: m.cost / m.msgs }));
+  const cpmBars = renderBars('cpmBars', cpm, Math.max(...cpm.map(x => x.value)), usd3,
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Per message</b><span>${usd3(m.cost / m.msgs)}</span></div><div class="tt-row"><b>${num(m.msgs)} msgs</b><span>${usd(m.cost)}</span></div>`);
+
+  const cpt = models.map(m => ({ ...m, value: m.cost / (m.tokens / 1e6) }));
+  const cptBars = renderBars('cptBars', cpt, Math.max(...cpt.map(x => x.value)), usd,
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Per 1M tokens</b><span>${usd(m.cost / (m.tokens / 1e6))}</span></div><div class="tt-row"><b>${(m.tokens / 1e6).toFixed(0)}M tokens</b><span>${usd(m.cost)}</span></div>`);
+
+  // ---------- runtime telemetry ----------
+  const runtimeMax = Math.max(...rows.map(r => r.active));
+  document.getElementById('runtimeGrid').innerHTML = apps.map(app => {
+    const appRows = rows.filter(r => r.app === app.name);
+    return `<article class="panel runtime-card">
+      <h3>${app.name}</h3>
+      <div class="runtime-list">${appRows.map(r => `
+        <div class="runtime-row" data-app="${r.app}" data-mk="${r.mk}">
+          <div class="runtime-top">
+            <span class="runtime-model"><span class="sw" style="background:${C[r.mk]}"></span>${r.model}</span>
+            <span class="runtime-value mono">${durationShort(r.active)}</span>
+          </div>
+          <div class="runtime-track"><div class="runtime-fill" data-w="${r.active / runtimeMax * 100}" style="background:${C[r.mk]}"></div></div>
+        </div>`).join('')}</div>
+    </article>`;
+  }).join('');
+  document.querySelectorAll('.runtime-row').forEach(row => {
+    const r = rows.find(x => x.app === row.dataset.app && x.mk === row.dataset.mk);
+    wire(row, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Active time</b><span>${duration(r.active)}</span></div>`);
+  });
+
+  // ---------- per-app grouped ----------
+  const cellMax = Math.max(...rows.map(r => r.cost));
+  document.getElementById('appGrid').innerHTML = apps.map(app => {
+    const cells = rows.filter(r => r.app === app.name).sort((a, b) => b.cost - a.cost);
+    return `<div class="appgroup">
+      <div class="aghead"><div class="agname">${app.name}</div><div class="agtot mono">total <b>${usd(app.total)}</b></div></div>
+      <div class="gbars">${cells.map(r => `
+        <div class="gbar" data-app="${app.name}" data-mk="${r.mk}">
+          <div class="gtop"><span class="gm">${r.model}</span><span class="gv mono">${usd(r.cost)}</span></div>
+          <div class="gtrack"><div class="gfill" data-w="${r.cost / cellMax * 100}" style="background:${C[r.mk]}"></div></div>
+        </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.gbar').forEach(row => {
+    const r = rows.find(x => x.app === row.dataset.app && x.mk === row.dataset.mk);
+    wire(row, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Cost</b><span>${usd(r.cost)}</span></div><div class="tt-row"><b>Messages</b><span>${num(r.msgs)}</span></div><div class="tt-row"><b>Total tokens</b><span>${num(r.total)}</span></div>`);
+  });
+
+  // ---------- composition (input / output / cache-write) ----------
+  const compoMax = Math.max(...models.map(m => m.tin + m.tout + m.cw));
+  const compoParts = [
+    { k: 'tin',  c: 'gpt55', label: 'input' },
+    { k: 'tout', c: 'gpt56', label: 'output' },
+    { k: 'cw',   c: 'fable', label: 'cache writes' },
+  ];
+  document.getElementById('compo').innerHTML = models.map(m => {
+    const rowTotal = m.tin + m.tout + m.cw;
+    const segs = compoParts.map(p => {
+      const v = m[p.k];
+      const wOfMax = v / compoMax * 100;      // width relative to biggest model row
+      const showLabel = v / compoMax > 0.08;
+      const mtok = (v / 1e6).toFixed(v >= 1e6 ? 1 : 2);
+      return `<div class="cseg" data-w="${wOfMax}" style="background:${C[p.c]}" data-tip="${m.name} &middot; ${p.label}|${num(v)} tokens|${(v/rowTotal*100).toFixed(1)}% of its billable-heavy tokens">
+        ${showLabel ? `<span class="cv">${mtok}M</span>` : ''}</div>`;
+    }).join('');
+    return `<div class="compo-row">
+      <div class="clab"><span class="sw" style="background:${C[m.key]}"></span>${m.name}</div>
+      <div class="cstack">${segs}</div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.cseg').forEach(seg => {
+    const [t, a, b] = (seg.dataset.tip || '').split('|');
+    wire(seg, `<div class="tt-title">${t}</div><div class="tt-row"><b>${a}</b></div><div class="tt-row"><b>${b}</b></div>`);
+  });
+  function animCompo() { document.querySelectorAll('.cseg').forEach(s => s.style.width = s.dataset.w + '%'); }
+
+  // ---------- scatter ----------
+  (function scatter() {
+    const svg = document.getElementById('scatter');
+    const NS = 'http://www.w3.org/2000/svg';
+    const W = 720, H = 440, m = { l: 64, r: 24, t: 24, b: 52 };
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const xVals = rows.map(r => r.total / 1e6), yVals = rows.map(r => r.cost);
+    const xMin = 110, xMax = 350, yMin = 100, yMax = 580;
+    const x = v => m.l + (v - xMin) / (xMax - xMin) * pw;
+    const y = v => m.t + ph - (v - yMin) / (yMax - yMin) * ph;
+    const rMsg = v => 8 + Math.sqrt(v / 2439) * 22;
+    const mk = el => document.createElementNS(NS, el);
+
+    // gridlines + y ticks
+    [100, 200, 300, 400, 500].forEach(gy => {
+      const ln = mk('line'); ln.setAttribute('class', 'grid');
+      ln.setAttribute('x1', m.l); ln.setAttribute('x2', m.l + pw); ln.setAttribute('y1', y(gy)); ln.setAttribute('y2', y(gy));
+      svg.appendChild(ln);
+      const tx = mk('text'); tx.setAttribute('x', m.l - 10); tx.setAttribute('y', y(gy) + 4); tx.setAttribute('text-anchor', 'end'); tx.setAttribute('font-size', '11'); tx.textContent = '$' + gy;
+      svg.appendChild(tx);
+    });
+    // x ticks
+    [150, 200, 250, 300, 350].forEach(gx => {
+      const tx = mk('text'); tx.setAttribute('x', x(gx)); tx.setAttribute('y', m.t + ph + 24); tx.setAttribute('text-anchor', 'middle'); tx.setAttribute('font-size', '11'); tx.textContent = gx + 'M';
+      svg.appendChild(tx);
+    });
+    // axis titles
+    const xt = mk('text'); xt.setAttribute('class', 'axis-title'); xt.setAttribute('x', m.l + pw / 2); xt.setAttribute('y', H - 6); xt.setAttribute('text-anchor', 'middle'); xt.textContent = 'Total tokens processed';
+    svg.appendChild(xt);
+    const yt = mk('text'); yt.setAttribute('class', 'axis-title'); yt.setAttribute('transform', `rotate(-90 16 ${m.t + ph / 2})`); yt.setAttribute('x', 16); yt.setAttribute('y', m.t + ph / 2); yt.setAttribute('text-anchor', 'middle'); yt.textContent = 'Cost ($)';
+    svg.appendChild(yt);
+
+    // bubbles
+    rows.forEach(r => {
+      const cx = x(r.total / 1e6), cy = y(r.cost), rr = rMsg(r.msgs);
+      const c = mk('circle');
+      c.setAttribute('class', 'dot'); c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+      c.style.fill = C[r.mk]; c.setAttribute('fill-opacity', '0.82');
+      c.setAttribute('r', reduce ? rr : 0);
+      if (!reduce) { c.style.transition = 'r 0.8s cubic-bezier(0.22,1,0.36,1)'; c.dataset.r = rr; }
+      wire(c, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Cost</b><span>${usd(r.cost)}</span></div><div class="tt-row"><b>Tokens</b><span>${num(r.total)}</span></div><div class="tt-row"><b>Messages</b><span>${num(r.msgs)}</span></div>`);
+      svg.appendChild(c);
+    });
+    // label the outlier
+    const out = rows.find(r => r.cost === 558.83);
+    const lb = mk('text'); lb.setAttribute('class', 'dlabel'); lb.setAttribute('x', x(out.total / 1e6)); lb.setAttribute('y', y(out.cost) - rMsg(out.msgs) - 8); lb.setAttribute('text-anchor', 'middle'); lb.textContent = 'Swift on Fable - $559';
+    svg.appendChild(lb);
+    const nt = mk('text'); nt.setAttribute('class', 'note'); nt.setAttribute('x', m.l + 6); nt.setAttribute('y', m.t + 10); nt.setAttribute('text-anchor', 'start'); nt.textContent = 'bubble size = messages sent';
+    svg.appendChild(nt);
+    svg._anim = () => { if (reduce) return; svg.querySelectorAll('.dot').forEach(d => d.setAttribute('r', d.dataset.r)); };
+  })();
+
+  // ---------- table ----------
+  document.getElementById('tbody').innerHTML = rows.map((r, i) => `
+    <tr class="${i % 3 === 0 && i > 0 ? 'grouptop' : ''}">
+      <td>${i % 3 === 0 ? r.app : ''}</td>
+      <td><span class="mchip"><span class="sw" style="background:${C[r.mk]}"></span>${r.model}</span></td>
+      <td class="mono">${num(r.msgs)}</td><td class="mono">${num(r.tin)}</td><td class="mono">${num(r.tout)}</td>
+      <td class="mono">${num(r.cr)}</td><td class="mono">${num(r.cw)}</td><td class="mono">${num(r.total)}</td><td class="mono">${duration(r.active)}</td>
+      <td class="mono cost-cell">${usd(r.cost)}</td>
+    </tr>`).join('');
+  const sum = k => rows.reduce((a, r) => a + r[k], 0);
+  document.getElementById('tfoot').innerHTML = `<tr>
+    <td>All builds</td><td>9 runs</td>
+    <td class="mono">${num(sum('msgs'))}</td><td class="mono">${num(sum('tin'))}</td><td class="mono">${num(sum('tout'))}</td>
+    <td class="mono">${num(sum('cr'))}</td><td class="mono">${num(sum('cw'))}</td><td class="mono">${num(sum('total'))}</td><td class="mono">${durationShort(sum('active'))}</td>
+    <td class="mono">${usd(sum('cost'))}</td></tr>`;
+
+  // ---------- reveal + trigger animations ----------
+  const anims = new Map([
+    [modelBars.closest('.panel'), () => animBars(modelBars)],
+    [document.getElementById('scatter').closest('.panel'), () => document.getElementById('scatter')._anim()],
+    [document.getElementById('appGrid').closest('.panel'), () => document.querySelectorAll('.gfill').forEach(f => f.style.width = f.dataset.w + '%')],
+    [document.getElementById('compo').closest('.panel'), animCompo],
+    [cpmBars.closest('.panel'), () => { animBars(cpmBars); animBars(cptBars); }],
+    [document.getElementById('runtimeGrid'), () => document.querySelectorAll('.runtime-fill').forEach(f => f.style.width = f.dataset.w + '%')],
+  ]);
+  if (reduce) {
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+    anims.forEach(fn => fn());
+  } else {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        for (const [panel, fn] of anims) { if (panel && (panel === e.target || e.target.contains(panel) || panel.contains(e.target))) { setTimeout(fn, 180); } }
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.18 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    // hero bars/ring are above the fold - fire immediately
+  }
+</script>
+</body>
+</html>
