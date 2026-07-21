@@ -263,6 +263,42 @@
   .runtime-note { margin-top: 1.2rem; color: var(--ink-2); font-size: 0.84rem; max-width: 82ch; }
   .runtime-note b { color: var(--ink); }
 
+  /* ---------- claude usage appendix ---------- */
+  .usage-appendix { position: relative; padding-top: clamp(2.5rem,5vw,4rem); border-top: 1px solid var(--line); }
+  .usage-appendix::before { content: "supplemental dataset"; position: absolute; top: -0.72rem; left: 0; padding: 0.16rem 0.65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--page); color: var(--muted); font: 600 0.62rem/1.4 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.09em; text-transform: uppercase; }
+  .scope-banner { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(260px,0.75fr); gap: 1.2rem; align-items: center; margin-bottom: 1rem; background: linear-gradient(120deg, var(--gpt55-glow), transparent 62%), var(--panel); }
+  .scope-banner h3 { margin: 0 0 0.45rem; font-size: 1.05rem; letter-spacing: -0.015em; }
+  .scope-banner p { margin: 0; color: var(--ink-2); font-size: 0.87rem; max-width: 68ch; }
+  .scope-tags { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.45rem; }
+  .scope-tag { border: 1px solid var(--line); border-radius: 999px; padding: 0.3rem 0.58rem; color: var(--ink-2); background: color-mix(in srgb, var(--panel-2) 80%, transparent); font-size: 0.66rem; white-space: nowrap; }
+  .driver-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+  .driver-card { overflow: hidden; min-height: 224px; display: flex; flex-direction: column; }
+  .driver-card::after { content: ""; position: absolute; inset: 0 0 auto; width: auto; height: 3px; border: 0; border-radius: 0; background: var(--signal); }
+  .driver-kpi { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .driver-pct { color: var(--signal); font-size: clamp(2.4rem,5vw,3.5rem); font-weight: 800; letter-spacing: -0.055em; line-height: 0.9; }
+  .driver-rank { border: 1px solid color-mix(in srgb, var(--signal) 35%, var(--line)); border-radius: 999px; padding: 0.2rem 0.5rem; color: var(--signal); font-size: 0.58rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .driver-track { height: 7px; margin: 1.05rem 0 1rem; overflow: hidden; border-radius: 3px; background: var(--track); }
+  .driver-fill { width: var(--w); height: 100%; border-radius: 0 3px 3px 0; background: var(--signal); }
+  .driver-card h3 { margin: 0 0 0.45rem; font-size: 0.96rem; letter-spacing: -0.01em; }
+  .driver-card p { margin: 0; color: var(--ink-2); font-size: 0.81rem; line-height: 1.5; }
+  .source-grid { display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr; gap: 1rem; margin-top: 1rem; }
+  .source-panel h3 { margin: 0; font-size: 0.96rem; letter-spacing: -0.01em; }
+  .source-panel .sub { margin: 0.3rem 0 1.1rem; color: var(--muted); font-size: 0.72rem; }
+  .usage-list { display: grid; gap: 0.78rem; }
+  .usage-item { display: grid; gap: 0.28rem; }
+  .usage-item-top { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; font-size: 0.76rem; }
+  .usage-item-name { min-width: 0; overflow: hidden; color: var(--ink-2); text-overflow: ellipsis; white-space: nowrap; }
+  .usage-item-value { color: var(--ink); font-weight: 700; }
+  .usage-meter { height: 6px; overflow: hidden; border-radius: 3px; background: var(--track); }
+  .usage-meter span { display: block; width: var(--w); min-width: 3px; height: 100%; border-radius: 0 3px 3px 0; background: var(--accent); }
+  .usage-actions { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; margin-top: 1rem; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--line); }
+  .usage-action { display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; padding: 1.15rem 1.25rem; background: var(--panel); }
+  .usage-action .idx { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: 0.65rem; }
+  .usage-action h3 { margin: 0 0 0.3rem; font-size: 0.87rem; }
+  .usage-action p { margin: 0; color: var(--ink-2); font-size: 0.78rem; line-height: 1.48; }
+  .usage-source-note { margin: 1rem 0 0; color: var(--muted); font-size: 0.78rem; max-width: 90ch; }
+  .usage-source-note b { color: var(--ink-2); }
+
   /* ---------- table ---------- */
   .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
   table { border-collapse: collapse; width: 100%; min-width: 980px; background: var(--panel); }
@@ -296,10 +332,15 @@
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
     .ring-wrap { order: -1; }
-    .podium, .appgrid, .eff, .runtime-summary { grid-template-columns: 1fr; }
+    .podium, .appgrid, .eff, .runtime-summary, .driver-grid, .source-grid { grid-template-columns: 1fr; }
+    .scope-banner { grid-template-columns: 1fr; }
+    .scope-tags { justify-content: flex-start; }
     .runtime-axis, .runtime-row { grid-template-columns: 112px minmax(220px,1fr) 76px; }
     .runtime-chart { overflow-x: auto; }
     .runtime-chart-inner { min-width: 540px; }
+  }
+  @media (max-width: 580px) {
+    .usage-actions { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -454,6 +495,89 @@
         <tfoot id="tfoot"></tfoot>
       </table>
     </div>
+  </section>
+
+  <!-- a1 claude usage appendix -->
+  <section class="usage-appendix">
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">A1</span>
+      <div class="sec-titles"><h2>What is driving Claude usage pressure</h2><p>A separate seven-day diagnostic from Claude Code's <span class="mono">/usage</span> command. These signals describe local usage patterns, not the nine benchmark builds above.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+
+    <div class="panel scope-banner reveal">
+      <div>
+        <h3>Read these as overlapping signals</h3>
+        <p>Each percentage answers a different question about the same activity. They are independent characteristics, not slices of one total, so they should not be added together.</p>
+      </div>
+      <div class="scope-tags mono" role="group" aria-label="Dataset scope">
+        <span class="scope-tag">source: /usage</span>
+        <span class="scope-tag">window: last 7d</span>
+        <span class="scope-tag">local sessions only</span>
+        <span class="scope-tag">approximate</span>
+      </div>
+    </div>
+
+    <div class="driver-grid reveal">
+      <article class="panel driver-card" style="--signal:var(--fable)">
+        <div class="driver-kpi"><span class="driver-pct mono">82%</span><span class="driver-rank">largest signal</span></div>
+        <div class="driver-track" role="img" aria-label="82 percent of usage was at more than 150 thousand context"><div class="driver-fill" style="--w:82%"></div></div>
+        <h3>Usage at more than 150k context</h3>
+        <p>Long sessions remain expensive even when their context is cached. Context length is the clearest usage-pressure signal in this snapshot.</p>
+      </article>
+      <article class="panel driver-card" style="--signal:var(--gpt56)">
+        <div class="driver-kpi"><span class="driver-pct mono">68%</span><span class="driver-rank">long running</span></div>
+        <div class="driver-track" role="img" aria-label="68 percent of usage came from sessions active for eight hours or longer"><div class="driver-fill" style="--w:68%"></div></div>
+        <h3>Sessions active for 8+ hours</h3>
+        <p>This often points to background or loop sessions. Continuous activity can accumulate quickly, so it is worth confirming that every long run is intentional.</p>
+      </article>
+      <article class="panel driver-card" style="--signal:var(--gpt55)">
+        <div class="driver-kpi"><span class="driver-pct mono">24%</span><span class="driver-rank">agent fan-out</span></div>
+        <div class="driver-track" role="img" aria-label="24 percent of usage came from subagent-heavy sessions"><div class="driver-fill" style="--w:24%"></div></div>
+        <h3>Subagent-heavy sessions</h3>
+        <p>Every subagent makes its own requests. Delegation is useful, but model choice and prompt scope materially affect its usage footprint.</p>
+      </article>
+    </div>
+
+    <div class="source-grid reveal">
+      <article class="panel source-panel">
+        <h3>Skills</h3>
+        <p class="sub">Share of usage associated with each skill</p>
+        <div class="usage-list">
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">/argent-device-interact</span><span class="usage-item-value mono">15%</span></div><div class="usage-meter"><span style="--w:15%;--accent:var(--fable)"></span></div></div>
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">/argent-react-native-app-wo&hellip;</span><span class="usage-item-value mono">11%</span></div><div class="usage-meter"><span style="--w:11%;--accent:var(--fable)"></span></div></div>
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">/xcodebuildmcp-cli</span><span class="usage-item-value mono">2%</span></div><div class="usage-meter"><span style="--w:2%;--accent:var(--fable)"></span></div></div>
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">/test-driven-development</span><span class="usage-item-value mono">1%</span></div><div class="usage-meter"><span style="--w:1%;--accent:var(--fable)"></span></div></div>
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">/half-clone</span><span class="usage-item-value mono">1%</span></div><div class="usage-meter"><span style="--w:1%;--accent:var(--fable)"></span></div></div>
+        </div>
+      </article>
+
+      <article class="panel source-panel">
+        <h3>Subagents</h3>
+        <p class="sub">Usage associated with named subagent types</p>
+        <div class="usage-list">
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">general-purpose</span><span class="usage-item-value mono">11%</span></div><div class="usage-meter"><span style="--w:11%;--accent:var(--gpt55)"></span></div></div>
+        </div>
+      </article>
+
+      <article class="panel source-panel">
+        <h3>MCP servers</h3>
+        <p class="sub">Usage associated with connected tool servers</p>
+        <div class="usage-list">
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">argent</span><span class="usage-item-value mono">64%</span></div><div class="usage-meter"><span style="--w:64%;--accent:var(--gpt56)"></span></div></div>
+          <div class="usage-item"><div class="usage-item-top"><span class="usage-item-name mono">Expo</span><span class="usage-item-value mono">5%</span></div><div class="usage-meter"><span style="--w:5%;--accent:var(--gpt56)"></span></div></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="usage-actions reveal">
+      <article class="usage-action"><span class="idx mono">01</span><div><h3>Reset context deliberately</h3><p>Use <span class="mono">/compact</span> during a long task and <span class="mono">/clear</span> when switching to unrelated work.</p></div></article>
+      <article class="usage-action"><span class="idx mono">02</span><div><h3>Audit long-running sessions</h3><p>Check that background and loop activity lasting eight hours or more is expected and still productive.</p></div></article>
+      <article class="usage-action"><span class="idx mono">03</span><div><h3>Delegate with a budget</h3><p>Use cheaper models for simpler subagents, especially <span class="mono">general-purpose</span>, and tighten prompts before spawning them.</p></div></article>
+      <article class="usage-action"><span class="idx mono">04</span><div><h3>Keep tools from becoming context</h3><p>MCP results remain in session context. Disable servers that are not needed, compact after large results, and scope heavy skills down or assign them a cheaper model in frontmatter.</p></div></article>
+    </div>
+
+    <p class="usage-source-note reveal"><b>Source and limits.</b> Claude Code <span class="mono">/usage</span>, last seven days, approximate from sessions stored on this machine. Activity from other devices and claude.ai is excluded. The truncated skill name is preserved exactly as displayed by the command.</p>
   </section>
 
   <footer>
