@@ -4,6 +4,7 @@ import type { SleepSession } from '@/domain/models';
 import { MINIMUM_SESSION_DURATION_SECONDS } from '@/domain/session-rules';
 
 import { getDatabase } from './db';
+import { createDemoSleepSessions, isDemoMode } from '@/demo/demo-mode';
 
 export type SessionDatabaseValue = string | number | null;
 
@@ -264,11 +265,32 @@ export class SessionRepository {
   }
 }
 
+let demoSeedPromise: Promise<void> | null = null;
+
 export async function getSessionRepository(): Promise<SessionRepository> {
   const database = await getDatabase();
-  return new SessionRepository({
+  const repository = new SessionRepository({
     getAllAsync: (query, parameters) => database.getAllAsync(query, parameters ?? []),
     getFirstAsync: (query, parameters) => database.getFirstAsync(query, parameters ?? []),
     runAsync: (query, parameters) => database.runAsync(query, parameters ?? []),
   });
+
+  if (isDemoMode) {
+    demoSeedPromise ??= (async () => {
+      await database.runAsync("DELETE FROM sleep_sessions WHERE id LIKE 'demo-sleep-%'");
+      for (const session of createDemoSleepSessions()) {
+        await repository.createCompleted({
+          id: session.id,
+          tag: 'Sleep Mode',
+          startTime: session.startTime,
+          endTime: session.endTime,
+          startTimeZone: session.timeZone,
+          endTimeZone: session.timeZone,
+        });
+      }
+    })();
+    await demoSeedPromise;
+  }
+
+  return repository;
 }

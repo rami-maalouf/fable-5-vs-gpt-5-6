@@ -3,6 +3,7 @@ import { fetch } from 'expo/fetch';
 import { useCallback, useRef, useState } from 'react';
 
 import { DEFAULT_CHAT_MODEL, type ChatModel } from '@/domain/model';
+import { demoReply, isDemoMode } from '@/demo/demo-mode';
 
 type ChatStreamMessage = {
   content: string;
@@ -170,6 +171,19 @@ export function useChatStream() {
     setText('');
 
     try {
+      if (isDemoMode) {
+        let assembledDemoText = '';
+        for (const word of demoReply.split(' ')) {
+          if (abortController.signal.aborted) return { status: 'stopped' };
+          const chunk = `${assembledDemoText ? ' ' : ''}${word}`;
+          assembledDemoText += chunk;
+          setText((current) => current + chunk);
+          onText?.(chunk);
+          await new Promise((resolve) => setTimeout(resolve, 35));
+        }
+        return { status: 'complete' };
+      }
+
       const response = await fetch(getChatRouteUrl('/chat'), {
         body: JSON.stringify({ messages, model }),
         headers: {

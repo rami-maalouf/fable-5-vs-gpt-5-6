@@ -17,6 +17,7 @@ import {
   type DaySummary,
   type Meal,
 } from '@/domain/nutrition';
+import { createDemoMeals, isDemoMode } from '@/demo/demo-mode';
 import { publishRemainingCalories } from '@/services/widget';
 
 type DayState = {
@@ -25,7 +26,9 @@ type DayState = {
 
 type DayAction = { type: 'accept_meal'; meal: Meal };
 
-const INITIAL_DAY_STATE: DayState = { meals: [] };
+const INITIAL_DAY_STATE: DayState = {
+  meals: isDemoMode ? createDemoMeals() : [],
+};
 
 function dayReducer(state: DayState, action: DayAction): DayState {
   switch (action.type) {

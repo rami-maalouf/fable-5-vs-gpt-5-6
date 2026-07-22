@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import type { ChatModel } from '@/domain/model';
 import { DEFAULT_CHAT_MODEL } from '@/domain/model';
 import type { AssistantMessageStatus, MessageRole } from '@/domain/message';
+import { createDemoMessages, isDemoMode } from '@/demo/demo-mode';
 
 export type ChatTranscriptMessageStatus = AssistantMessageStatus | 'streaming';
 
@@ -72,7 +73,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   currentConversationId: null,
   currentModel: DEFAULT_CHAT_MODEL,
   isAwaitingFirstToken: false,
-  messages: [],
+  messages: isDemoMode ? createDemoMessages() : [],
 
   appendAssistantChunk: (assistantMessageId, chunk) => {
     if (chunk.length === 0) {

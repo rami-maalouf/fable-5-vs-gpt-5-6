@@ -8,6 +8,7 @@ import {
   type ScanSuccess,
 } from '@/domain/scan-contract';
 import type { FailureReason } from '@/domain/scan-machine';
+import { demoScanResult, isDemoMode } from '@/demo/demo-mode';
 
 export type AnalysisOutcome =
   | { kind: 'success'; result: ScanSuccess }
@@ -22,6 +23,12 @@ export async function analyzePhoto(
   image: string,
   signal?: AbortSignal,
 ): Promise<AnalysisOutcome> {
+  if (isDemoMode) {
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    if (signal?.aborted) return { kind: 'aborted' };
+    return { kind: 'success', result: demoScanResult };
+  }
+
   let response: Response;
   try {
     response = await fetch('/scan', {

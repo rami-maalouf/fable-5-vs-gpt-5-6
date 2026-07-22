@@ -1,5 +1,6 @@
 import { parseNutritionAnalysis, type NutritionAnalysisSuccess } from "@/domain/nutrition";
 import type { PreparedScanPhoto } from "@/domain/scan-machine";
+import { demoScanResult, isDemoMode } from "@/demo/demo-mode";
 
 export type AnalyzePreparedPhotoResult =
   | {
@@ -24,6 +25,14 @@ export async function analyzePreparedPhoto(
   photo: PreparedScanPhoto,
   options: { signal?: AbortSignal } = {},
 ): Promise<AnalyzePreparedPhotoResult> {
+  if (isDemoMode) {
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    if (options.signal?.aborted) {
+      throw new DOMException("The request was stopped.", "AbortError");
+    }
+    return { type: "food", result: demoScanResult };
+  }
+
   let response: Response;
 
   try {

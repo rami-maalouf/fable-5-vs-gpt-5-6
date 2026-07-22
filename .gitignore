@@ -31,3 +31,4 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 *.log
+.demo-wall/

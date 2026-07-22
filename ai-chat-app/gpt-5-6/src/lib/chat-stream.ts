@@ -1,3 +1,5 @@
+import { demoReply, isDemoMode } from '@/demo/demo-mode';
+
 export type ChatRequestMessage = {
   role: 'user' | 'assistant';
   content: string;
@@ -36,6 +38,15 @@ export async function streamChatResponse({
   onChunk,
   fetchImpl,
 }: StreamChatResponseOptions) {
+  if (isDemoMode) {
+    for (const word of demoReply.split(' ')) {
+      if (signal.aborted) throw new DOMException('The request was stopped.', 'AbortError');
+      onChunk(`${word} `);
+      await new Promise((resolve) => setTimeout(resolve, 35));
+    }
+    return;
+  }
+
   const response = await fetchImpl('/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

@@ -1,0 +1,11 @@
+{
+  "name": "ai-model-comparison-apps",
+  "private": true,
+  "scripts": {
+    "demo:doctor": "bun demo-wall/demo-wall.ts doctor",
+    "demo:setup": "bun demo-wall/demo-wall.ts setup",
+    "demo:start": "bun demo-wall/demo-wall.ts start",
+    "demo:reset": "bun demo-wall/demo-wall.ts reset",
+    "demo:stop": "bun demo-wall/demo-wall.ts stop"
+  }
+}

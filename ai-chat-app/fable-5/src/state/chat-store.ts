@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import type { Conversation, Message, MessageStatus } from '@/domain/messages';
 import { DEFAULT_MODEL, isAllowedModel } from '@/domain/models';
+import { createDemoMessages, demoConversationId, isDemoMode } from '@/demo/demo-mode';
 
 export type SendState = 'idle' | 'awaiting' | 'streaming';
 
@@ -26,9 +27,9 @@ type ChatStore = {
 };
 
 export const useChatStore = create<ChatStore>((set) => ({
-  conversationId: null,
+  conversationId: isDemoMode ? demoConversationId : null,
   model: DEFAULT_MODEL,
-  messages: [],
+  messages: isDemoMode ? createDemoMessages() : [],
   sendState: 'idle',
   streamingMessageId: null,
 

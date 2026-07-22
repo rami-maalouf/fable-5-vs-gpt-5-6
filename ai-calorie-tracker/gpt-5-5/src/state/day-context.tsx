@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 
 import { getDaySummary, type DaySummary, type Meal } from "@/domain/nutrition";
+import { createDemoMeals, isDemoMode } from "@/demo/demo-mode";
 import { publishRemainingCalories } from "@/services/widget";
 
 type DayState = {
@@ -32,7 +33,7 @@ type DayProviderProps = {
 };
 
 const initialDayState: DayState = {
-  meals: [],
+  meals: isDemoMode ? createDemoMeals() : [],
 };
 
 const DayContext = createContext<DayContextValue | null>(null);

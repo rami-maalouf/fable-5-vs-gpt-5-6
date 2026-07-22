@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, LinearTransition } from 'react-native-reanimated';
 
 import { ErrorRow } from '@/components/chat/ErrorRow';
+import { isDemoMode } from '@/demo/demo-mode';
 import type { ChatTranscriptMessage } from '@/state/chat';
 import { spacing, useNovaTheme } from '@/theme';
 
@@ -22,8 +23,8 @@ function MessageRowComponent({
   if (message.role === 'user') {
     return (
       <Animated.View
-        entering={FadeInUp.duration(160)}
-        layout={LinearTransition.duration(120)}
+        entering={isDemoMode ? undefined : FadeInUp.duration(160)}
+        layout={isDemoMode ? undefined : LinearTransition.duration(120)}
         style={styles.userRow}
       >
         <View style={[styles.userBubble, { backgroundColor: theme.colors.accent }]}>
@@ -41,8 +42,8 @@ function MessageRowComponent({
 
   return (
     <Animated.View
-      entering={FadeIn.duration(140)}
-      layout={LinearTransition.duration(120)}
+      entering={isDemoMode ? undefined : FadeIn.duration(140)}
+      layout={isDemoMode ? undefined : LinearTransition.duration(120)}
       style={styles.assistantRow}
     >
       {shouldShowLoading ? (

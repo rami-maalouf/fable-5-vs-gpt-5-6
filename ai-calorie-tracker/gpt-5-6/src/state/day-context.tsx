@@ -11,6 +11,7 @@ import {
 
 import type { DaySummary, Meal } from '@/domain/nutrition';
 import { getDaySummary } from '@/domain/nutrition';
+import { createDemoMeals, isDemoMode } from '@/demo/demo-mode';
 import { updateRemainingCaloriesWidget } from '@/services/widget';
 
 export type DayAction =
@@ -41,7 +42,10 @@ export function dayReducer(
 }
 
 export function DayProvider({ children }: PropsWithChildren) {
-  const [meals, dispatch] = useReducer(dayReducer, [] as readonly Meal[]);
+  const [meals, dispatch] = useReducer(
+    dayReducer,
+    isDemoMode ? createDemoMeals() : ([] as readonly Meal[]),
+  );
   const mealsRef = useRef(meals);
 
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { parseScanResult, type ScanResult } from '@/domain/scan-contract';
+import { demoScanResult, isDemoMode } from '@/demo/demo-mode';
 
 export type AnalysisFailureKind = 'network' | 'analysis';
 
@@ -13,6 +14,14 @@ export async function analyzePhoto(
   image: string,
   signal?: AbortSignal,
 ): Promise<ScanResult> {
+  if (isDemoMode) {
+    await new Promise((resolve) => setTimeout(resolve, 650));
+    if (signal?.aborted) {
+      throw new DOMException('The request was stopped.', 'AbortError');
+    }
+    return demoScanResult;
+  }
+
   let response: Response;
 
   try {

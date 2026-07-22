@@ -1,6 +1,7 @@
 import Storage from 'expo-sqlite/kv-store';
 
 import { defaultSleepSettings, type SleepSettings, type ThemeMode, type ThemePalette } from '@/domain/models';
+import { isDemoMode } from '@/demo/demo-mode';
 
 export type SettingsStorageLike = {
   getItem(key: string): Promise<string | null>;
@@ -67,7 +68,7 @@ export function createSettingsStore(storage: SettingsStorageLike = Storage) {
         storage.getItem(keys.liveActivityId),
       ]);
 
-      return {
+      const settings = {
         isOnboarded: parseBoolean(isOnboarded, defaultSleepSettings.isOnboarded),
         optimalSleepMinutes: parseInteger(optimalSleepMinutes, defaultSleepSettings.optimalSleepMinutes),
         optimalWakeMinutes: parseInteger(optimalWakeMinutes, defaultSleepSettings.optimalWakeMinutes),
@@ -77,6 +78,10 @@ export function createSettingsStore(storage: SettingsStorageLike = Storage) {
         liveActivityEnabled: parseBoolean(liveActivityEnabled, defaultSleepSettings.liveActivityEnabled),
         liveActivityId: liveActivityId ?? defaultSleepSettings.liveActivityId,
       };
+
+      return isDemoMode
+        ? { ...settings, isOnboarded: true, themeMode: 'dark', windDownEnabled: false }
+        : settings;
     },
 
     async saveSettings(settings: SleepSettings) {

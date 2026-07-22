@@ -1,5 +1,6 @@
 import { fetch } from 'expo/fetch';
 import { useCallback, useRef } from 'react';
+import { demoReply, isDemoMode } from '@/demo/demo-mode';
 
 export type ChatTurnMessage = { role: 'user' | 'assistant'; content: string };
 
@@ -38,6 +39,17 @@ export async function streamChat(
   callbacks: StreamCallbacks,
   controller: AbortController,
 ): Promise<StreamResult> {
+  if (isDemoMode) {
+    let demoText = '';
+    for (const word of demoReply.split(' ')) {
+      if (controller.signal.aborted) return { outcome: 'stopped', text: demoText };
+      demoText += `${demoText ? ' ' : ''}${word}`;
+      callbacks.onText(demoText);
+      await new Promise((resolve) => setTimeout(resolve, 35));
+    }
+    return { outcome: 'complete', text: demoText };
+  }
+
   let assembled = '';
 
   // batch ui updates to ~40ms so long replies stream smoothly instead of

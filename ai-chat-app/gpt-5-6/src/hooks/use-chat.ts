@@ -30,6 +30,7 @@ import {
   updateConversationModel,
 } from '@/lib/db';
 import { createTextBatcher } from '@/lib/text-batcher';
+import { createDemoMessages, isDemoMode } from '@/demo/demo-mode';
 
 export type { ChatMessage } from '@/lib/chat-state';
 
@@ -51,7 +52,9 @@ const appFetch = Platform.OS === 'web' ? fetch : createAppFetch(fetch, apiOrigin
 export function useChat(initialModel: ChatModel = 'gpt-5.6-luna') {
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [model, setModel] = useState<ChatModel>(initialModel);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    isDemoMode ? createDemoMessages() : [],
+  );
   const [isGenerating, setIsGenerating] = useState(false);
   const [failedTurn, setFailedTurn] = useState<RetryTurn | null>(null);
   const abortController = useRef<AbortController | null>(null);

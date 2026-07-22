@@ -3,6 +3,7 @@
 import Storage from 'expo-sqlite/kv-store';
 
 import type { SleepSettings } from '@/domain/models';
+import { isDemoMode } from '@/demo/demo-mode';
 
 export interface KeyValueStorage {
   getItem(key: string): Promise<string | null>;
@@ -55,6 +56,15 @@ function isValidSetting<K extends keyof SleepSettings>(
 
 export function createSettingsStore(storage: KeyValueStorage = Storage) {
   async function get<K extends keyof SleepSettings>(key: K): Promise<SleepSettings[K]> {
+    if (isDemoMode) {
+      const demoSettings: SleepSettings = {
+        ...DEFAULT_SLEEP_SETTINGS,
+        isOnboarded: true,
+        windDownReminderEnabled: false,
+      };
+      return demoSettings[key];
+    }
+
     const storedValue = await storage.getItem(storageKeyBySetting[key]);
     if (storedValue === null) {
       return DEFAULT_SLEEP_SETTINGS[key];
