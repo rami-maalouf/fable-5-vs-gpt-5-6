@@ -306,6 +306,40 @@
   .code-note { margin: 1rem 0 0; color: var(--muted); font-size: 0.78rem; max-width: 94ch; }
   .code-note b { color: var(--ink-2); }
 
+  /* ---------- time versus source correlation ---------- */
+  .corr-layout { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(250px,0.35fr); gap: 1rem; align-items: stretch; }
+  .corr-chart-panel { min-width: 0; }
+  .corr-wrap { overflow-x: auto; }
+  .correlation { display: block; width: 100%; min-width: 620px; height: auto; }
+  .correlation text { font-family: ui-monospace, Menlo, monospace; fill: var(--muted); }
+  .correlation .grid { stroke: var(--line); stroke-width: 1; }
+  .correlation .axis-title { fill: var(--ink-2); font-size: 12px; font-weight: 600; }
+  .correlation .trend { fill: none; stroke-width: 2.2; }
+  .correlation .trend.overall { stroke: var(--ink-2); }
+  .correlation .trend.sensitivity { stroke: var(--fable); stroke-dasharray: 7 6; }
+  .correlation .corr-dot { stroke: var(--panel); stroke-width: 3; cursor: default; }
+  .correlation .corr-dot.outlier { stroke: var(--ink); stroke-width: 3.5; }
+  .correlation .corr-code { fill: #fff; font-size: 9px; font-weight: 800; text-anchor: middle; pointer-events: none; }
+  .correlation .outlier-note { fill: var(--ink); font-size: 10px; font-weight: 650; }
+  .trend-key { width: 18px; height: 0; border-top: 2px solid var(--ink-2); }
+  .trend-key.sensitivity { border-color: var(--fable); border-top-style: dashed; }
+  .corr-verdict { display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; background: linear-gradient(145deg, var(--gpt55-glow), transparent 65%), var(--panel); }
+  .corr-verdict .eyebrow { color: var(--muted); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .corr-verdict .hero-r { margin: 0.6rem 0 0.15rem; color: var(--gpt55); font-size: clamp(3.2rem,7vw,5.1rem); font-weight: 850; letter-spacing: -0.07em; line-height: 0.9; }
+  .corr-verdict h3 { margin: 0.5rem 0; font-size: 1rem; }
+  .corr-verdict > p { margin: 0; color: var(--ink-2); font-size: 0.8rem; line-height: 1.5; }
+  .corr-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1.4rem; }
+  .corr-mini { padding-top: 0.7rem; border-top: 1px solid var(--line); }
+  .corr-mini .n { color: var(--ink); font-size: 1.15rem; font-weight: 800; }
+  .corr-mini .l { margin-top: 0.15rem; color: var(--muted); font-size: 0.61rem; line-height: 1.35; text-transform: uppercase; }
+  .corr-reading { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 1rem; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--line); }
+  .corr-reading article { padding: 1rem 1.15rem; background: var(--panel); }
+  .corr-reading .n { color: var(--gpt56); font-size: 1.45rem; font-weight: 800; letter-spacing: -0.035em; }
+  .corr-reading h3 { margin: 0.25rem 0; font-size: 0.82rem; }
+  .corr-reading p { margin: 0; color: var(--ink-2); font-size: 0.74rem; line-height: 1.45; }
+  .corr-note { margin: 1rem 0 0; color: var(--muted); font-size: 0.78rem; max-width: 94ch; }
+  .corr-note b { color: var(--ink-2); }
+
   /* ---------- claude usage appendix ---------- */
   .usage-appendix { position: relative; padding-top: clamp(2.5rem,5vw,4rem); border-top: 1px solid var(--line); }
   .usage-appendix::before { content: "supplemental dataset"; position: absolute; top: -0.72rem; left: 0; padding: 0.16rem 0.65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--page); color: var(--muted); font: 600 0.62rem/1.4 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.09em; text-transform: uppercase; }
@@ -376,7 +410,7 @@
     .hero { grid-template-columns: 1fr; }
     .ring-wrap { order: -1; }
     .podium, .appgrid, .eff, .runtime-summary, .code-summary, .driver-grid, .source-grid { grid-template-columns: 1fr; }
-    .scope-banner { grid-template-columns: 1fr; }
+    .scope-banner, .corr-layout { grid-template-columns: 1fr; }
     .scope-tags { justify-content: flex-start; }
     .runtime-axis, .runtime-row { grid-template-columns: 112px minmax(220px,1fr) 76px; }
     .runtime-chart { overflow-x: auto; }
@@ -386,7 +420,7 @@
     .code-axis, .code-row { grid-template-columns: 112px minmax(240px,1fr) 100px; }
   }
   @media (max-width: 580px) {
-    .usage-actions, .code-findings { grid-template-columns: 1fr; }
+    .usage-actions, .code-findings, .corr-reading { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -550,10 +584,37 @@
     <p class="code-note reveal"><b>Counting method.</b> <span class="mono">cloc 2.06 --skip-uniqueness</span> at benchmark commit <span class="mono">e74a40b</span>, counting nonblank, noncomment TS, TSX, JS, JSX, and CSS in <span class="mono">src/</span>, <span class="mono">app/</span>, and <span class="mono">widgets/</span>. Tests are separate. Dependencies, native prebuild output, assets, build output, configuration, agent files, and explicit spike implementations are excluded. Starter-adjusted SLOC removes only SHA-256-identical starter files, so modified starter-derived files remain counted. Reproduce with <span class="mono">bun run measure_code_lines.ts</span>.</p>
   </section>
 
-  <!-- 09 ledger -->
+  <!-- 09 time and source correlation -->
   <section>
     <div class="sec-head reveal">
       <span class="sec-idx mono">09</span>
+      <div class="sec-titles"><h2>Does more code mean more build time?</h2><p>Starter-adjusted application SLOC across the bottom, active workflow hours up the side. The second trend line removes the single 13h 34m run to expose how sensitive the relationship is.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="corr-layout">
+      <div class="panel glow corr-chart-panel reveal">
+        <div class="legend" id="correlationLegend"></div>
+        <div class="corr-wrap">
+          <svg class="correlation" id="correlation" viewBox="0 0 760 480" role="img" aria-labelledby="correlationTitle correlationDesc">
+            <title id="correlationTitle">Active build time versus starter-adjusted application source lines</title>
+            <desc id="correlationDesc">Nine builds show a positive overall relationship, with a Pearson correlation of 0.71. Excluding the longest Swift Rewrite run reduces it to 0.43.</desc>
+          </svg>
+        </div>
+      </div>
+      <aside class="panel corr-verdict reveal" id="correlationVerdict"></aside>
+    </div>
+    <div class="corr-reading reveal">
+      <article><div class="n mono">+44.8m</div><h3>Overall fitted time per 1k SLOC</h3><p>The full regression adds about 45 active minutes for each additional 1,000 starter-adjusted source lines.</p></article>
+      <article><div class="n mono">+12.6m</div><h3>Fit without the longest run</h3><p>Removing Swift Rewrite on GPT-5.6 makes the estimated slope much shallower.</p></article>
+      <article><div class="n mono">n = 9</div><h3>Useful signal, small sample</h3><p>App scope, model behavior, debugging, testing, and tool latency can all affect time independently of code volume.</p></article>
+    </div>
+    <p class="corr-note reveal"><b>Interpretation.</b> The sample has a moderate-to-strong positive association, but it does not establish causation. Pearson <span class="mono">r</span> measures the linear relationship; Spearman <span class="mono">&rho;</span> checks whether larger builds generally rank as longer. The longest run has substantial leverage, so both fits are shown.</p>
+  </section>
+
+  <!-- 10 ledger -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">10</span>
       <div class="sec-titles"><h2>The full ledger</h2><p>Nine builds with every token class, code-volume measure, duration, and cost broken out.</p></div>
       <span class="sec-rule"></span>
     </div>
@@ -759,6 +820,10 @@
   const legendHTML = models.map(m => `<span class="item"><span class="sw" style="background:${C[m.key]}"></span>${m.name}</span>`).join('');
   document.getElementById('legend').innerHTML = legendHTML;
   document.getElementById('legend2').innerHTML = legendHTML;
+  document.getElementById('correlationLegend').innerHTML = legendHTML + `
+    <span class="item"><span class="trend-key"></span>all nine fit</span>
+    <span class="item"><span class="trend-key sensitivity"></span>without longest run</span>
+    <span class="item mono">C calorie &middot; H chat &middot; S swift</span>`;
 
   // ---------- podium ----------
   const rankLabel = ['Cheapest', 'Middle', 'Priciest'];
@@ -886,6 +951,120 @@
     const row = rows.find(item => item.app === element.dataset.app && item.mk === element.dataset.mk);
     wire(element, `<div class="tt-title">${row.model} &middot; ${row.app}</div><div class="tt-row"><b>Final app SLOC</b><span>${num(row.sloc)}</span></div><div class="tt-row"><b>Starter-adjusted</b><span>${num(row.sloc - row.starter)}</span></div><div class="tt-row"><b>Exact starter copies</b><span>${num(row.starter)}</span></div><div class="tt-row"><b>Test SLOC</b><span>${num(row.testSloc)}</span></div><div class="tt-row"><b>Product files</b><span>${num(row.sourceFiles)}</span></div>`);
   });
+
+  // ---------- time and source correlation ----------
+  const pearson = (xValues, yValues) => {
+    const xMean = xValues.reduce((total, value) => total + value, 0) / xValues.length;
+    const yMean = yValues.reduce((total, value) => total + value, 0) / yValues.length;
+    const numerator = xValues.reduce((total, value, index) => total + (value - xMean) * (yValues[index] - yMean), 0);
+    const xSpread = xValues.reduce((total, value) => total + (value - xMean) ** 2, 0);
+    const ySpread = yValues.reduce((total, value) => total + (value - yMean) ** 2, 0);
+    return numerator / Math.sqrt(xSpread * ySpread);
+  };
+  const ranks = values => {
+    const sorted = values.map((value, index) => ({ value, index })).sort((a, b) => a.value - b.value);
+    const result = Array(values.length);
+    for (let start = 0; start < sorted.length;) {
+      let end = start;
+      while (end + 1 < sorted.length && sorted[end + 1].value === sorted[start].value) end++;
+      const averageRank = (start + end + 2) / 2;
+      for (let index = start; index <= end; index++) result[sorted[index].index] = averageRank;
+      start = end + 1;
+    }
+    return result;
+  };
+  const fitCorrelation = data => {
+    const xValues = data.map(item => item.code);
+    const yValues = data.map(item => item.hours);
+    const xMean = xValues.reduce((total, value) => total + value, 0) / xValues.length;
+    const yMean = yValues.reduce((total, value) => total + value, 0) / yValues.length;
+    const slope = xValues.reduce((total, value, index) => total + (value - xMean) * (yValues[index] - yMean), 0) / xValues.reduce((total, value) => total + (value - xMean) ** 2, 0);
+    const r = pearson(xValues, yValues);
+    return { r, r2: r ** 2, rho: pearson(ranks(xValues), ranks(yValues)), slope, intercept: yMean - slope * xMean };
+  };
+  const correlationData = rows.map(row => ({ row, code: row.sloc - row.starter, hours: row.active / 3600 }));
+  const longestCorrelationRun = correlationData.reduce((longest, item) => item.hours > longest.hours ? item : longest);
+  const overallCorrelation = fitCorrelation(correlationData);
+  const sensitivityCorrelation = fitCorrelation(correlationData.filter(item => item !== longestCorrelationRun));
+  document.getElementById('correlationVerdict').innerHTML = `
+    <div><div class="eyebrow">overall Pearson correlation</div><div class="hero-r mono">+${overallCorrelation.r.toFixed(2)}</div><h3>Positive, but outlier-sensitive</h3><p>Larger source outputs generally took longer in this sample. The longest Swift run supplies substantial leverage to the fitted line.</p></div>
+    <div class="corr-mini-grid">
+      <div class="corr-mini"><div class="n mono">${overallCorrelation.r2.toFixed(2)}</div><div class="l">R&sup2; overall</div></div>
+      <div class="corr-mini"><div class="n mono">${overallCorrelation.rho.toFixed(2)}</div><div class="l">Spearman &rho;</div></div>
+      <div class="corr-mini"><div class="n mono">${sensitivityCorrelation.r.toFixed(2)}</div><div class="l">r without longest</div></div>
+      <div class="corr-mini"><div class="n mono">${correlationData.length}</div><div class="l">observations</div></div>
+    </div>`;
+
+  (function correlationChart() {
+    const svg = document.getElementById('correlation');
+    const NS = 'http://www.w3.org/2000/svg';
+    const W = 760, H = 480, margin = { left: 70, right: 28, top: 28, bottom: 58 };
+    const plotWidth = W - margin.left - margin.right;
+    const plotHeight = H - margin.top - margin.bottom;
+    const xMin = 1000, xMax = 11000, yMin = 0, yMax = 15;
+    const x = value => margin.left + (value - xMin) / (xMax - xMin) * plotWidth;
+    const y = value => margin.top + plotHeight - (value - yMin) / (yMax - yMin) * plotHeight;
+    const make = tag => document.createElementNS(NS, tag);
+
+    [0, 3, 6, 9, 12, 15].forEach(value => {
+      const line = make('line');
+      line.setAttribute('class', 'grid');
+      line.setAttribute('x1', margin.left); line.setAttribute('x2', margin.left + plotWidth);
+      line.setAttribute('y1', y(value)); line.setAttribute('y2', y(value));
+      svg.appendChild(line);
+      const label = make('text');
+      label.setAttribute('x', margin.left - 10); label.setAttribute('y', y(value) + 4);
+      label.setAttribute('text-anchor', 'end'); label.setAttribute('font-size', '11'); label.textContent = value + 'h';
+      svg.appendChild(label);
+    });
+    [2000, 4000, 6000, 8000, 10000].forEach(value => {
+      const line = make('line');
+      line.setAttribute('class', 'grid');
+      line.setAttribute('x1', x(value)); line.setAttribute('x2', x(value));
+      line.setAttribute('y1', margin.top); line.setAttribute('y2', margin.top + plotHeight);
+      svg.appendChild(line);
+      const label = make('text');
+      label.setAttribute('x', x(value)); label.setAttribute('y', margin.top + plotHeight + 25);
+      label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '11'); label.textContent = value / 1000 + 'k';
+      svg.appendChild(label);
+    });
+    const xTitle = make('text');
+    xTitle.setAttribute('class', 'axis-title'); xTitle.setAttribute('x', margin.left + plotWidth / 2); xTitle.setAttribute('y', H - 7); xTitle.setAttribute('text-anchor', 'middle'); xTitle.textContent = 'Starter-adjusted application SLOC';
+    svg.appendChild(xTitle);
+    const yTitle = make('text');
+    yTitle.setAttribute('class', 'axis-title'); yTitle.setAttribute('transform', `rotate(-90 17 ${margin.top + plotHeight / 2})`); yTitle.setAttribute('x', 17); yTitle.setAttribute('y', margin.top + plotHeight / 2); yTitle.setAttribute('text-anchor', 'middle'); yTitle.textContent = 'Active workflow time';
+    svg.appendChild(yTitle);
+
+    const drawTrend = (fit, className) => {
+      const startCode = 1500, endCode = 10500;
+      const line = make('line');
+      line.setAttribute('class', `trend ${className}`);
+      line.setAttribute('x1', x(startCode)); line.setAttribute('x2', x(endCode));
+      line.setAttribute('y1', y(fit.intercept + fit.slope * startCode));
+      line.setAttribute('y2', y(fit.intercept + fit.slope * endCode));
+      svg.appendChild(line);
+    };
+    drawTrend(overallCorrelation, 'overall');
+    drawTrend(sensitivityCorrelation, 'sensitivity');
+
+    const appCode = { 'AI Calorie Tracker': 'C', 'AI Chat App': 'H', 'Swift Rewrite': 'S' };
+    correlationData.forEach(item => {
+      const circle = make('circle');
+      circle.setAttribute('class', `corr-dot${item === longestCorrelationRun ? ' outlier' : ''}`);
+      circle.setAttribute('cx', x(item.code)); circle.setAttribute('cy', y(item.hours)); circle.setAttribute('r', 13);
+      circle.style.fill = C[item.row.mk];
+      wire(circle, `<div class="tt-title">${item.row.model} &middot; ${item.row.app}</div><div class="tt-row"><b>Adjusted app SLOC</b><span>${num(item.code)}</span></div><div class="tt-row"><b>Active time</b><span>${duration(item.row.active)}</span></div><div class="tt-row"><b>Final app SLOC</b><span>${num(item.row.sloc)}</span></div>`);
+      svg.appendChild(circle);
+      const code = make('text');
+      code.setAttribute('class', 'corr-code'); code.setAttribute('x', x(item.code)); code.setAttribute('y', y(item.hours) + 3.5); code.textContent = appCode[item.row.app];
+      svg.appendChild(code);
+      if (item === longestCorrelationRun) {
+        const note = make('text');
+        note.setAttribute('class', 'outlier-note'); note.setAttribute('x', x(item.code) - 18); note.setAttribute('y', y(item.hours) - 18); note.setAttribute('text-anchor', 'end'); note.textContent = '13h 34m longest run';
+        svg.appendChild(note);
+      }
+    });
+  })();
 
   // ---------- per-app grouped ----------
   const cellMax = Math.max(...rows.map(r => r.cost));
