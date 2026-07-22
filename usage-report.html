@@ -263,6 +263,49 @@
   .runtime-note { margin-top: 1.2rem; color: var(--ink-2); font-size: 0.84rem; max-width: 82ch; }
   .runtime-note b { color: var(--ink); }
 
+  /* ---------- source code volume ---------- */
+  .code-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1rem; }
+  .code-stat { overflow: hidden; min-height: 156px; display: flex; flex-direction: column; justify-content: space-between; }
+  .code-stat::after { content: ""; position: absolute; inset: 0 0 auto; width: auto; height: 3px; border: 0; border-radius: 0; background: var(--accent); }
+  .code-stat .model { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--ink-2); font-size: 0.78rem; }
+  .code-stat .model .sw { width: 9px; height: 9px; border-radius: 2px; background: var(--accent); }
+  .code-stat .value { margin-top: 0.7rem; font-size: clamp(1.75rem,3.5vw,2.4rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+  .code-stat .label { margin-top: 0.35rem; color: var(--muted); font-size: 0.68rem; letter-spacing: 0.07em; text-transform: uppercase; }
+  .code-stat .context { margin-top: 0.8rem; color: var(--ink-2); font-size: 0.76rem; line-height: 1.45; }
+  .code-panel { padding-bottom: 1.55rem; }
+  .code-legend { display: flex; flex-wrap: wrap; gap: 0.65rem 1.3rem; margin-bottom: 1.35rem; color: var(--ink-2); font-size: 0.76rem; }
+  .code-legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .code-legend .sw { width: 16px; height: 8px; border-radius: 2px; }
+  .code-legend .adjusted { background: var(--gpt55); }
+  .code-legend .starter { border: 1px solid var(--line); background: repeating-linear-gradient(135deg, var(--ink-2) 0 2px, var(--track) 2px 5px); }
+  .code-axis, .code-row { display: grid; grid-template-columns: 132px minmax(260px,1fr) 112px; gap: 0.9rem; align-items: center; }
+  .code-axis { margin-bottom: 0.8rem; color: var(--muted); font-size: 0.65rem; }
+  .code-ticks { position: relative; height: 1em; }
+  .code-ticks span { position: absolute; transform: translateX(-50%); }
+  .code-ticks span:first-child { transform: none; }
+  .code-ticks span:last-child { transform: translateX(-100%); }
+  .code-groups { display: grid; gap: 1.45rem; }
+  .code-group { display: grid; gap: 0.65rem; }
+  .code-group + .code-group { border-top: 1px solid var(--line-2); padding-top: 1.35rem; }
+  .code-app { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.15rem; }
+  .code-app h3 { margin: 0; font-size: 0.98rem; letter-spacing: -0.01em; }
+  .code-app span { color: var(--muted); font-size: 0.7rem; }
+  .code-model { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--ink-2); font-size: 0.78rem; white-space: nowrap; }
+  .code-model .sw { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .code-track { position: relative; height: 22px; overflow: hidden; border-radius: 5px; background-color: var(--track); background-image: linear-gradient(90deg, transparent calc(100% - 1px), var(--line) calc(100% - 1px)); background-size: 22.727% 100%; }
+  .code-adjusted, .code-starter { position: absolute; inset-block: 0; }
+  .code-adjusted { left: 0; width: var(--w); border-radius: 0 4px 4px 0; background: var(--accent); }
+  .code-starter { left: var(--x); width: var(--w); min-width: 2px; border-left: 1px solid var(--panel); background: repeating-linear-gradient(135deg, var(--ink-2) 0 2px, var(--track) 2px 5px); }
+  .code-value { text-align: right; font-size: 0.78rem; font-weight: 700; }
+  .code-value small { display: block; margin-top: 0.05rem; color: var(--muted); font-size: 0.61rem; font-weight: 500; }
+  .code-findings { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; margin-top: 1rem; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: var(--line); }
+  .code-finding { padding: 1rem 1.15rem; background: var(--panel); }
+  .code-finding .big { color: var(--fable); font-size: 1.55rem; font-weight: 800; letter-spacing: -0.035em; }
+  .code-finding h3 { margin: 0.3rem 0; font-size: 0.83rem; }
+  .code-finding p { margin: 0; color: var(--ink-2); font-size: 0.74rem; line-height: 1.45; }
+  .code-note { margin: 1rem 0 0; color: var(--muted); font-size: 0.78rem; max-width: 94ch; }
+  .code-note b { color: var(--ink-2); }
+
   /* ---------- claude usage appendix ---------- */
   .usage-appendix { position: relative; padding-top: clamp(2.5rem,5vw,4rem); border-top: 1px solid var(--line); }
   .usage-appendix::before { content: "supplemental dataset"; position: absolute; top: -0.72rem; left: 0; padding: 0.16rem 0.65rem; border: 1px solid var(--line); border-radius: 999px; background: var(--page); color: var(--muted); font: 600 0.62rem/1.4 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.09em; text-transform: uppercase; }
@@ -301,7 +344,7 @@
 
   /* ---------- table ---------- */
   .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
-  table { border-collapse: collapse; width: 100%; min-width: 980px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 1160px; background: var(--panel); }
   thead th { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 0.9rem 0.9rem; border-bottom: 1px solid var(--line); white-space: nowrap; position: sticky; top: 0; background: var(--panel); }
   thead th:first-child, thead th:nth-child(2) { text-align: left; }
   tbody td { padding: 0.72rem 0.9rem; text-align: right; font-size: 0.85rem; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
@@ -332,15 +375,18 @@
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; }
     .ring-wrap { order: -1; }
-    .podium, .appgrid, .eff, .runtime-summary, .driver-grid, .source-grid { grid-template-columns: 1fr; }
+    .podium, .appgrid, .eff, .runtime-summary, .code-summary, .driver-grid, .source-grid { grid-template-columns: 1fr; }
     .scope-banner { grid-template-columns: 1fr; }
     .scope-tags { justify-content: flex-start; }
     .runtime-axis, .runtime-row { grid-template-columns: 112px minmax(220px,1fr) 76px; }
     .runtime-chart { overflow-x: auto; }
     .runtime-chart-inner { min-width: 540px; }
+    .code-panel { overflow-x: auto; }
+    .code-panel-inner { min-width: 580px; }
+    .code-axis, .code-row { grid-template-columns: 112px minmax(240px,1fr) 100px; }
   }
   @media (max-width: 580px) {
-    .usage-actions { grid-template-columns: 1fr; }
+    .usage-actions, .code-findings { grid-template-columns: 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
@@ -479,17 +525,42 @@
     <p class="runtime-note reveal"><b>Timing source.</b> Codex uses the goal ledger's exact active seconds. Claude uses root-session turn durations. The Fable-labelled calorie run includes 23m 06s of Opus 4.8 work after a model switch.</p>
   </section>
 
-  <!-- 08 ledger -->
+  <!-- 08 source code volume -->
   <section>
     <div class="sec-head reveal">
       <span class="sec-idx mono">08</span>
-      <div class="sec-titles"><h2>The full ledger</h2><p>Nine builds, every token class broken out.</p></div>
+      <div class="sec-titles"><h2>How much product code each build produced</h2><p>Final application source at the clean benchmark snapshot. Bars separate code attributable after exact starter-copy removal from unchanged starter residue.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="code-summary reveal" id="codeSummary"></div>
+    <div class="panel glow code-panel reveal">
+      <div class="code-panel-inner">
+        <div class="code-legend">
+          <span><i class="sw adjusted"></i>Starter-adjusted app SLOC</span>
+          <span><i class="sw starter"></i>Exact starter copies retained</span>
+        </div>
+        <div id="codeChart"></div>
+      </div>
+    </div>
+    <div class="code-findings reveal">
+      <article class="code-finding"><div class="big mono">58.8%</div><h3>Most code lives in Swift Rewrite</h3><p>That one brief accounts for 27,392 of the 46,599 final application SLOC across all nine builds.</p></article>
+      <article class="code-finding"><div class="big mono">2,854</div><h3>Exact starter SLOC remained</h3><p>GPT-5.5 retained 1,503 exact starter SLOC, GPT-5.6 retained 1,350, and Fable retained just one.</p></article>
+      <article class="code-finding"><div class="big mono">1,359/h</div><h3>Fable's adjusted code-volume rate</h3><p>About 1.9x GPT-5.6's rate. This measures source volume per active hour, not quality or maintainability.</p></article>
+    </div>
+    <p class="code-note reveal"><b>Counting method.</b> <span class="mono">cloc 2.06 --skip-uniqueness</span> at benchmark commit <span class="mono">e74a40b</span>, counting nonblank, noncomment TS, TSX, JS, JSX, and CSS in <span class="mono">src/</span>, <span class="mono">app/</span>, and <span class="mono">widgets/</span>. Tests are separate. Dependencies, native prebuild output, assets, build output, configuration, agent files, and explicit spike implementations are excluded. Starter-adjusted SLOC removes only SHA-256-identical starter files, so modified starter-derived files remain counted. Reproduce with <span class="mono">bun run measure_code_lines.ts</span>.</p>
+  </section>
+
+  <!-- 09 ledger -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">09</span>
+      <div class="sec-titles"><h2>The full ledger</h2><p>Nine builds with every token class, code-volume measure, duration, and cost broken out.</p></div>
       <span class="sec-rule"></span>
     </div>
     <div class="table-scroll reveal">
       <table>
         <thead><tr>
-          <th>App</th><th>Model</th><th>Messages</th><th>Tokens in</th><th>Tokens out</th><th>Cache read</th><th>Cache write</th><th>Total tokens</th><th>Active time</th><th>Cost</th>
+          <th>App</th><th>Model</th><th>Messages</th><th>Tokens in</th><th>Tokens out</th><th>Cache read</th><th>Cache write</th><th>Total tokens</th><th>Final app SLOC</th><th>Test SLOC</th><th>Active time</th><th>Cost</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
         <tfoot id="tfoot"></tfoot>
@@ -581,7 +652,7 @@
   </section>
 
   <footer>
-    <b>Method.</b> Usage and cost were validated against Tokscale's workspace-and-model report for July 16-18, 2026, with Claude token classes cross-checked through ccusage. Full-precision costs are rounded only for display. Fable-labelled rows aggregate the entire contestant folder: AI Calorie Tracker includes 110 Opus 4.8 messages and Swift Rewrite includes 8. Active time is goal-scoped, using the Codex goal ledger and Claude root-session turn durations. Cache reads dominate raw volume but are the cheapest class; cache writes and output tokens drive the bill.
+    <b>Method.</b> Usage and cost were validated against Tokscale's workspace-and-model report for July 16-18, 2026, with Claude token classes cross-checked through ccusage. Full-precision costs are rounded only for display. Fable-labelled rows aggregate the entire contestant folder: AI Calorie Tracker includes 110 Opus 4.8 messages and Swift Rewrite includes 8. Active time is goal-scoped, using the Codex goal ledger and Claude root-session turn durations. Source volume comes from the clean benchmark Git snapshot and is reproducible with the included Bun script. Cache reads dominate raw volume but are the cheapest class; cache writes and output tokens drive the bill.
   </footer>
 </div>
 
@@ -602,15 +673,15 @@
     { key: 'fable', name: 'Fable 5*',    cost: 996.6054347500005, msgs: 2230, tokens: 681121192, tin: 818231,   tout: 1433201, cw: 23008391 },
   ];
   const rows = [
-    { app: 'AI Calorie Tracker', mk: 'fable', model: 'Fable 5*',    msgs: 1061, tin: 499103,   tout: 670109, cr: 200712487, cw: 5067696,  total: 206949395, active: 13483, cost: 276.9499062500007 },
-    { app: 'AI Calorie Tracker', mk: 'gpt55', model: 'GPT-5.5',     msgs: 1512, tin: 8325553,  tout: 436780, cr: 196661248, cw: 0,        total: 205423581, active: 19201, cost: 157.23463900000021 },
-    { app: 'AI Calorie Tracker', mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1724, tin: 8119116,  tout: 513163, cr: 216630272, cw: 0,        total: 225262551, active: 19042, cost: 170.16457599999995 },
-    { app: 'AI Chat App',        mk: 'fable', model: 'Fable 5',     msgs: 396,  tin: 93452,    tout: 239083, cr: 134515693, cw: 1073582,  total: 135921810, active: 7196,  cost: 160.8241380000002 },
-    { app: 'AI Chat App',        mk: 'gpt55', model: 'GPT-5.5',     msgs: 1311, tin: 6219109,  tout: 351619, cr: 167120512, cw: 0,        total: 173691240, active: 15959, cost: 128.2890909999999 },
-    { app: 'AI Chat App',        mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1175, tin: 4733913,  tout: 301251, cr: 179648768, cw: 0,        total: 184683932, active: 12237, cost: 125.504929 },
-    { app: 'Swift Rewrite',      mk: 'fable', model: 'Fable 5*',    msgs: 773,  tin: 225676,   tout: 524009, cr: 320633189, cw: 16867113, total: 338249987, active: 12288, cost: 558.8313904999997 },
-    { app: 'Swift Rewrite',      mk: 'gpt55', model: 'GPT-5.5',     msgs: 1539, tin: 6481539,  tout: 550526, cr: 214963328, cw: 0,        total: 221995393, active: 20878, cost: 160.65040900000037 },
-    { app: 'Swift Rewrite',      mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 2439, tin: 12835139, tout: 789385, cr: 319726848, cw: 0,        total: 333351372, active: 48849, cost: 254.4955090000002 },
+    { app: 'AI Calorie Tracker', mk: 'fable', model: 'Fable 5*',    msgs: 1061, tin: 499103,   tout: 670109, cr: 200712487, cw: 5067696,  total: 206949395, active: 13483, sloc: 3157,  starter: 1,   testSloc: 2554, sourceFiles: 30, cost: 276.9499062500007 },
+    { app: 'AI Calorie Tracker', mk: 'gpt55', model: 'GPT-5.5',     msgs: 1512, tin: 8325553,  tout: 436780, cr: 196661248, cw: 0,        total: 205423581, active: 19201, sloc: 4194,  starter: 429, testSloc: 2401, sourceFiles: 43, cost: 157.23463900000021 },
+    { app: 'AI Calorie Tracker', mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1724, tin: 8119116,  tout: 513163, cr: 216630272, cw: 0,        total: 225262551, active: 19042, sloc: 3899,  starter: 812, testSloc: 2353, sourceFiles: 41, cost: 170.16457599999995 },
+    { app: 'AI Chat App',        mk: 'fable', model: 'Fable 5',     msgs: 396,  tin: 93452,    tout: 239083, cr: 134515693, cw: 1073582,  total: 135921810, active: 7196,  sloc: 1639,  starter: 0,   testSloc: 699,  sourceFiles: 30, cost: 160.8241380000002 },
+    { app: 'AI Chat App',        mk: 'gpt55', model: 'GPT-5.5',     msgs: 1311, tin: 6219109,  tout: 351619, cr: 167120512, cw: 0,        total: 173691240, active: 15959, sloc: 3169,  starter: 537, testSloc: 1806, sourceFiles: 49, cost: 128.2890909999999 },
+    { app: 'AI Chat App',        mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 1175, tin: 4733913,  tout: 301251, cr: 179648768, cw: 0,        total: 184683932, active: 12237, sloc: 3149,  starter: 538, testSloc: 353,  sourceFiles: 41, cost: 125.504929 },
+    { app: 'Swift Rewrite',      mk: 'fable', model: 'Fable 5*',    msgs: 773,  tin: 225676,   tout: 524009, cr: 320633189, cw: 16867113, total: 338249987, active: 12288, sloc: 7649,  starter: 0,   testSloc: 2671, sourceFiles: 61, cost: 558.8313904999997 },
+    { app: 'Swift Rewrite',      mk: 'gpt55', model: 'GPT-5.5',     msgs: 1539, tin: 6481539,  tout: 550526, cr: 214963328, cw: 0,        total: 221995393, active: 20878, sloc: 9510,  starter: 537, testSloc: 2187, sourceFiles: 82, cost: 160.65040900000037 },
+    { app: 'Swift Rewrite',      mk: 'gpt56', model: 'GPT-5.6-Sol', msgs: 2439, tin: 12835139, tout: 789385, cr: 319726848, cw: 0,        total: 333351372, active: 48849, sloc: 10233, starter: 0,   testSloc: 2786, sourceFiles: 85, cost: 254.4955090000002 },
   ];
   const apps = [
     { name: 'AI Calorie Tracker', total: 604.3491212500008 },
@@ -773,6 +844,49 @@
     wire(row, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Active time</b><span>${duration(r.active)}</span></div>`);
   });
 
+  // ---------- source code volume ----------
+  const codeCeiling = 11000;
+  const codeTicks = [0, 2500, 5000, 7500, 10000, 11000];
+  const codeByModel = models.map(model => {
+    const modelRows = rows.filter(row => row.mk === model.key);
+    const finalSloc = modelRows.reduce((total, row) => total + row.sloc, 0);
+    const adjustedSloc = modelRows.reduce((total, row) => total + row.sloc - row.starter, 0);
+    const testSloc = modelRows.reduce((total, row) => total + row.testSloc, 0);
+    const activeHours = modelRows.reduce((total, row) => total + row.active, 0) / 3600;
+    return { ...model, finalSloc, adjustedSloc, testSloc, rate: Math.round(adjustedSloc / activeHours) };
+  });
+  document.getElementById('codeSummary').innerHTML = codeByModel.map(model => `
+    <article class="panel code-stat" style="--accent:${C[model.key]}">
+      <span class="model"><span class="sw"></span>${model.name}</span>
+      <div><div class="value mono">${num(model.adjustedSloc)}</div><div class="label">starter-adjusted app SLOC</div></div>
+      <div class="context mono">final ${num(model.finalSloc)} &middot; tests ${num(model.testSloc)}<br>${num(model.rate)} adjusted SLOC / active hour</div>
+    </article>`).join('');
+
+  document.getElementById('codeChart').innerHTML = `
+    <div class="code-axis" aria-hidden="true"><span></span><div class="code-ticks">${codeTicks.map(value => `<span style="left:${value / codeCeiling * 100}%">${value === 0 ? '0' : value / 1000 + 'k'}</span>`).join('')}</div><span>final / tests</span></div>
+    <div class="code-groups">${apps.map(app => {
+      const appRows = rows.filter(row => row.app === app.name);
+      const appSloc = appRows.reduce((total, row) => total + row.sloc, 0);
+      return `<article class="code-group">
+        <div class="code-app"><h3>${app.name}</h3><span class="mono">${num(appSloc)} final app SLOC</span></div>
+        ${appRows.map(row => {
+          const adjusted = row.sloc - row.starter;
+          return `<div class="code-row" data-app="${row.app}" data-mk="${row.mk}">
+            <span class="code-model"><span class="sw" style="background:${C[row.mk]}"></span>${row.model}</span>
+            <div class="code-track" role="img" aria-label="${row.model} produced ${num(row.sloc)} final application source lines, including ${num(row.starter)} unchanged starter lines">
+              <div class="code-adjusted" style="--w:${adjusted / codeCeiling * 100}%;--accent:${C[row.mk]}"></div>
+              ${row.starter ? `<div class="code-starter" style="--x:${adjusted / codeCeiling * 100}%;--w:${row.starter / codeCeiling * 100}%"></div>` : ''}
+            </div>
+            <span class="code-value mono">${num(row.sloc)}<small>${num(row.testSloc)} test</small></span>
+          </div>`;
+        }).join('')}
+      </article>`;
+    }).join('')}</div>`;
+  document.querySelectorAll('.code-row').forEach(element => {
+    const row = rows.find(item => item.app === element.dataset.app && item.mk === element.dataset.mk);
+    wire(element, `<div class="tt-title">${row.model} &middot; ${row.app}</div><div class="tt-row"><b>Final app SLOC</b><span>${num(row.sloc)}</span></div><div class="tt-row"><b>Starter-adjusted</b><span>${num(row.sloc - row.starter)}</span></div><div class="tt-row"><b>Exact starter copies</b><span>${num(row.starter)}</span></div><div class="tt-row"><b>Test SLOC</b><span>${num(row.testSloc)}</span></div><div class="tt-row"><b>Product files</b><span>${num(row.sourceFiles)}</span></div>`);
+  });
+
   // ---------- per-app grouped ----------
   const cellMax = Math.max(...rows.map(r => r.cost));
   document.getElementById('appGrid').innerHTML = apps.map(app => {
@@ -873,13 +987,13 @@
       <td>${i % 3 === 0 ? r.app : ''}</td>
       <td><span class="mchip"><span class="sw" style="background:${C[r.mk]}"></span>${r.model}</span></td>
       <td class="mono">${num(r.msgs)}</td><td class="mono">${num(r.tin)}</td><td class="mono">${num(r.tout)}</td>
-      <td class="mono">${num(r.cr)}</td><td class="mono">${num(r.cw)}</td><td class="mono">${num(r.total)}</td><td class="mono">${duration(r.active)}</td>
+      <td class="mono">${num(r.cr)}</td><td class="mono">${num(r.cw)}</td><td class="mono">${num(r.total)}</td><td class="mono">${num(r.sloc)}</td><td class="mono">${num(r.testSloc)}</td><td class="mono">${duration(r.active)}</td>
       <td class="mono cost-cell">${usd(r.cost)}</td>
     </tr>`).join('');
   document.getElementById('tfoot').innerHTML = `<tr>
     <td>All builds</td><td>9 runs</td>
     <td class="mono">${num(sumRows('msgs'))}</td><td class="mono">${num(sumRows('tin'))}</td><td class="mono">${num(sumRows('tout'))}</td>
-    <td class="mono">${num(sumRows('cr'))}</td><td class="mono">${num(sumRows('cw'))}</td><td class="mono">${num(sumRows('total'))}</td><td class="mono">${durationShort(sumRows('active'))}</td>
+    <td class="mono">${num(sumRows('cr'))}</td><td class="mono">${num(sumRows('cw'))}</td><td class="mono">${num(sumRows('total'))}</td><td class="mono">${num(sumRows('sloc'))}</td><td class="mono">${num(sumRows('testSloc'))}</td><td class="mono">${durationShort(sumRows('active'))}</td>
     <td class="mono">${usd(sumRows('cost'))}</td></tr>`;
 
   // ---------- optional reveal animation ----------
