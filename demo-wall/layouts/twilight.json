@@ -1,0 +1,11 @@
+[
+  { "id": "twilight-gpt-5-5", "label": "Twilight - GPT-5.5", "size": "fit", "x": 28, "y": 28 },
+  { "id": "twilight-gpt-5-6", "label": "Twilight - GPT-5.6", "size": "fit", "x": 541, "y": 30 },
+  { "id": "twilight-fable-5", "label": "Twilight - Fable 5", "size": "fit", "x": 1058, "y": 31 },
+  { "id": "nourish-fable-5", "label": "Nourish - Fable 5", "hidden": true },
+  { "id": "nourish-gpt-5-5", "label": "Nourish - GPT-5.5", "hidden": true },
+  { "id": "nourish-gpt-5-6", "label": "Nourish - GPT-5.6", "hidden": true },
+  { "id": "nova-fable-5", "label": "Nova - Fable 5", "hidden": true },
+  { "id": "nova-gpt-5-5", "label": "Nova - GPT-5.5", "hidden": true },
+  { "id": "nova-gpt-5-6", "label": "Nova - GPT-5.6", "hidden": true }
+]
