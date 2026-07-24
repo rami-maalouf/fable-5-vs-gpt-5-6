@@ -79,6 +79,14 @@ Two more sizing options instead of `size`:
 - Do everything on **one display**. If "Displays have separate Spaces" is on (System Settings > Desktop & Dock), AppleScript can only see windows on the currently-active Space, so keep all nine simulators on the recording display and don't scatter them across monitors, or hiding/positioning becomes unreliable.
 - **Position** is reproduced exactly; **size** snaps to the nearest preset above (a few pixels off any hand-dragged size).
 
+To make sure every app is open without disturbing ones already running:
+
+```bash
+bun run demo:open-apps
+```
+
+This launches each app on its simulator only if it is not already running (unlike `demo:reset`, which relaunches all nine into their deterministic scenes).
+
 Before another take:
 
 ```bash

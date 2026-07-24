@@ -117,6 +117,17 @@ async function launch(device: DeviceRecord) {
   await run(['xcrun', 'simctl', 'launch', device.udid, device.bundleId]);
 }
 
+// a running app shows up in the simulator's launchd as "UIKitApplication:<bundleId>[...]"
+async function isAppRunning(device: DeviceRecord): Promise<boolean> {
+  const result = await run(['xcrun', 'simctl', 'spawn', device.udid, 'launchctl', 'list'], { capture: true, allowFailure: true });
+  return result.stdout.includes(`UIKitApplication:${device.bundleId}[`);
+}
+
+async function bootedUdids(): Promise<Set<string>> {
+  const payload = await simulatorJson('devices') as { devices?: Record<string, Array<{ udid: string; state: string }>> };
+  return new Set(Object.values(payload.devices ?? {}).flat().filter((device) => device.state === 'Booted').map((device) => device.udid));
+}
+
 async function findBuiltApp(outputDirectory: string) {
   if (!existsSync(outputDirectory)) return undefined;
   const appSearch = await run(['find', outputDirectory, '-type', 'd', '-name', '*.app'], { capture: true });
@@ -192,6 +203,31 @@ async function reset() {
   for (const device of devices) await boot(device);
   for (const device of devices) await launch(device);
   console.log('All nine apps were returned to their deterministic launch scenes.');
+}
+
+// launch each app on its simulator only if it is not already running; never relaunches a live app
+async function openApps() {
+  const devices = await readState();
+  if (devices.length === 0) throw new Error('No devices found. Run bun run demo:setup first.');
+  const booted = await bootedUdids();
+  let launched = 0;
+  let running = 0;
+  let notBooted = 0;
+  for (const device of devices) {
+    if (!booted.has(device.udid)) {
+      console.log(`- ${device.label}: simulator not booted, skipped`);
+      notBooted += 1;
+      continue;
+    }
+    if (await isAppRunning(device)) {
+      running += 1;
+      continue;
+    }
+    await run(['xcrun', 'simctl', 'launch', device.udid, device.bundleId], { allowFailure: true, capture: true });
+    console.log(`- ${device.label}: launched`);
+    launched += 1;
+  }
+  console.log(`Opened ${launched} app(s); ${running} already running${notBooted ? `; ${notBooted} not booted` : ''}.`);
 }
 
 // window layout capture / restore via Simulator accessibility (System Events).
@@ -413,9 +449,9 @@ async function stop() {
 }
 
 const command = process.argv[2];
-const commands = { doctor, setup, start, reset, stop, 'save-layout': saveLayout, 'apply-layout': applyLayout, layouts } as const;
+const commands = { doctor, setup, start, reset, stop, 'open-apps': openApps, 'save-layout': saveLayout, 'apply-layout': applyLayout, layouts } as const;
 if (!command || !(command in commands)) {
-  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop|save-layout [name]|apply-layout [name]|layouts>');
+  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop|open-apps|save-layout [name]|apply-layout [name]|layouts>');
   process.exit(1);
 }
 
