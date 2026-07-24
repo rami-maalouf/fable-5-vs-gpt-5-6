@@ -14,6 +14,8 @@ type DeviceRecord = Target & { udid: string };
 const root = path.resolve(import.meta.dir, '..');
 const stateDirectory = path.join(root, '.demo-wall');
 const statePath = path.join(stateDirectory, 'devices.json');
+// layouts live in the git-tracked demo-wall folder so the default arrangement survives reboots
+const layoutsDirectory = path.join(import.meta.dir, 'layouts');
 const deviceType = 'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro';
 
 const targets: Target[] = [
@@ -176,7 +178,12 @@ async function start() {
   await Promise.all(devices.map(boot));
   await run(['open', '-a', 'Simulator']);
   for (const device of devices) await launch(device);
-  console.log('All nine demo apps are running. Arrange the Simulator windows in a 3x3 grid or capture them as OBS window sources.');
+  if (existsSync(path.join(layoutsDirectory, 'default.json'))) {
+    await applyLayoutNamed('default');
+    console.log('All nine demo apps are running in the saved default layout.');
+  } else {
+    console.log('All nine demo apps are running. Arrange the windows, then run "bun run demo:save-layout" to make this the default.');
+  }
 }
 
 async function reset() {
@@ -185,6 +192,216 @@ async function reset() {
   for (const device of devices) await boot(device);
   for (const device of devices) await launch(device);
   console.log('All nine apps were returned to their deterministic launch scenes.');
+}
+
+// window layout capture / restore via Simulator accessibility (System Events).
+// positions are on-screen coordinates relative to the main display, top-left origin.
+type WindowFrame = { x: number; y: number; w: number; h: number };
+// simulator ignores programmatic (accessibility) resizing, so window size can only be set
+// through its own Window menu presets. these are the four it offers.
+const sizeMenuItem = {
+  fit: 'Fit Screen', // fills the display height (~491x1041 on a 1920x1080 screen)
+  point: 'Point Accurate', // ~456x972
+  pixel: 'Pixel Accurate', // ~1368x2792 (device pixels 1:1)
+  physical: 'Physical Size', // ~380x843
+} as const;
+type SizePreset = keyof typeof sizeMenuItem;
+// approximate window width each preset produces, used as a threshold for `maxSize`
+const sizePresetWidth: Record<SizePreset, number> = { fit: 491, point: 456, physical: 380, pixel: 1368 };
+
+// a framed entry places the window; a hidden entry minimizes it. sizing options:
+//   size    - always resize to this preset
+//   maxSize - only resize (to this preset) if the window is currently WIDER than the preset,
+//             otherwise leave it alone. lets `default` shrink oversized windows without
+//             enlarging the ones that are already small.
+type LayoutEntry = { id: string; label: string; hidden?: boolean; size?: SizePreset; maxSize?: SizePreset } & Partial<WindowFrame>;
+
+async function osascript(script: string) {
+  const result = await run(['osascript', '-e', script], { capture: true });
+  return result.stdout;
+}
+
+function matchTarget(windowName: string): Target | undefined {
+  // window titles read like "YouTube - Nourish - Fable 5 – iOS 26.5"; each label is a unique substring
+  return targets.find((target) => windowName.includes(target.label));
+}
+
+async function readWindows(): Promise<Array<{ name: string } & WindowFrame>> {
+  const script = `tell application "System Events"
+  if not (exists process "Simulator") then return ""
+  tell process "Simulator"
+    set output to ""
+    repeat with theWindow in windows
+      set theName to name of theWindow
+      set thePosition to position of theWindow
+      set theSize to size of theWindow
+      set output to output & theName & "|||" & (item 1 of thePosition) & "|||" & (item 2 of thePosition) & "|||" & (item 1 of theSize) & "|||" & (item 2 of theSize) & linefeed
+    end repeat
+    return output
+  end tell
+end tell`;
+  const stdout = await osascript(script);
+  return stdout
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [name, x, y, w, h] = line.split('|||');
+      return { name, x: Number(x), y: Number(y), w: Number(w), h: Number(h) };
+    });
+}
+
+async function readLayout(name: string): Promise<LayoutEntry[]> {
+  const file = path.join(layoutsDirectory, `${name}.json`);
+  if (!existsSync(file)) {
+    throw new Error(`Layout "${name}" not found. Save one with: bun run demo:save-layout ${name === 'default' ? '' : name}`.trim());
+  }
+  return Bun.file(file).json();
+}
+
+// map a captured window width to the nearest size preset we can reproduce
+function nearestSizePreset(width: number): SizePreset {
+  const options: Array<[SizePreset, number]> = [['physical', 380], ['point', 456], ['fit', 491], ['pixel', 1368]];
+  return options.reduce((best, option) => (Math.abs(option[1] - width) < Math.abs(best[1] - width) ? option : best))[0];
+}
+
+// capture the current arrangement: every app with a visible window on the active space becomes a
+// framed entry (position + nearest size preset); every other app is marked hidden. so the workflow
+// is: arrange the windows you want on screen, minimize the rest, then save.
+async function saveLayoutNamed(name: string) {
+  const windows = await readWindows();
+  const visibleByTarget = new Map<string, { x: number; y: number; w: number; h: number }>();
+  for (const window of windows) {
+    const target = matchTarget(window.name);
+    if (target && !visibleByTarget.has(target.id)) {
+      visibleByTarget.set(target.id, { x: window.x, y: window.y, w: window.w, h: window.h });
+    }
+  }
+  if (visibleByTarget.size === 0) {
+    throw new Error('No demo windows are visible on the active display. Arrange the windows you want, then save.');
+  }
+
+  const entries: LayoutEntry[] = targets.map((target) => {
+    const frame = visibleByTarget.get(target.id);
+    if (!frame) return { id: target.id, label: target.label, hidden: true };
+    return { id: target.id, label: target.label, size: nearestSizePreset(frame.w), x: frame.x, y: frame.y };
+  });
+
+  await run(['mkdir', '-p', layoutsDirectory]);
+  const file = path.join(layoutsDirectory, `${name}.json`);
+  await Bun.write(file, `${JSON.stringify(entries, null, 2)}\n`);
+  const shown = entries.filter((entry) => !entry.hidden);
+  console.log(`Saved layout "${name}": ${shown.length} windows shown, ${entries.length - shown.length} hidden.`);
+  console.log(`Shown: ${shown.map((entry) => `${entry.label} (${entry.size})`).join(', ')}`);
+}
+
+// reopen (and un-minimize) a device window via File > Open Simulator; the device sits under an
+// "iOS <version>" submenu. clicking an already-open window is a harmless focus.
+async function ensureWindowOpen(label: string) {
+  await osascript(`tell application "Simulator" to activate
+delay 0.3
+tell application "System Events" to tell process "Simulator"
+  set openMenu to menu 1 of menu item "Open Simulator" of menu "File" of menu bar 1
+  repeat with osItem in menu items of openMenu
+    if (name of osItem as string) starts with "iOS" then
+      try
+        click menu item "YouTube - ${label}" of menu 1 of osItem
+        exit repeat
+      end try
+    end if
+  end repeat
+end tell`);
+}
+
+// size (via Window menu preset) then place (via accessibility position) one window.
+//   - `size`: always apply that preset
+//   - `maxSize`: apply the preset only if the window is currently wider than it (a cap)
+//   - neither: leave the window at whatever size it already has
+async function placeWindow(entry: LayoutEntry) {
+  let resize = '';
+  if (entry.size) {
+    resize = `    click menu item "${sizeMenuItem[entry.size]}" of menu "Window" of menu bar 1
+    delay 0.4`;
+  } else if (entry.maxSize) {
+    resize = `    set currentSize to size of theWindow
+    if (item 1 of currentSize) > ${sizePresetWidth[entry.maxSize]} then
+      click menu item "${sizeMenuItem[entry.maxSize]}" of menu "Window" of menu bar 1
+      delay 0.4
+    end if`;
+  }
+  await osascript(`tell application "Simulator" to activate
+delay 0.3
+tell application "System Events" to tell process "Simulator"
+  try
+    set theWindow to (first window whose name contains "${entry.label}")
+    perform action "AXRaise" of theWindow
+    set frontmost to true
+    delay 0.2
+${resize}
+    set position of theWindow to {${Math.round(entry.x ?? 0)}, ${Math.round(entry.y ?? 0)}}
+  end try
+end tell`);
+}
+
+async function minimizeWindow(label: string) {
+  await osascript(`tell application "Simulator" to activate
+delay 0.3
+tell application "System Events" to tell process "Simulator"
+  try
+    set theWindow to (first window whose name contains "${label}")
+    perform action "AXRaise" of theWindow
+    set frontmost to true
+    delay 0.2
+    click menu item "Minimize" of menu "Window" of menu bar 1
+  end try
+end tell`);
+}
+
+async function applyLayoutNamed(name: string) {
+  const entries = await readLayout(name);
+  const visible = entries.filter((entry) => !entry.hidden);
+  const hidden = entries.filter((entry) => entry.hidden);
+
+  await run(['open', '-a', 'Simulator']);
+  await Bun.sleep(800);
+
+  // 1. make sure every window this layout shows is open and un-minimized
+  for (const entry of visible) await ensureWindowOpen(entry.label);
+  await Bun.sleep(600);
+
+  // 2. size + place each visible window (one at a time: menu presets act on the focused window)
+  for (const entry of visible) await placeWindow(entry);
+
+  // 3. minimize the windows this layout hides
+  for (const entry of hidden) await minimizeWindow(entry.label);
+
+  console.log(`Applied layout "${name}": ${visible.length} windows placed${hidden.length ? `, ${hidden.length} minimized` : ''}.`);
+}
+
+async function saveLayout() {
+  await saveLayoutNamed(process.argv[3] ?? 'default');
+}
+
+async function applyLayout() {
+  await applyLayoutNamed(process.argv[3] ?? 'default');
+}
+
+async function layouts() {
+  if (!existsSync(layoutsDirectory)) {
+    console.log('No layouts saved yet. Arrange the wall, then run: bun run demo:save-layout');
+    return;
+  }
+  const listing = await run(['ls', layoutsDirectory], { capture: true });
+  const names = listing.stdout
+    .split('\n')
+    .filter((entry) => entry.endsWith('.json'))
+    .map((entry) => entry.replace(/\.json$/, ''));
+  if (names.length === 0) {
+    console.log('No layouts saved yet. Arrange the wall, then run: bun run demo:save-layout');
+    return;
+  }
+  console.log('Saved layouts:');
+  for (const name of names) console.log(`  - ${name}${name === 'default' ? ' (applied automatically on demo:start)' : ''}`);
 }
 
 async function stop() {
@@ -196,9 +413,9 @@ async function stop() {
 }
 
 const command = process.argv[2];
-const commands = { doctor, setup, start, reset, stop } as const;
+const commands = { doctor, setup, start, reset, stop, 'save-layout': saveLayout, 'apply-layout': applyLayout, layouts } as const;
 if (!command || !(command in commands)) {
-  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop>');
+  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop|save-layout [name]|apply-layout [name]|layouts>');
   process.exit(1);
 }
 
