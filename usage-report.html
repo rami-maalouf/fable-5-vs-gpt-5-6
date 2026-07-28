@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The compute bill - Fable 5 vs GPT-5.5 vs GPT-5.6</title>
+<title>The fastest builder sent the biggest bill - Fable 5 vs GPT-5.5 vs GPT-5.6</title>
 <style>
   :root {
     color-scheme: dark;
@@ -120,7 +120,7 @@
   h1 em { font-style: normal; color: var(--ink-2); }
   .hero .lede { font-size: clamp(1rem,1.5vw,1.16rem); color: var(--ink-2); max-width: 46ch; margin: 0 0 1.9rem; }
   .hero .lede b { color: var(--ink); font-weight: 650; }
-  .hero-stats { display: flex; gap: 2.2rem; flex-wrap: wrap; }
+  .hero-stats { display: flex; gap: 1.4rem 1.9rem; flex-wrap: wrap; }
   .hstat .n { font-size: clamp(1.35rem,2.8vw,1.9rem); font-weight: 700; letter-spacing: -0.02em; }
   .hstat .l { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
 
@@ -440,9 +440,9 @@
 
   <header class="hero">
     <div>
-      <p class="kicker">What it costs to let a model build</p>
-      <h1>One question:<br><em>who runs up the bill?</em></h1>
-      <p class="lede">Three apps, each built from scratch three times over - once in the <b>Fable 5</b> contestant workspace, once by <b>GPT-5.5</b>, once by <b>GPT-5.6-Sol</b>. Same briefs, different engines. Here is the token burn, active time, and receipt.</p>
+      <p class="kicker">Three AI builders &middot; same three briefs &middot; one receipt</p>
+      <h1>Fastest builder,<br><em>biggest bill</em></h1>
+      <p class="lede">Three apps, each built from scratch by <b>Fable 5</b>, <b>GPT-5.5</b>, and <b>GPT-5.6-Sol</b>. Same briefs, different engines. Fable finished in half the time, sent half the messages - and still charged double. Here is the receipt, line by line.</p>
       <div class="hero-stats">
         <div class="hstat"><div class="n mono" data-count="1992.94" data-money="1">$0</div><div class="l">Total spend</div></div>
         <div class="hstat"><div class="n mono" data-count="11930">0</div><div class="l">Messages</div></div>
@@ -487,68 +487,10 @@
     </div>
   </section>
 
-  <!-- 03 cost vs volume -->
+  <!-- 03 runtime -->
   <section>
     <div class="sec-head reveal">
       <span class="sec-idx mono">03</span>
-      <div class="sec-titles"><h2>Cost against volume</h2><p>Every build plotted: tokens processed on the bottom, dollars up the side, bubble size is messages sent. Points that sit high for how far right they are cost more per token. Fable's runs float to the top.</p></div>
-      <span class="sec-rule"></span>
-    </div>
-    <div class="panel glow reveal">
-      <div class="legend" id="legend2"></div>
-      <div class="scatter-wrap"><svg class="scatter" id="scatter" viewBox="0 0 720 440" role="img" aria-label="Scatter plot of cost versus tokens for all nine builds"></svg></div>
-    </div>
-  </section>
-
-  <!-- 04 per app -->
-  <section>
-    <div class="sec-head reveal">
-      <span class="sec-idx mono">04</span>
-      <div class="sec-titles"><h2>Where the money went, app by app</h2><p>The Swift rewrite on Fable 5 is the single most expensive run in the whole set.</p></div>
-      <span class="sec-rule"></span>
-    </div>
-    <div class="panel glow reveal"><div class="appgrid" id="appGrid"></div></div>
-  </section>
-
-  <!-- 05 composition -->
-  <section>
-    <div class="sec-head reveal">
-      <span class="sec-idx mono">05</span>
-      <div class="sec-titles"><h2>How each model spends its tokens</h2><p>The cost-heavy token classes only - input, output, and cache writes. Cache reads are cheap and huge, so they are pulled out to the side. This is the chart that explains the bill.</p></div>
-      <span class="sec-rule"></span>
-    </div>
-    <div class="panel glow reveal">
-      <div class="compo-legend">
-        <span class="item"><span class="sw input"></span>Input tokens</span>
-        <span class="item"><span class="sw output"></span>Output tokens</span>
-        <span class="item"><span class="sw cache"></span>Cache writes</span>
-      </div>
-      <div class="compo" id="compo"></div>
-      <div class="compo-note"><span>&rarr;</span><p><b>Fable pays to remember.</b> It sends almost no fresh input but writes <b>23.0M</b> cache tokens - the priciest class there is. Both GPT models write <b>zero</b> cache and instead push 21-26M input tokens. Different strategy, very different bill. Cache reads (cheap): Fable <b>656M</b>, GPT-5.5 <b>579M</b>, GPT-5.6 <b>716M</b>.</p></div>
-    </div>
-  </section>
-
-  <!-- 06 efficiency -->
-  <section>
-    <div class="sec-head reveal">
-      <span class="sec-idx mono">06</span>
-      <div class="sec-titles"><h2>What each unit of work costs</h2><p>Fable sent the fewest messages of any model, yet charged the most. Normalize by effort and the gap gets sharper.</p></div>
-      <span class="sec-rule"></span>
-    </div>
-    <div class="eff">
-      <div class="panel glow reveal"><h3>Cost per message</h3><p class="sub">Total cost &divide; messages sent</p><div class="bars" id="cpmBars"></div></div>
-      <div class="panel glow reveal"><h3>Cost per million tokens</h3><p class="sub">Total cost &divide; tokens processed</p><div class="bars" id="cptBars"></div></div>
-    </div>
-    <div class="callout reveal">
-      <div class="big mono">4.4&times;</div>
-      <p><b>The premium is real.</b> Fable 5 costs about <b>4.4x more per message</b> than either GPT model and <b>2.2x</b> the total for the same three apps - almost entirely from those cache writes.</p>
-    </div>
-  </section>
-
-  <!-- 07 runtime -->
-  <section>
-    <div class="sec-head reveal">
-      <span class="sec-idx mono">07</span>
       <div class="sec-titles"><h2>How long each build stayed active</h2><p>Recorded workflow time only. Overnight pauses and gaps between manual resumptions are excluded.</p></div>
       <span class="sec-rule"></span>
     </div>
@@ -559,10 +501,28 @@
     <p class="runtime-note reveal"><b>Timing source.</b> Codex uses the goal ledger's exact active seconds. Claude uses root-session turn durations. The Fable-labelled calorie run includes 23m 06s of Opus 4.8 work after a model switch.</p>
   </section>
 
-  <!-- 08 source code volume -->
+  <!-- 04 burn rate -->
   <section>
     <div class="sec-head reveal">
-      <span class="sec-idx mono">08</span>
+      <span class="sec-idx mono">04</span>
+      <div class="sec-titles"><h2>The burn rate</h2><p>Divide each bill by the hours the build was actually running and the models price themselves like contractors. One of them bills like a senior partner.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="eff">
+      <div class="panel glow reveal"><h3>Cost per active hour</h3><p class="sub">Total cost &divide; active workflow time</p><div class="bars" id="burnBars"></div></div>
+      <div class="panel glow reveal"><h3>Every build, sorted</h3><p class="sub">Per-build burn rate, priciest hour first</p><div class="usage-list" id="burnList"></div></div>
+    </div>
+    <div class="callout reveal">
+      <div class="big mono">$164/h</div>
+      <p><b>Speed is the saving grace.</b> Fable burns <b>$108.8 per active hour</b> - 4.4x either GPT rate, peaking at $163.7/h on the Swift rewrite. But it also finished all three apps in 9h 09m of active work, less than half GPT-5.6's 22h 15m. That pace is why the total bill lands at 2.2x instead of 4.4x.</p>
+    </div>
+    <p class="runtime-note reveal"><b>Same timing caveat as the section above.</b> Active hours mix two measurement systems - the Codex goal ledger and Claude root-session turn durations - so read cross-model rates as close estimates, not lab-grade numbers.</p>
+  </section>
+
+  <!-- 05 source code volume -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">05</span>
       <div class="sec-titles"><h2>How much product code each build produced</h2><p>Final application source at the clean benchmark snapshot. Bars separate code attributable after exact starter-copy removal from unchanged starter residue.</p></div>
       <span class="sec-rule"></span>
     </div>
@@ -584,10 +544,107 @@
     <p class="code-note reveal"><b>Counting method.</b> <span class="mono">cloc 2.06 --skip-uniqueness</span> at benchmark commit <span class="mono">e74a40b</span>, counting nonblank, noncomment TS, TSX, JS, JSX, and CSS in <span class="mono">src/</span>, <span class="mono">app/</span>, and <span class="mono">widgets/</span>. Tests are separate. Dependencies, native prebuild output, assets, build output, configuration, agent files, and explicit spike implementations are excluded. Starter-adjusted SLOC removes only SHA-256-identical starter files, so modified starter-derived files remain counted. Reproduce with <span class="mono">bun run measure_code_lines.ts</span>.</p>
   </section>
 
-  <!-- 09 time and source correlation -->
+  <!-- 06 cost per shipped line -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">06</span>
+      <div class="sec-titles"><h2>What a shipped line of code costs</h2><p>Starter-adjusted application SLOC across the bottom, dollars up the side. The dashed guides mark constant price-per-line rates - a build above a guide paid more per line than it marks. Every Fable run sits near or above the $80 guide; the cheapest GPT runs sit under $30.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="corr-layout">
+      <div class="panel glow corr-chart-panel reveal">
+        <div class="legend" id="valueLegend"></div>
+        <div class="corr-wrap">
+          <svg class="correlation" id="valueScatter" viewBox="0 0 760 480" role="img" aria-labelledby="valueTitle valueDesc">
+            <title id="valueTitle">Cost versus starter-adjusted application source lines</title>
+            <desc id="valueDesc">Nine builds. Fable's three builds cluster near or above the eighty dollars per thousand lines guide, while the cheapest GPT builds sit below the thirty dollar guide.</desc>
+          </svg>
+        </div>
+      </div>
+      <aside class="panel corr-verdict reveal" id="valueVerdict"></aside>
+    </div>
+    <p class="corr-note reveal"><b>Read with care.</b> This prices volume, not quality - a cheaper line is not automatically a better one. Rates divide cost by starter-adjusted SLOC, so exact starter copies are removed before dividing.</p>
+  </section>
+
+  <!-- 07 composition -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">07</span>
+      <div class="sec-titles"><h2>How each model spends its tokens</h2><p>The cost-heavy token classes only - input, output, and cache writes. Cache reads are cheap and huge, so they are pulled out to the side. This is the chart that explains the bill.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal">
+      <div class="compo-legend">
+        <span class="item"><span class="sw input"></span>Input tokens</span>
+        <span class="item"><span class="sw output"></span>Output tokens</span>
+        <span class="item"><span class="sw cache"></span>Cache writes</span>
+      </div>
+      <div class="compo" id="compo"></div>
+      <div class="compo-note"><span>&rarr;</span><p><b>Fable pays to remember.</b> It sends almost no fresh input but writes <b>23.0M</b> cache tokens - the priciest class there is. Both GPT models write <b>zero</b> cache and instead push 21-26M input tokens. Different strategy, very different bill. Cache reads (cheap): Fable <b>656M</b>, GPT-5.5 <b>579M</b>, GPT-5.6 <b>716M</b>.</p></div>
+    </div>
+  </section>
+
+  <!-- 08 efficiency -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">08</span>
+      <div class="sec-titles"><h2>What each unit of work costs</h2><p>Fable sent the fewest messages of any model, yet charged the most. Normalize by effort and the gap gets sharper.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="eff">
+      <div class="panel glow reveal"><h3>Cost per message</h3><p class="sub">Total cost &divide; messages sent</p><div class="bars" id="cpmBars"></div></div>
+      <div class="panel glow reveal"><h3>Cost per million tokens</h3><p class="sub">Total cost &divide; tokens processed</p><div class="bars" id="cptBars"></div></div>
+    </div>
+    <div class="callout reveal">
+      <div class="big mono">4.4&times;</div>
+      <p><b>The premium is real.</b> Fable 5 costs about <b>4.4x more per message</b> than either GPT model and <b>2.2x</b> the total for the same three apps - almost entirely from those cache writes.</p>
+    </div>
+  </section>
+
+  <!-- 09 message payload -->
   <section>
     <div class="sec-head reveal">
       <span class="sec-idx mono">09</span>
+      <div class="sec-titles"><h2>What each message carries</h2><p>Fable sent half the messages of either GPT model yet still charged the most. This is why: every one of its turns writes about twice the output and hauls about twice the cached context.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="eff">
+      <div class="panel glow reveal"><h3>Output tokens per message</h3><p class="sub">Output tokens &divide; messages sent</p><div class="bars" id="outBars"></div></div>
+      <div class="panel glow reveal"><h3>Cached context per message</h3><p class="sub">Cache reads &divide; messages sent</p><div class="bars" id="ctxBars"></div></div>
+    </div>
+    <div class="callout reveal">
+      <div class="big mono">2.1&times;</div>
+      <p><b>Half the messages, double the payload.</b> Fable averages <b>643 output tokens per message</b> against about 300 for both GPT models, and re-reads <b>294k</b> cached tokens per turn against about 133k. Fewer, denser turns - the mechanism behind the per-message premium in the section above.</p>
+    </div>
+  </section>
+
+  <!-- 10 per app -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">10</span>
+      <div class="sec-titles"><h2>Where the money went, app by app</h2><p>The Swift rewrite on Fable 5 is the single most expensive run in the whole set.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal"><div class="appgrid" id="appGrid"></div></div>
+  </section>
+
+  <!-- 11 cost vs volume -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">11</span>
+      <div class="sec-titles"><h2>Cost against volume</h2><p>Every build plotted: tokens processed on the bottom, dollars up the side, bubble size is messages sent. Points that sit high for how far right they are cost more per token. Fable's runs float to the top.</p></div>
+      <span class="sec-rule"></span>
+    </div>
+    <div class="panel glow reveal">
+      <div class="legend" id="legend2"></div>
+      <div class="scatter-wrap"><svg class="scatter" id="scatter" viewBox="0 0 720 440" role="img" aria-label="Scatter plot of cost versus tokens for all nine builds"></svg></div>
+    </div>
+  </section>
+
+  <!-- 12 time and source correlation -->
+  <section>
+    <div class="sec-head reveal">
+      <span class="sec-idx mono">12</span>
       <div class="sec-titles"><h2>Does more code mean more build time?</h2><p>Starter-adjusted application SLOC across the bottom, active workflow hours up the side. The second trend line removes the single 13h 34m run to expose how sensitive the relationship is.</p></div>
       <span class="sec-rule"></span>
     </div>
@@ -611,10 +668,10 @@
     <p class="corr-note reveal"><b>Interpretation.</b> The sample has a moderate-to-strong positive association, but it does not establish causation. Pearson <span class="mono">r</span> measures the linear relationship; Spearman <span class="mono">&rho;</span> checks whether larger builds generally rank as longer. The longest run has substantial leverage, so both fits are shown.</p>
   </section>
 
-  <!-- 10 ledger -->
+  <!-- 13 ledger -->
   <section>
     <div class="sec-head reveal">
-      <span class="sec-idx mono">10</span>
+      <span class="sec-idx mono">13</span>
       <div class="sec-titles"><h2>The full ledger</h2><p>Nine builds with every token class, code-volume measure, duration, and cost broken out.</p></div>
       <span class="sec-rule"></span>
     </div>
@@ -876,6 +933,35 @@
   const cptBars = renderBars('cptBars', cpt, Math.max(...cpt.map(x => x.value)), usd,
     m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Per 1M tokens</b><span>${usd(m.cost / (m.tokens / 1e6))}</span></div><div class="tt-row"><b>${(m.tokens / 1e6).toFixed(0)}M tokens</b><span>${usd(m.cost)}</span></div>`);
 
+  // ---------- message payload ----------
+  const modelAgg = models.map(m => {
+    const modelRows = rows.filter(r => r.mk === m.key);
+    const sum = key => modelRows.reduce((total, row) => total + row[key], 0);
+    return { ...m, active: sum('active'), cr: sum('cr'), adjSloc: sum('sloc') - sum('starter') };
+  });
+  const outItems = modelAgg.map(m => ({ ...m, value: m.tout / m.msgs }));
+  renderBars('outBars', outItems, Math.max(...outItems.map(x => x.value)), v => num(Math.round(v)),
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Output per message</b><span>${num(Math.round(m.tout / m.msgs))} tokens</span></div><div class="tt-row"><b>${num(m.msgs)} msgs</b><span>${num(m.tout)} out tokens</span></div>`);
+  const ctxItems = modelAgg.map(m => ({ ...m, value: m.cr / m.msgs }));
+  renderBars('ctxBars', ctxItems, Math.max(...ctxItems.map(x => x.value)), v => Math.round(v / 1000) + 'k',
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Cached context per message</b><span>${num(Math.round(m.cr / m.msgs))} tokens</span></div><div class="tt-row"><b>Total cache reads</b><span>${num(m.cr)}</span></div>`);
+
+  // ---------- burn rate ----------
+  const burnItems = modelAgg.map(m => ({ ...m, value: m.cost / (m.active / 3600) }));
+  renderBars('burnBars', burnItems, Math.max(...burnItems.map(x => x.value)), v => '$' + v.toFixed(1),
+    m => `<div class="tt-title">${m.name}</div><div class="tt-row"><b>Per active hour</b><span>$${(m.cost / (m.active / 3600)).toFixed(1)}</span></div><div class="tt-row"><b>${durationShort(m.active)} active</b><span>${usd(m.cost)}</span></div>`);
+  const burnRows = rows.map(r => ({ ...r, rate: r.cost / (r.active / 3600) })).sort((a, b) => b.rate - a.rate);
+  const burnMax = burnRows[0].rate;
+  document.getElementById('burnList').innerHTML = burnRows.map(r => `
+    <div class="usage-item" data-app="${r.app}" data-mk="${r.mk}">
+      <div class="usage-item-top"><span class="usage-item-name">${r.app} &middot; ${r.model}</span><span class="usage-item-value mono">$${r.rate.toFixed(1)}/h</span></div>
+      <div class="usage-meter"><span style="--w:${r.rate / burnMax * 100}%;--accent:${C[r.mk]}"></span></div>
+    </div>`).join('');
+  document.querySelectorAll('#burnList .usage-item').forEach(el => {
+    const r = burnRows.find(x => x.app === el.dataset.app && x.mk === el.dataset.mk);
+    wire(el, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Burn rate</b><span>$${r.rate.toFixed(1)}/h</span></div><div class="tt-row"><b>${duration(r.active)}</b><span>${usd(r.cost)}</span></div>`);
+  });
+
   // ---------- runtime telemetry ----------
   const runtimeCeiling = 14 * 3600;
   const runtimeTicks = [0, 4, 8, 12, 14];
@@ -1066,6 +1152,100 @@
     });
   })();
 
+  // ---------- cost per shipped line ----------
+  document.getElementById('valueLegend').innerHTML = legendHTML + `
+    <span class="item"><span class="trend-key" style="border-top-style:dashed;border-color:var(--muted)"></span>price-per-line guides</span>
+    <span class="item mono">C calorie &middot; H chat &middot; S swift</span>`;
+  const perLine = modelAgg.map(m => ({ ...m, rate: m.cost / m.adjSloc * 1000 }));
+  const cheapestLine = perLine.reduce((best, m) => m.rate < best.rate ? m : best);
+  const fableLine = perLine.find(m => m.key === 'fable');
+  document.getElementById('valueVerdict').innerHTML = `
+    <div><div class="eyebrow">per-line premium</div><div class="hero-r mono" style="color:var(--fable)">${(fableLine.rate / cheapestLine.rate).toFixed(1)}&times;</div><h3>Every shipped line costs more on Fable</h3><p>Across all three apps Fable charged $${fableLine.rate.toFixed(1)} per 1,000 starter-adjusted lines. ${cheapestLine.name} shipped the most code per dollar at well under half that rate.</p></div>
+    <div class="corr-mini-grid">
+      ${perLine.map(m => `<div class="corr-mini"><div class="n mono">$${m.rate.toFixed(1)}</div><div class="l">${m.name} per 1k SLOC</div></div>`).join('')}
+      <div class="corr-mini"><div class="n mono">${num(modelAgg.reduce((total, m) => total + m.adjSloc, 0))}</div><div class="l">adjusted SLOC, all nine builds</div></div>
+    </div>`;
+
+  (function valueScatter() {
+    const svg = document.getElementById('valueScatter');
+    const NS = 'http://www.w3.org/2000/svg';
+    const W = 760, H = 480, margin = { left: 70, right: 28, top: 28, bottom: 58 };
+    const plotWidth = W - margin.left - margin.right;
+    const plotHeight = H - margin.top - margin.bottom;
+    const xMin = 1000, xMax = 11000, yMin = 100, yMax = 600;
+    const x = value => margin.left + (value - xMin) / (xMax - xMin) * plotWidth;
+    const y = value => margin.top + plotHeight - (value - yMin) / (yMax - yMin) * plotHeight;
+    const make = tag => document.createElementNS(NS, tag);
+
+    [100, 200, 300, 400, 500, 600].forEach(value => {
+      const line = make('line');
+      line.setAttribute('class', 'grid');
+      line.setAttribute('x1', margin.left); line.setAttribute('x2', margin.left + plotWidth);
+      line.setAttribute('y1', y(value)); line.setAttribute('y2', y(value));
+      svg.appendChild(line);
+      const label = make('text');
+      label.setAttribute('x', margin.left - 10); label.setAttribute('y', y(value) + 4);
+      label.setAttribute('text-anchor', 'end'); label.setAttribute('font-size', '11'); label.textContent = '$' + value;
+      svg.appendChild(label);
+    });
+    [2000, 4000, 6000, 8000, 10000].forEach(value => {
+      const line = make('line');
+      line.setAttribute('class', 'grid');
+      line.setAttribute('x1', x(value)); line.setAttribute('x2', x(value));
+      line.setAttribute('y1', margin.top); line.setAttribute('y2', margin.top + plotHeight);
+      svg.appendChild(line);
+      const label = make('text');
+      label.setAttribute('x', x(value)); label.setAttribute('y', margin.top + plotHeight + 25);
+      label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '11'); label.textContent = value / 1000 + 'k';
+      svg.appendChild(label);
+    });
+    const xTitle = make('text');
+    xTitle.setAttribute('class', 'axis-title'); xTitle.setAttribute('x', margin.left + plotWidth / 2); xTitle.setAttribute('y', H - 7); xTitle.setAttribute('text-anchor', 'middle'); xTitle.textContent = 'Starter-adjusted application SLOC';
+    svg.appendChild(xTitle);
+    const yTitle = make('text');
+    yTitle.setAttribute('class', 'axis-title'); yTitle.setAttribute('transform', `rotate(-90 17 ${margin.top + plotHeight / 2})`); yTitle.setAttribute('x', 17); yTitle.setAttribute('y', margin.top + plotHeight / 2); yTitle.setAttribute('text-anchor', 'middle'); yTitle.textContent = 'Cost ($)';
+    svg.appendChild(yTitle);
+
+    // constant price-per-line guides, clipped to the plot
+    const drawGuide = (rate, labelDx, labelDy) => {
+      const xStart = Math.max(xMin, yMin / rate * 1000);
+      const xEnd = Math.min(xMax, yMax / rate * 1000);
+      const line = make('line');
+      line.setAttribute('x1', x(xStart)); line.setAttribute('y1', y(xStart * rate / 1000));
+      line.setAttribute('x2', x(xEnd)); line.setAttribute('y2', y(xEnd * rate / 1000));
+      line.setAttribute('stroke-dasharray', '6 6'); line.setAttribute('stroke-width', '1.6');
+      line.style.stroke = 'var(--muted)';
+      svg.appendChild(line);
+      const label = make('text');
+      label.setAttribute('class', 'note'); label.setAttribute('text-anchor', 'end');
+      label.setAttribute('x', x(xEnd) + labelDx); label.setAttribute('y', y(xEnd * rate / 1000) + labelDy);
+      label.textContent = '$' + rate + ' / 1k lines';
+      svg.appendChild(label);
+    };
+    drawGuide(30, -6, -8);
+    drawGuide(80, -10, 16);
+
+    // dots, with a small nudge when two builds land on the same spot
+    const appCode = { 'AI Calorie Tracker': 'C', 'AI Chat App': 'H', 'Swift Rewrite': 'S' };
+    const placed = [];
+    rows.forEach(r => {
+      const adjusted = r.sloc - r.starter;
+      let cx = x(adjusted), cy = y(r.cost);
+      const near = placed.find(p => Math.hypot(p.cx - cx, p.cy - cy) < 16);
+      if (near) { near.circle.setAttribute('cx', near.cx - 12); near.code.setAttribute('x', near.cx - 12); cx += 12; }
+      const circle = make('circle');
+      circle.setAttribute('class', 'corr-dot');
+      circle.setAttribute('cx', cx); circle.setAttribute('cy', cy); circle.setAttribute('r', 13);
+      circle.style.fill = C[r.mk];
+      wire(circle, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Cost</b><span>${usd(r.cost)}</span></div><div class="tt-row"><b>Adjusted app SLOC</b><span>${num(adjusted)}</span></div><div class="tt-row"><b>Per 1k SLOC</b><span>$${(r.cost / adjusted * 1000).toFixed(1)}</span></div>`);
+      svg.appendChild(circle);
+      const code = make('text');
+      code.setAttribute('class', 'corr-code'); code.setAttribute('x', cx); code.setAttribute('y', cy + 3.5); code.textContent = appCode[r.app];
+      svg.appendChild(code);
+      placed.push({ cx, cy, circle, code });
+    });
+  })();
+
   // ---------- per-app grouped ----------
   const cellMax = Math.max(...rows.map(r => r.cost));
   document.getElementById('appGrid').innerHTML = apps.map(app => {
@@ -1152,9 +1332,9 @@
       wire(c, `<div class="tt-title">${r.model} &middot; ${r.app}</div><div class="tt-row"><b>Cost</b><span>${usd(r.cost)}</span></div><div class="tt-row"><b>Tokens</b><span>${num(r.total)}</span></div><div class="tt-row"><b>Messages</b><span>${num(r.msgs)}</span></div>`);
       svg.appendChild(c);
     });
-    // label the outlier
-    const out = rows.find(r => r.cost === 558.83);
-    const lb = mk('text'); lb.setAttribute('class', 'dlabel'); lb.setAttribute('x', x(out.total / 1e6)); lb.setAttribute('y', y(out.cost) - rMsg(out.msgs) - 8); lb.setAttribute('text-anchor', 'middle'); lb.textContent = 'Swift on Fable - $559';
+    // label the outlier (priciest build)
+    const out = rows.reduce((max, r) => r.cost > max.cost ? r : max);
+    const lb = mk('text'); lb.setAttribute('class', 'dlabel'); lb.setAttribute('x', x(out.total / 1e6) - rMsg(out.msgs) - 10); lb.setAttribute('y', y(out.cost) + 4); lb.setAttribute('text-anchor', 'end'); lb.textContent = 'Swift on Fable - $559';
     svg.appendChild(lb);
     const nt = mk('text'); nt.setAttribute('class', 'note'); nt.setAttribute('x', m.l + 6); nt.setAttribute('y', m.t + 10); nt.setAttribute('text-anchor', 'start'); nt.textContent = 'bubble size = messages sent';
     svg.appendChild(nt);
