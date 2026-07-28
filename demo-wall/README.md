@@ -41,14 +41,19 @@ bun run demo:save-layout           # saves as "default"
 bun run demo:save-layout calorie   # a named layout (e.g. the three Nourish apps)
 
 # re-apply a saved arrangement
-bun run demo:apply-layout          # applies "default"
+bun run demo:apply-layout default
 bun run demo:apply-layout calorie
+
+# unambiguous shortcuts for app-specific automations
+bun run demo:calorie
+bun run demo:nova
+bun run demo:twilight
 
 # list what's saved
 bun run demo:layouts
 ```
 
-`demo:start` applies the `default` layout automatically after booting all nine. Layouts are JSON in `demo-wall/layouts/` (git-tracked, keyed by app id).
+`demo:start` applies the `default` layout automatically after booting all nine. `demo:apply-layout` requires an explicit name so an automation cannot silently open the wrong layout. Layouts are JSON in `demo-wall/layouts/` (git-tracked, keyed by app id).
 
 ### How a layout is stored
 

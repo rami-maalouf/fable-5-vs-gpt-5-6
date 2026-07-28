@@ -419,7 +419,12 @@ async function saveLayout() {
 }
 
 async function applyLayout() {
-  await applyLayoutNamed(process.argv[3] ?? 'default');
+  const name = process.argv[3];
+  if (!name) {
+    console.error('A layout name is required. Use one of: calorie, default, nova, twilight.');
+    process.exit(1);
+  }
+  await applyLayoutNamed(name);
 }
 
 async function layouts() {
@@ -451,7 +456,7 @@ async function stop() {
 const command = process.argv[2];
 const commands = { doctor, setup, start, reset, stop, 'open-apps': openApps, 'save-layout': saveLayout, 'apply-layout': applyLayout, layouts } as const;
 if (!command || !(command in commands)) {
-  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop|open-apps|save-layout [name]|apply-layout [name]|layouts>');
+  console.error('Usage: bun demo-wall/demo-wall.ts <doctor|setup|start|reset|stop|open-apps|save-layout [name]|apply-layout <name>|layouts>');
   process.exit(1);
 }
 

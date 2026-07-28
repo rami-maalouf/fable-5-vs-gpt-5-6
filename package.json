@@ -10,6 +10,9 @@
     "demo:open-apps": "bun demo-wall/demo-wall.ts open-apps",
     "demo:save-layout": "bun demo-wall/demo-wall.ts save-layout",
     "demo:apply-layout": "bun demo-wall/demo-wall.ts apply-layout",
+    "demo:calorie": "bun demo-wall/demo-wall.ts apply-layout calorie",
+    "demo:nova": "bun demo-wall/demo-wall.ts apply-layout nova",
+    "demo:twilight": "bun demo-wall/demo-wall.ts apply-layout twilight",
     "demo:layouts": "bun demo-wall/demo-wall.ts layouts"
   }
 }
