@@ -1,4 +1,5 @@
 import { Agent, Runner, type AgentInputItem } from "@openai/agents";
+import { z } from "zod";
 
 import {
   MACROLENS_INSTRUCTIONS,
@@ -9,6 +10,17 @@ import {
 } from "@/domain/scan-contract";
 
 const ANALYZE_PHOTO_TEXT = "Analyze this JPEG food photo and return only the requested JSON.";
+const macrolensOutputSchema = z
+  .object({
+    food: z.string().nullable(),
+    calories: z.number().nonnegative().nullable(),
+    protein_g: z.number().nonnegative().nullable(),
+    carbs_g: z.number().nonnegative().nullable(),
+    fat_g: z.number().nonnegative().nullable(),
+    confidence: z.number().min(0).max(1).nullable(),
+    error: z.literal("not_food").nullable(),
+  })
+  .strict();
 
 export async function POST(request: Request): Promise<Response> {
   let body: unknown;
@@ -30,6 +42,7 @@ export async function POST(request: Request): Promise<Response> {
       name: MACROLENS_NAME,
       model: MACROLENS_MODEL,
       instructions: MACROLENS_INSTRUCTIONS,
+      outputType: macrolensOutputSchema,
     });
     const runner = new Runner({
       tracingDisabled: true,

@@ -90,13 +90,14 @@ export function parseScanResponse(value: unknown): ScanResponse | null {
   };
 }
 
-// parses the model's final text output. tolerates a fenced code block but
-// otherwise requires strict json per the agent instructions.
-export function parseModelOutput(text: string): ScanResponse | null {
-  const trimmed = text
-    .trim()
-    .replace(/^```(?:json)?\s*/i, '')
-    .replace(/\s*```$/, '');
+// parses either sdk-structured output or legacy text output. text tolerates
+// a fenced code block but otherwise requires strict json per the instructions.
+export function parseModelOutput(output: unknown): ScanResponse | null {
+  if (typeof output !== 'string') {
+    return parseScanResponse(output);
+  }
+
+  const trimmed = output.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
   try {
     return parseScanResponse(JSON.parse(trimmed));
   } catch {

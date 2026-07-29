@@ -31,7 +31,7 @@ function scanRequest(body: unknown): Request {
   });
 }
 
-function modelResolves(finalOutput: string) {
+function modelResolves(finalOutput: unknown) {
   mockRun.mockResolvedValueOnce({ finalOutput });
 }
 
@@ -93,6 +93,7 @@ describe('agent configuration', () => {
       name: 'MacroLens',
       model: 'gpt-5.6-luna',
       instructions: VERBATIM_INSTRUCTIONS,
+      outputType: expect.anything(),
     });
     expect(MACROLENS_INSTRUCTIONS).toBe(VERBATIM_INSTRUCTIONS);
   });
@@ -118,14 +119,22 @@ describe('agent configuration', () => {
 
 describe('responses', () => {
   it('returns validated nutrition with 200 for a food result', async () => {
-    modelResolves(JSON.stringify(SALMON));
+    modelResolves({ ...SALMON, error: null });
     const response = await POST(scanRequest({ image: VALID_IMAGE }));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual(SALMON);
   });
 
   it('returns not_food with 200 for a valid non-food result', async () => {
-    modelResolves(JSON.stringify({ error: 'not_food' }));
+    modelResolves({
+      food: null,
+      calories: null,
+      protein_g: null,
+      carbs_g: null,
+      fat_g: null,
+      confidence: null,
+      error: 'not_food',
+    });
     const response = await POST(scanRequest({ image: VALID_IMAGE }));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ error: 'not_food' });

@@ -99,6 +99,7 @@ describe("scan api route", () => {
       name: MACROLENS_NAME,
       model: MACROLENS_MODEL,
       instructions: MACROLENS_INSTRUCTIONS,
+      outputType: expect.anything(),
     });
     expect(Runner).toHaveBeenCalledTimes(1);
     expect(Runner).toHaveBeenCalledWith({
@@ -131,7 +132,17 @@ describe("scan api route", () => {
   test("returns a validated not food response without treating it as an error", async () => {
     const runMock = runnerRunMock();
 
-    runMock.mockResolvedValueOnce({ finalOutput: { error: "not_food" } });
+    runMock.mockResolvedValueOnce({
+      finalOutput: {
+        food: null,
+        calories: null,
+        protein_g: null,
+        carbs_g: null,
+        fat_g: null,
+        confidence: null,
+        error: "not_food",
+      },
+    });
 
     const response = await POST(requestWithJson({ image: validImage }));
 

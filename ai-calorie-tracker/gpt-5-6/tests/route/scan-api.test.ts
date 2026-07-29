@@ -71,6 +71,7 @@ describe('POST /scan', () => {
       name: 'MacroLens',
       model: 'gpt-5.6-luna',
       instructions,
+      outputType: expect.anything(),
     });
     expect(mockRun).toHaveBeenCalledWith(
       expect.anything(),
@@ -105,6 +106,47 @@ describe('POST /scan', () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(result);
+  });
+
+  it.each([
+    {
+      expected: {
+        food: 'Greek yogurt',
+        calories: 180,
+        protein_g: 20,
+        carbs_g: 16,
+        fat_g: 4,
+        confidence: 0.91,
+      },
+      finalOutput: {
+        food: 'Greek yogurt',
+        calories: 180,
+        protein_g: 20,
+        carbs_g: 16,
+        fat_g: 4,
+        confidence: 0.91,
+        error: null,
+      },
+    },
+    {
+      expected: { error: 'not_food' },
+      finalOutput: {
+        food: null,
+        calories: null,
+        protein_g: null,
+        carbs_g: null,
+        fat_g: null,
+        confidence: null,
+        error: 'not_food',
+      },
+    },
+  ])('normalizes structured sdk output: $expected', async ({ expected, finalOutput }) => {
+    mockRun.mockResolvedValue({ finalOutput });
+
+    const response = await POST(request({ image }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual(expected);
   });
 
   it.each([
