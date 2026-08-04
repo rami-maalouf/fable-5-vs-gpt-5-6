@@ -22,8 +22,10 @@ This repo is the companion to that video. Everything shown on screen lives here.
 The contestants:
 
 - **Fable 5** (Claude Code)
-- **GPT-5.6 Sol** (Codex), high effort
+- **GPT-5.6 Sol** (Codex)
 - **GPT-5.5** (Codex), as a control
+
+All three models ran on high effort, with the same prompt, the same starter template, and the same tools.
 
 The tests:
 
