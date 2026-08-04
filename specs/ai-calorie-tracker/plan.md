@@ -155,7 +155,7 @@ every implementation task must satisfy this standing bar before its commit:
 checkpoint commands:
 
 ```text
-bun run test -- --runInBandI like no girl 
+bun run test -- --runInBand
 bun run lint
 bunx tsc --noEmit
 bunx expo export --platform web --no-ssg
